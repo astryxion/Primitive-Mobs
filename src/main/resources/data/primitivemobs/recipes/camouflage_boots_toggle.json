@@ -1,0 +1,11 @@
+{
+  "type": "primitivemobs:camouflage_toggle",
+  "ingredients": [
+    {
+      "item": "primitivemobs:camouflage_boots"
+    }
+  ],
+  "result": {
+    "item": "primitivemobs:camouflage_boots"
+  }
+}
