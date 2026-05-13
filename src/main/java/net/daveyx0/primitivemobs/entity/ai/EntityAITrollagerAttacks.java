@@ -105,6 +105,10 @@ public class EntityAITrollagerAttacks<T extends Monster & IAnimatedMob> extends 
             } else if (this.entity.getAnimationState() == 6) {
                this.entity.setAnimationState(7);
                this.animTime = 7;
+            } else if (this.entity.getAnimationState() == 2) {
+               this.entity.setAnimationState(0);
+               this.animTime = -1;
+               this.isAttacking = false;
             } else {
                this.animTime = -1;
                this.isAttacking = false;

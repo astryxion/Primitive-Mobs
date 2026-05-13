@@ -31,20 +31,24 @@ public class RenderThownBlock extends EntityRenderer<EntityThrownBlock> {
 
    @Override
    public void render(EntityThrownBlock entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-      if (entity.getOrigin() != null) {
-         Level level = entity.level();
-         BlockState iblockstate = level.getBlockState(entity.getOrigin());
-         if (iblockstate.getRenderShape() == RenderShape.MODEL && iblockstate != level.getBlockState(entity.blockPosition()) && iblockstate.getRenderShape() != RenderShape.INVISIBLE) {
-            poseStack.pushPose();
-            BlockPos blockpos = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
-            poseStack.translate(-0.5, 0.0, -0.5);
-            BlockRenderDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRenderer();
-            RenderType renderType = ItemBlockRenderTypes.getChunkRenderType(iblockstate);
-            blockrendererdispatcher.getModelRenderer().tesselateBlock(level, blockrendererdispatcher.getBlockModel(iblockstate), iblockstate, blockpos, poseStack, bufferSource.getBuffer(renderType), false, RandomSource.create(), Mth.getSeed(entity.getOrigin()), OverlayTexture.NO_OVERLAY);
-            poseStack.popPose();
-            super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
-         }
+      BlockPos origin = entity.getOrigin();
+      if (origin == null || origin.equals(BlockPos.ZERO)) {
+         return;
       }
+
+      Level level = entity.level();
+      BlockState blockState = level.getBlockState(origin);
+      if (blockState.isAir() || blockState.getRenderShape() == RenderShape.INVISIBLE) {
+         return;
+      }
+
+      poseStack.pushPose();
+      poseStack.translate(0.0D, 0.5D, 0.0D);
+      BlockRenderDispatcher blockRenderDispatcher = Minecraft.getInstance().getBlockRenderer();
+      RenderType renderType = ItemBlockRenderTypes.getChunkRenderType(blockState);
+      blockRenderDispatcher.getModelRenderer().tesselateBlock(level, blockRenderDispatcher.getBlockModel(blockState), blockState, entity.blockPosition(), poseStack, bufferSource.getBuffer(renderType), false, RandomSource.create(), Mth.getSeed(origin), OverlayTexture.NO_OVERLAY);
+      poseStack.popPose();
+      super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
    }
 
    @Override

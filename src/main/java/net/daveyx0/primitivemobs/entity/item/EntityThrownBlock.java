@@ -123,11 +123,6 @@ public class EntityThrownBlock extends Entity {
    }
 
    @Override
-   public boolean shouldRenderAtSqrDistance(double distance) {
-      return false;
-   }
-
-   @Override
    public boolean isAttackable() {
       return false;
    }

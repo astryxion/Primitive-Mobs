@@ -264,19 +264,20 @@ public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob 
    }
 
    public void animationHandling() {
-      if (!this.isStone()) {
-         if (this.getPreviousAnimationState() != this.getAnimationState()) {
-            this.setPreviousAnimationState(this.getAnimationState());
-            this.animVar = 0.0F;
-         }
-
-         if (this.animVar < 1.0F) {
-            this.animVar += 0.01F;
-         } else {
-            this.animVar = 1.0F;
-         }
+      if (!this.level().isClientSide || this.isStone()) {
+         return;
       }
 
+      if (this.getPreviousAnimationState() != this.getAnimationState()) {
+         this.setPreviousAnimationState(this.getAnimationState());
+         this.animVar = 0.0F;
+      }
+
+      if (this.animVar < 1.0F) {
+         this.animVar += 0.01F;
+      } else {
+         this.animVar = 1.0F;
+      }
    }
 
    public void setThrowingBlockFromFloor() {
@@ -363,11 +364,15 @@ public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob 
    public void performAction(LivingEntity target, int id) {
       switch (id) {
          case 0:
-            EntityThrownBlock thrownBlock = new EntityThrownBlock(PrimitiveMobsEntityRegistry.THROWN_BLOCK.get(), this.level(), this.getX(), this.getY(), this.getZ(), this, this.getThrownBlock());
-            thrownBlock.moveTo(this.getX(), this.getY() + (double)4.0F, this.getZ(), this.getYRot(), 0.0F);
+            Vec3 look = this.getLookAngle();
+            double spawnX = this.getX() + look.x * 1.25D;
+            double spawnY = this.getY() + 4.0D;
+            double spawnZ = this.getZ() + look.z * 1.25D;
+            EntityThrownBlock thrownBlock = new EntityThrownBlock(PrimitiveMobsEntityRegistry.THROWN_BLOCK.get(), this.level(), spawnX, this.getY(), spawnZ, this, this.getThrownBlock());
+            thrownBlock.moveTo(spawnX, spawnY, spawnZ, this.getYRot(), 0.0F);
             double motionX = (target.getX() - thrownBlock.getX()) / (double)18.0F;
             double motionY = (target.getY() - thrownBlock.getY()) / (double)18.0F + (double)0.5F;
-            double motionZ = (target.getZ() - this.getZ()) / (double)18.0F;
+            double motionZ = (target.getZ() - thrownBlock.getZ()) / (double)18.0F;
             thrownBlock.setDeltaMovement(motionX, motionY, motionZ);
             this.level().addFreshEntity(thrownBlock);
             this.playSound(PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_ATTACK.get(), this.getSoundVolume(), ((this.getRandom().nextFloat() - this.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);

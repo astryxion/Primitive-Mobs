@@ -25,9 +25,7 @@ public class ModelTrollager extends EntityModel<EntityTrollager> {
     private static final float BASE_HEAD_X = 0.0F;
     private static final float BASE_HEAD_Y = 5.0F;
     private static final float BASE_ARM_LEFT_X = 8.0F;
-    private static final float BASE_ARM_LEFT_Y = 4.0F;
     private static final float BASE_ARM_RIGHT_X = -8.0F;
-    private static final float BASE_ARM_RIGHT_Y = 4.0F;
 
     public ModelTrollager(ModelPart root) {
         this.head = root.getChild("head");
@@ -76,7 +74,6 @@ public class ModelTrollager extends EntityModel<EntityTrollager> {
 
     @Override
     public void setupAnim(EntityTrollager entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        float speed = 1.0F;
         this.head.xRot = headPitch / (180F / (float)Math.PI);
         this.head.yRot = netHeadYaw / (180F / (float)Math.PI);
         this.legRight.xRot = Mth.cos(limbSwing * 0.6662F + (float)Math.PI) * 0.8F * limbSwingAmount;
@@ -88,122 +85,102 @@ public class ModelTrollager extends EntityModel<EntityTrollager> {
                     this.armRight.xRot = Mth.cos(limbSwing * 0.6662F + (float)Math.PI) * 0.8F * limbSwingAmount;
                     this.armLeft.zRot = 0.0F;
                     this.armRight.zRot = 0.0F;
+                    this.blockHolder.xRot = 0.0F;
+                    this.blockHolder.zRot = 0.0F;
                     this.body.xRot = 0.9599311F;
-                    this.body.x = BASE_BODY_X;
-                    this.armLeft.x = BASE_ARM_LEFT_X;
-                    this.armRight.x = BASE_ARM_RIGHT_X;
-                    this.head.x = BASE_HEAD_X;
-                    this.head.y = BASE_HEAD_Y;
+                    this.resetPoseOffsets();
                     break;
                 case 1:
-                    speed = 4.0F;
                     if (entity.getAnimVar() != 1.0F) {
-                        this.armLeft.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.0F, (double)3.5F);
-                        this.armRight.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.0F, (double)-3.5F);
-                        this.blockHolder.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.0F, (double)-3.5F);
-                        this.armLeft.zRot = (float)Mth.lerp(0.1, (double)-0.22F, (double)(entity.getAnimVar() * speed));
-                        this.armRight.zRot = (float)Mth.lerp(-0.1, (double)0.22F, (double)(entity.getAnimVar() * speed));
-                        this.armLeft.x = BASE_ARM_LEFT_X;
-                        this.armRight.x = BASE_ARM_RIGHT_X;
+                        float progress = this.poseProgress(entity, 4.0F);
+                        this.armLeft.xRot = this.poseBlend(progress, 0.0F, 3.5F);
+                        this.armRight.xRot = this.poseBlend(progress, 0.0F, -3.5F);
+                        this.blockHolder.xRot = this.poseBlend(progress, 0.0F, -3.5F);
+                        this.armLeft.zRot = this.poseBlend(progress, 0.1F, -0.22F);
+                        this.armRight.zRot = this.poseBlend(progress, -0.1F, 0.22F);
+                        this.blockHolder.zRot = 0.0F;
                         this.body.xRot = 0.9599311F;
-                        this.body.x = BASE_BODY_X;
-                        this.head.x = BASE_HEAD_X;
-                        this.head.y = BASE_HEAD_Y;
+                        this.resetPoseOffsets();
                     }
                     break;
                 case 2:
-                    speed = 8.0F;
                     if (entity.getAnimVar() != 1.0F) {
-                        this.armLeft.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)3.5F, (double)0.0F);
-                        this.armRight.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)-3.5F, (double)0.0F);
-                        this.blockHolder.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)-3.5F, (double)0.0F);
-                        this.armLeft.zRot = (float)Mth.lerp(-0.22, (double)0.1F, (double)(entity.getAnimVar() * speed));
-                        this.armRight.zRot = (float)Mth.lerp(0.22, (double)-0.1F, (double)(entity.getAnimVar() * speed));
-                        this.armLeft.x = BASE_ARM_LEFT_X;
-                        this.armRight.x = BASE_ARM_RIGHT_X;
+                        float progress = this.poseProgress(entity, 8.0F);
+                        this.armLeft.xRot = this.poseBlend(progress, 3.5F, 0.0F);
+                        this.armRight.xRot = this.poseBlend(progress, -3.5F, 0.0F);
+                        this.blockHolder.xRot = this.poseBlend(progress, -3.5F, 0.0F);
+                        this.armLeft.zRot = this.poseBlend(progress, -0.22F, 0.1F);
+                        this.armRight.zRot = this.poseBlend(progress, 0.22F, -0.1F);
+                        this.blockHolder.zRot = 0.0F;
                         this.body.xRot = 0.9599311F;
-                        this.body.x = BASE_BODY_X;
-                        this.head.x = BASE_HEAD_X;
-                        this.head.y = BASE_HEAD_Y;
+                        this.resetPoseOffsets();
                         this.mouth.xRot = 0.15F;
                         this.mouth.zRot = 0.0F;
                     }
                     break;
                 case 3:
-                    speed = 3.0F;
                     if (entity.getAnimVar() != 1.0F) {
-                        this.armLeft.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.0F, (double)3.5F);
-                        this.armRight.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.0F, (double)-3.5F);
-                        this.armLeft.zRot = (float)Mth.lerp(0.1, (double)-0.22F, (double)(entity.getAnimVar() * speed));
-                        this.armRight.zRot = (float)Mth.lerp(-0.1, (double)0.22F, (double)(entity.getAnimVar() * speed));
-                        this.armLeft.x = BASE_ARM_LEFT_X;
-                        this.armRight.x = BASE_ARM_RIGHT_X;
+                        float progress = this.poseProgress(entity, 3.0F);
+                        this.armLeft.xRot = this.poseBlend(progress, 0.0F, 3.5F);
+                        this.armRight.xRot = this.poseBlend(progress, 0.0F, -3.5F);
+                        this.armLeft.zRot = this.poseBlend(progress, 0.1F, -0.22F);
+                        this.armRight.zRot = this.poseBlend(progress, -0.1F, 0.22F);
                         this.body.xRot = 0.9599311F;
-                        this.body.x = BASE_BODY_X;
-                        this.head.x = BASE_HEAD_X;
-                        this.head.y = BASE_HEAD_Y;
+                        this.resetPoseOffsets();
                     }
                     break;
                 case 4:
-                    speed = 12.0F;
                     if (entity.getAnimVar() != 1.0F) {
-                        this.armLeft.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)3.5F, (double)0.5F);
-                        this.armRight.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)-3.5F, (double)-0.5F);
+                        float progress = this.poseProgress(entity, 12.0F);
+                        this.armLeft.xRot = this.poseBlend(progress, 3.5F, 0.5F);
+                        this.armRight.xRot = this.poseBlend(progress, -3.5F, -0.5F);
                         this.armLeft.zRot = 0.0F;
                         this.armRight.zRot = 0.0F;
-                        this.armLeft.x = BASE_ARM_LEFT_X + (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.0F, (double)0.2F) * 16.0F;
-                        this.armRight.x = BASE_ARM_RIGHT_X + (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.0F, (double)0.2F) * 16.0F;
-                        this.body.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.9599311F, (double)1.32645F);
-                        this.body.x = BASE_BODY_X + (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.0F, (double)0.2F) * 16.0F;
-                        this.head.x = BASE_HEAD_X + (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.0F, (double)0.2F) * 16.0F;
-                        this.head.y = BASE_HEAD_Y + (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.0F, (double)-0.1F) * 16.0F;
+                        this.armLeft.x = BASE_ARM_LEFT_X + this.poseBlend(progress, 0.0F, 0.2F) * 16.0F;
+                        this.armRight.x = BASE_ARM_RIGHT_X + this.poseBlend(progress, 0.0F, 0.2F) * 16.0F;
+                        this.body.xRot = this.poseBlend(progress, 0.9599311F, 1.32645F);
+                        this.body.x = BASE_BODY_X + this.poseBlend(progress, 0.0F, 0.2F) * 16.0F;
+                        this.head.x = BASE_HEAD_X + this.poseBlend(progress, 0.0F, 0.2F) * 16.0F;
+                        this.head.y = BASE_HEAD_Y + this.poseBlend(progress, 0.0F, -0.1F) * 16.0F;
                         this.mouth.xRot = 0.15F;
                         this.mouth.zRot = 0.0F;
                     }
                     break;
                 case 5:
-                    speed = 10.0F;
                     if (entity.getAnimVar() != 1.0F) {
-                        this.armLeft.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.5F, (double)0.0F);
-                        this.armRight.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)-0.5F, (double)0.0F);
+                        float progress = this.poseProgress(entity, 10.0F);
+                        this.armLeft.xRot = this.poseBlend(progress, 0.5F, 0.0F);
+                        this.armRight.xRot = this.poseBlend(progress, -0.5F, 0.0F);
                         this.armLeft.zRot = 0.0F;
                         this.armRight.zRot = 0.0F;
-                        this.armLeft.x = BASE_ARM_LEFT_X + (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.2F, (double)0.0F) * 16.0F;
-                        this.armRight.x = BASE_ARM_RIGHT_X + (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.2F, (double)0.0F) * 16.0F;
-                        this.body.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)1.32645F, (double)0.9599311F);
-                        this.body.x = BASE_BODY_X + (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.2F, (double)0.0F) * 16.0F;
-                        this.head.x = BASE_HEAD_X + (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.2F, (double)0.0F) * 16.0F;
-                        this.head.y = BASE_HEAD_Y + (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)-0.1F, (double)0.0F) * 16.0F;
+                        this.armLeft.x = BASE_ARM_LEFT_X + this.poseBlend(progress, 0.2F, 0.0F) * 16.0F;
+                        this.armRight.x = BASE_ARM_RIGHT_X + this.poseBlend(progress, 0.2F, 0.0F) * 16.0F;
+                        this.body.xRot = this.poseBlend(progress, 1.32645F, 0.9599311F);
+                        this.body.x = BASE_BODY_X + this.poseBlend(progress, 0.2F, 0.0F) * 16.0F;
+                        this.head.x = BASE_HEAD_X + this.poseBlend(progress, 0.2F, 0.0F) * 16.0F;
+                        this.head.y = BASE_HEAD_Y + this.poseBlend(progress, -0.1F, 0.0F) * 16.0F;
                     }
                     break;
                 case 6:
-                    speed = 22.0F;
                     if (entity.getAnimVar() != 1.0F) {
-                        this.armLeft.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.0F, (double)1.5F);
-                        this.armRight.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)0.0F, (double)-1.5F);
+                        float progress = this.poseProgress(entity, 22.0F);
+                        this.armLeft.xRot = this.poseBlend(progress, 0.0F, 1.5F);
+                        this.armRight.xRot = this.poseBlend(progress, 0.0F, -1.5F);
                         this.armLeft.zRot = 0.0F;
                         this.armRight.zRot = 0.0F;
-                        this.armLeft.x = BASE_ARM_LEFT_X;
-                        this.armRight.x = BASE_ARM_RIGHT_X;
                         this.body.xRot = 0.9599311F;
-                        this.body.x = BASE_BODY_X;
-                        this.head.x = BASE_HEAD_X;
-                        this.head.y = BASE_HEAD_Y;
+                        this.resetPoseOffsets();
                     }
                     break;
                 case 7:
-                    speed = 22.0F;
                     if (entity.getAnimVar() != 1.0F) {
-                        this.armLeft.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)1.5F, (double)0.0F);
-                        this.armRight.xRot = (float)Mth.lerp((double)(entity.getAnimVar() * speed), (double)-1.5F, (double)0.0F);
+                        float progress = this.poseProgress(entity, 22.0F);
+                        this.armLeft.xRot = this.poseBlend(progress, 1.5F, 0.0F);
+                        this.armRight.xRot = this.poseBlend(progress, -1.5F, 0.0F);
                         this.armLeft.zRot = 0.0F;
                         this.armRight.zRot = 0.0F;
-                        this.armLeft.x = BASE_ARM_LEFT_X;
-                        this.armRight.x = BASE_ARM_RIGHT_X;
                         this.body.xRot = 0.9599311F;
-                        this.body.x = BASE_BODY_X;
-                        this.head.x = BASE_HEAD_X;
-                        this.head.y = BASE_HEAD_Y;
+                        this.resetPoseOffsets();
                     }
                     break;
             }
@@ -212,6 +189,22 @@ public class ModelTrollager extends EntityModel<EntityTrollager> {
                 this.idleMouth((float)entity.tickCount * 0.5F);
             }
         }
+    }
+
+    private float poseProgress(EntityTrollager entity, float speed) {
+        return Mth.clamp(entity.getAnimVar() * speed, 0.0F, 1.0F);
+    }
+
+    private float poseBlend(float progress, float start, float end) {
+        return Mth.lerp(progress, start, end);
+    }
+
+    private void resetPoseOffsets() {
+        this.body.x = BASE_BODY_X;
+        this.armLeft.x = BASE_ARM_LEFT_X;
+        this.armRight.x = BASE_ARM_RIGHT_X;
+        this.head.x = BASE_HEAD_X;
+        this.head.y = BASE_HEAD_Y;
     }
 
     @Override

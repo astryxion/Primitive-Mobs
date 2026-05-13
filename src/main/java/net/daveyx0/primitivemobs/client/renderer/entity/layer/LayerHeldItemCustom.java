@@ -43,7 +43,7 @@ public class LayerHeldItemCustom extends RenderLayer<LivingEntity, EntityModel<L
    @Override
    public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, LivingEntity entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
       ItemStack itemstack = entitylivingbaseIn.getMainHandItem();
-      if (!itemstack.isEmpty() || entitylivingbaseIn instanceof EntityTrollager && ((EntityTrollager)entitylivingbaseIn).getAnimationState() == 1) {
+      if (!itemstack.isEmpty() || entitylivingbaseIn instanceof EntityTrollager troll && troll.getAnimationState() == 1) {
          poseStack.pushPose();
          if (this.getParentModel().young) {
             poseStack.translate(0.0F, 0.625F, 0.0F);
@@ -77,10 +77,9 @@ public class LayerHeldItemCustom extends RenderLayer<LivingEntity, EntityModel<L
                ModelLilyLurker<?> lurkerModel = (ModelLilyLurker<?>)this.livingEntityRenderer.getModel();
                this.renderLily(poseStack, bufferSource, packedLight, entitylivingbaseIn, itemstack, lurkerModel.root1);
             }
-         } else if (entitylivingbaseIn instanceof EntityTrollager) {
-            EntityTrollager troll = (EntityTrollager)entitylivingbaseIn;
-            BlockState state = troll.level().getBlockState(troll.getThrownBlock());
-            if (state != null && state != troll.level().getBlockState(BlockPos.ZERO)) {
+         } else if (entitylivingbaseIn instanceof EntityTrollager trollager) {
+            BlockState state = trollager.level().getBlockState(trollager.getThrownBlock());
+            if (state != null && state != trollager.level().getBlockState(BlockPos.ZERO)) {
                itemstack = new ItemStack(state.getBlock());
                ModelTrollager trollModel = (ModelTrollager)this.livingEntityRenderer.getModel();
                this.renderThrownBlock(poseStack, bufferSource, packedLight, entitylivingbaseIn, itemstack, trollModel.blockHolder);

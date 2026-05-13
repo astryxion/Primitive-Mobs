@@ -141,7 +141,7 @@ public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
       () -> EntityType.Builder.<EntityFlameSpit>of(EntityFlameSpit::new, MobCategory.MISC).sized(0.25F, 0.25F).clientTrackingRange(64).updateInterval(1).build("primitivemobs:flame_spit"));
 
    public static final RegistryObject<EntityType<EntityThrownBlock>> THROWN_BLOCK = ENTITY_TYPES.register("thrown_block",
-      () -> EntityType.Builder.<EntityThrownBlock>of(EntityThrownBlock::new, MobCategory.MISC).sized(0.98F, 0.98F).clientTrackingRange(64).updateInterval(20).build("primitivemobs:thrown_block"));
+      () -> EntityType.Builder.<EntityThrownBlock>of(EntityThrownBlock::new, MobCategory.MISC).sized(0.98F, 0.98F).clientTrackingRange(64).updateInterval(1).build("primitivemobs:thrown_block"));
 
    public static final RegistryObject<EntityType<EntityPrimitiveThrowable>> PRIMITIVE_EGG = ENTITY_TYPES.register("primitive_egg",
       () -> EntityType.Builder.<EntityPrimitiveThrowable>of(EntityPrimitiveThrowable::new, MobCategory.MISC).sized(0.25F, 0.25F).clientTrackingRange(64).updateInterval(20).build("primitivemobs:primitive_egg"));
@@ -178,7 +178,7 @@ public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
       addEntities("primitivemobs", EntityVoidEye.class, "void_eye", ++id, 789778, 9358713, PrimitiveMobsConfigMobs.enableVoidWatcher);
       addCustomEntities("primitivemobs", EntityPrimitiveTNTPrimed.class, "primitive_tnt_primed", ++id, 64, 20, true);
       addCustomEntities("primitivemobs", EntityFlameSpit.class, "flame_spit", ++id, 64, 1, false);
-      addCustomEntities("primitivemobs", EntityThrownBlock.class, "thrown_block", ++id, 64, 20, true);
+      addCustomEntities("primitivemobs", EntityThrownBlock.class, "thrown_block", ++id, 64, 1, true);
       addCustomEntities("primitivemobs", EntityPrimitiveThrowable.class, "primitive_egg", ++id, 64, 20, true);
       addCustomEntities("primitivemobs", EntitySpiderEgg.class, "spider_egg", ++id, 64, 20, true);
    }
