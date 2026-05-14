@@ -17,18 +17,18 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderVoidEye extends MobRenderer<EntityVoidEye, ModelVoidEye<EntityVoidEye>> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "void_eye"), "main");
-   public static final ModelLayerLocation SEEN_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "void_eye"), "seen");
-   private static final ResourceLocation VOIDEYE_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/voideye/voideye.png");
-   private static final ResourceLocation VOIDEYE_BEAM_TEXTURE = new ResourceLocation("primitivemobs", "textures/entity/voideye/voideye_beam.png");
-   private static final ResourceLocation VOIDEYE_BEAM_WEAK_TEXTURE = new ResourceLocation("primitivemobs", "textures/entity/voideye/voideye_beam_weak.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "void_eye"), "main");
+   public static final ModelLayerLocation SEEN_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "void_eye"), "seen");
+   private static final ResourceLocation VOIDEYE_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/voideye/voideye.png");
+   private static final ResourceLocation VOIDEYE_BEAM_TEXTURE = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/voideye/voideye_beam.png");
+   private static final ResourceLocation VOIDEYE_BEAM_WEAK_TEXTURE = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/voideye/voideye_beam_weak.png");
 
    public RenderVoidEye(EntityRendererProvider.Context context) {
       super(context, new ModelVoidEye<EntityVoidEye>(context.bakeLayer(MODEL_LAYER), true), 0.5F);
@@ -127,7 +127,7 @@ public class RenderVoidEye extends MobRenderer<EntityVoidEye, ModelVoidEye<Entit
    }
 
    private static void vertex(VertexConsumer consumer, Matrix4f pose, Matrix3f normal, float x, float y, float z, int r, int g, int b, int a, float u, float v) {
-      consumer.vertex(pose, x, y, z).color(r, g, b, a).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(0xF000F0).normal(normal, 0.0F, 1.0F, 0.0F).endVertex();
+      consumer.addVertex(pose, x, y, z).setColor(r, g, b, a).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(0xF000F0).setNormal(0.0F, 1.0F, 0.0F);
    }
 
    private Vec3 getPosition(LivingEntity entityLivingBaseIn, double p_177110_2_, float p_177110_4_) {

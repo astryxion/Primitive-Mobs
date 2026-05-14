@@ -3,7 +3,7 @@ package net.daveyx0.primitivemobs.common;
 import net.daveyx0.multimob.modint.MMModIntegrationRegistry;
 import net.daveyx0.primitivemobs.modint.PrimitiveMobsDTIntegration;
 import net.daveyx0.primitivemobs.modint.PrimitiveMobsJERIntegration;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 public class PrimitiveMobsCommonProxy {
    public PrimitiveMobsDTIntegration DynamicTreesInt;

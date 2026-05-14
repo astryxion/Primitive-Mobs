@@ -1,32 +1,22 @@
 package net.daveyx0.primitivemobs.message;
 
 import net.daveyx0.multimob.message.MMMessageRegistry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
-
-import java.util.Optional;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class PrimitiveMobsMessageRegistry extends MMMessageRegistry {
-   private static int id = 0;
    private static final String PROTOCOL_VERSION = "1";
-   private static SimpleChannel primitiveNetwork;
 
-   public static void registerMessages() {
-      primitiveNetwork = NetworkRegistry.newSimpleChannel(
-         new ResourceLocation("primitivemobs", "main"),
-         () -> PROTOCOL_VERSION,
-         PROTOCOL_VERSION::equals,
-         PROTOCOL_VERSION::equals
-      );
-      primitiveNetwork.registerMessage(id++, MessagePrimitiveColor.class, MessagePrimitiveColor::encode, MessagePrimitiveColor::decode, MessagePrimitiveColor::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
-      primitiveNetwork.registerMessage(id++, MessagePrimitiveColorSap.class, MessagePrimitiveColorSap::encode, MessagePrimitiveColorSap::decode, MessagePrimitiveColorSap::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
-      primitiveNetwork.registerMessage(id++, MessagePrimitiveJumping.class, MessagePrimitiveJumping::encode, MessagePrimitiveJumping::decode, MessagePrimitiveJumping::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
-      primitiveNetwork.registerMessage(id++, MessageTeleportEye.class, MessageTeleportEye::encode, MessageTeleportEye::decode, MessageTeleportEye::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+   @SubscribeEvent
+   public static void registerPayloads(RegisterPayloadHandlersEvent event) {
+      PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
+      registrar.playToServer(MessagePrimitiveColor.TYPE, MessagePrimitiveColor.STREAM_CODEC, MessagePrimitiveColor::handle);
+      registrar.playToServer(MessagePrimitiveColorSap.TYPE, MessagePrimitiveColorSap.STREAM_CODEC, MessagePrimitiveColorSap::handle);
+      registrar.playToServer(MessagePrimitiveJumping.TYPE, MessagePrimitiveJumping.STREAM_CODEC, MessagePrimitiveJumping::handle);
+      registrar.playToServer(MessageTeleportEye.TYPE, MessageTeleportEye.STREAM_CODEC, MessageTeleportEye::handle);
    }
 
-   public static SimpleChannel getPrimitiveNetwork() {
-      return primitiveNetwork;
+   public static void registerMessages() {
    }
 }

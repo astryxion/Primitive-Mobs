@@ -8,14 +8,14 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderSheepman extends MobRenderer<EntitySheepman, ModelSheepman> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "sheepman"), "main");
-   public static final ModelLayerLocation WOOL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "sheepman"), "wool");
-   private static final ResourceLocation SHEEPMAN_TEXTURE = new ResourceLocation("primitivemobs", "textures/entity/villager/sheepman.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "sheepman"), "main");
+   public static final ModelLayerLocation WOOL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "sheepman"), "wool");
+   private static final ResourceLocation SHEEPMAN_TEXTURE = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/villager/sheepman.png");
 
    public RenderSheepman(EntityRendererProvider.Context context) {
       super(context, new ModelSheepman(context.bakeLayer(MODEL_LAYER), 0), 0.5F);

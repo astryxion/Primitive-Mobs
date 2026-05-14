@@ -11,12 +11,13 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.util.FastColor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LayerFlameSpewerEyes extends RenderLayer<EntityFlameSpewer, ModelFlameSpewer> {
-   private static final ResourceLocation FLAMESPEWER_EYES_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/flamespewer/flamespewer_lava.png");
+   private static final ResourceLocation FLAMESPEWER_EYES_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/flamespewer/flamespewer_lava.png");
    private final ModelFlameSpewer model;
 
    public LayerFlameSpewerEyes(RenderFlameSpewer spewerRenderer, EntityRendererProvider.Context context) {
@@ -31,6 +32,7 @@ public class LayerFlameSpewerEyes extends RenderLayer<EntityFlameSpewer, ModelFl
       this.model.prepareMobModel(spewer, limbSwing, limbSwingAmount, partialTicks);
       this.model.setupAnim(spewer, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
       VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(FLAMESPEWER_EYES_TEXTURES));
-      this.model.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(spewer, 0.0F), 1.0F, 1.0F, 1.0F, alpha);
+      int color = FastColor.ARGB32.color((int)(alpha * 255.0F), 255, 255, 255);
+      this.model.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(spewer, 0.0F), color);
    }
 }

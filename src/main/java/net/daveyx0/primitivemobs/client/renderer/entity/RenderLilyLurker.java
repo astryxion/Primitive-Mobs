@@ -9,14 +9,14 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @SuppressWarnings("unchecked")
 @OnlyIn(Dist.CLIENT)
 public class RenderLilyLurker extends MobRenderer<EntityLilyLurker, ModelLilyLurker<EntityLilyLurker>> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "lily_lurker"), "main");
-   private static final ResourceLocation LILYLURKER_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/lilylurker/lilylurker.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "lily_lurker"), "main");
+   private static final ResourceLocation LILYLURKER_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/lilylurker/lilylurker.png");
 
    public RenderLilyLurker(EntityRendererProvider.Context context) {
       super(context, new ModelLilyLurker<>(context.bakeLayer(MODEL_LAYER)), 0.5F);

@@ -1,5 +1,8 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import java.util.List;
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.EntityMMFlyingCreature;
@@ -20,9 +23,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.MoveControl;
@@ -39,8 +43,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityTeleportEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
 
 public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
    private static final EntityDataAccessor<Integer> TARGET_ENTITY = SynchedEntityData.defineId(EntityVoidEye.class, EntityDataSerializers.INT);
@@ -84,11 +89,11 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(TARGET_ENTITY, 0);
-      this.entityData.define(CAN_SEE_TARGET, false);
-      this.entityData.define(DOES_TELEPORT, false);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(TARGET_ENTITY, 0);
+      builder.define(CAN_SEE_TARGET, false);
+      builder.define(DOES_TELEPORT, false);
    }
 
    public void setCanSeeTarget(boolean sees) {
@@ -112,8 +117,9 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
    }
 
    @Override
-   protected float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions dimensions) {
-      return dimensions.height * 0.5F;
+   protected EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
+      EntityDimensions dimensions = super.getDefaultDimensions(pose);
+      return dimensions.withEyeHeight(dimensions.height() * 0.5F);
    }
 
    @Override
@@ -231,7 +237,7 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
          boolean flag = super.hurt(source, amount);
          if (source.getEntity() != null && this.getRandom().nextInt(5) != 0 && this.level().isClientSide) {
             this.setTeleports(true);
-            PrimitiveMobsMessageRegistry.getPrimitiveNetwork().sendToServer(new MessageTeleportEye(true, this.getUUID().toString()));
+            PacketDistributor.sendToServer(new MessageTeleportEye(true, this.getUUID().toString()));
          }
 
          return flag;
@@ -247,13 +253,14 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_VOIDEYE;
    }
 
    private boolean teleportToPosition(double x, double y, double z) {
-      EntityTeleportEvent.EnderEntity event = new EntityTeleportEvent.EnderEntity(this, x, y, z);
-      if (MinecraftForge.EVENT_BUS.post(event)) {
+      EntityTeleportEvent.EnderEntity event = new EntityTeleportEvent.EnderEntity((LivingEntity)this, x, y, z);
+      NeoForge.EVENT_BUS.post(event);
+      if (event.isCanceled()) {
          return false;
       } else {
          boolean flag = this.randomTeleport(event.getTargetX(), event.getTargetY(), event.getTargetZ(), true);
@@ -270,7 +277,7 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
    @Nullable
    @Override
    public SoundEvent getAmbientSound() {
-      return PrimitiveMobsSoundEvents.ENTITY_VOIDEYE_IDLE.get();
+      return PrimitiveMobsSoundEvents.ENTITY_VOIDEYE_IDLE.value();
    }
 
    @Override

@@ -86,16 +86,40 @@ public class EntityBabySpider extends EntityPrimitiveSpider implements IMultiMob
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(GROWTH_LEVEL, 0);
-      this.entityData.define(DYE_COLOR, (byte)0);
-      this.entityData.define(IS_JUMPING, false);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(GROWTH_LEVEL, 0);
+      builder.define(DYE_COLOR, (byte)0);
+      builder.define(IS_JUMPING, false);
    }
 
    @Override
-   protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
-      return dimensions.height / 2.0F;
+   protected EntityDimensions getDefaultDimensions(Pose pose) {
+      EntityDimensions dimensions;
+      switch (this.getGrowthLevel()) {
+         case 0:
+            dimensions = EntityDimensions.scalable(0.5F, 0.3F);
+            break;
+         case 1:
+            dimensions = EntityDimensions.scalable(0.7F, 0.4F);
+            break;
+         case 2:
+            dimensions = EntityDimensions.scalable(0.9F, 0.5F);
+            break;
+         case 3:
+            dimensions = EntityDimensions.scalable(1.1F, 0.6F);
+            break;
+         case 4:
+            dimensions = EntityDimensions.scalable(1.3F, 0.7F);
+            break;
+         case 5:
+            dimensions = EntityDimensions.scalable(1.5F, 0.8F);
+            break;
+         default:
+            return super.getDefaultDimensions(pose);
+      }
+
+      return dimensions.withEyeHeight(dimensions.height() * 0.5F);
    }
 
    @Nullable
@@ -181,26 +205,6 @@ public class EntityBabySpider extends EntityPrimitiveSpider implements IMultiMob
       if (currentGrowth != this.lastGrowthLevel) {
          this.lastGrowthLevel = currentGrowth;
          this.refreshDimensions();
-      }
-   }
-
-   @Override
-   public EntityDimensions getDimensions(Pose pose) {
-      switch (this.getGrowthLevel()) {
-         case 0:
-            return EntityDimensions.scalable(0.5F, 0.3F);
-         case 1:
-            return EntityDimensions.scalable(0.7F, 0.4F);
-         case 2:
-            return EntityDimensions.scalable(0.9F, 0.5F);
-         case 3:
-            return EntityDimensions.scalable(1.1F, 0.6F);
-         case 4:
-            return EntityDimensions.scalable(1.3F, 0.7F);
-         case 5:
-            return EntityDimensions.scalable(1.5F, 0.8F);
-         default:
-            return super.getDimensions(pose);
       }
    }
 
@@ -379,15 +383,15 @@ public class EntityBabySpider extends EntityPrimitiveSpider implements IMultiMob
       @Override
       public void start() {
          this.timeToRecalcPath = 0;
-         this.oldWaterCost = this.spider.getPathfindingMalus(net.minecraft.world.level.pathfinder.BlockPathTypes.WATER);
-         this.spider.setPathfindingMalus(net.minecraft.world.level.pathfinder.BlockPathTypes.WATER, 0.0F);
+         this.oldWaterCost = this.spider.getPathfindingMalus(net.minecraft.world.level.pathfinder.PathType.WATER);
+         this.spider.setPathfindingMalus(net.minecraft.world.level.pathfinder.PathType.WATER, 0.0F);
       }
 
       @Override
       public void stop() {
          this.owner = null;
          this.spider.getNavigation().stop();
-         this.spider.setPathfindingMalus(net.minecraft.world.level.pathfinder.BlockPathTypes.WATER, this.oldWaterCost);
+         this.spider.setPathfindingMalus(net.minecraft.world.level.pathfinder.PathType.WATER, this.oldWaterCost);
       }
 
       @Override

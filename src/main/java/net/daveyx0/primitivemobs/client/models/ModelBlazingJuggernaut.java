@@ -93,15 +93,15 @@ public class ModelBlazingJuggernaut<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.rightArm.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.leftArm.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.rightShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.leftShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.rightArm.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.leftArm.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.rightShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.leftShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         for (int i = 0; i < this.sticks.length; ++i) {
-            this.sticks[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.sticks[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
     }
 }

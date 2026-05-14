@@ -1,5 +1,10 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.server.level.ServerLevel;
+
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import java.util.List;
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.client.particle.MMParticles;
@@ -20,6 +25,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -72,7 +79,7 @@ public class EntityTreasureSlime extends EntityTameableSlime implements IMultiMo
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor worldIn, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData livingdata, @Nullable CompoundTag dataTag) {
+   public SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor worldIn, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData livingdata) {
       int chance = PrimitiveMobsConfigSpecial.getTameableSlimeChance();
       if (!this.isTamed() && chance < 100 && (chance <= 0 || this.random.nextInt(100 / chance) != 0)) {
          while(this.getMainHandItem().isEmpty() && !this.level().isClientSide) {
@@ -80,14 +87,14 @@ public class EntityTreasureSlime extends EntityTameableSlime implements IMultiMo
          }
       }
 
-      return super.finalizeSpawn(worldIn, difficulty, reason, livingdata, dataTag);
+      return super.finalizeSpawn(worldIn, difficulty, reason, livingdata);
    }
 
    @Nullable
-   private static ItemStack getSpawnLootItem(net.minecraft.world.entity.Entity entityIn, ResourceLocation resourceLootTable, ItemStack defaultItem) {
+   private static ItemStack getSpawnLootItem(net.minecraft.world.entity.Entity entityIn, ResourceKey<LootTable> resourceLootTable, ItemStack defaultItem) {
       if (resourceLootTable != null && entityIn.level() instanceof net.minecraft.server.level.ServerLevel) {
          net.minecraft.server.level.ServerLevel serverLevel = (net.minecraft.server.level.ServerLevel) entityIn.level();
-         net.minecraft.world.level.storage.loot.LootTable loottable = serverLevel.getServer().getLootData().getLootTable(resourceLootTable);
+         net.minecraft.world.level.storage.loot.LootTable loottable = serverLevel.getServer().reloadableRegistries().getLootTable(resourceLootTable);
          net.minecraft.world.level.storage.loot.LootParams lootparams = new net.minecraft.world.level.storage.loot.LootParams.Builder(serverLevel)
             .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, entityIn)
             .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, entityIn.position())
@@ -239,17 +246,17 @@ public class EntityTreasureSlime extends EntityTameableSlime implements IMultiMo
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
-      return null;
+   protected ResourceKey<LootTable> getDefaultLootTable() {
+      return PrimitiveMobsLootTables.EMPTY;
    }
 
    @Nullable
-   protected ResourceLocation getSpawnLootTable() {
+   protected ResourceKey<LootTable> getSpawnLootTable() {
       return PrimitiveMobsLootTables.TREASURESLIME_SPAWN;
    }
 
    @Override
-   protected void dropCustomDeathLoot(DamageSource source, int looting, boolean recentlyHit) {
+   protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean wasRecentlyHit) {
       ItemStack stack = this.getMainHandItem();
       if (!stack.isEmpty() && this.getSize() == 1 && !this.level().isClientSide) {
          ItemStack newStack = stack.copy();
@@ -259,8 +266,8 @@ public class EntityTreasureSlime extends EntityTameableSlime implements IMultiMo
    }
 
    @Override
-   public double getPassengersRidingOffset() {
-      return (double)this.getBbHeight() * 1.2;
+   protected Vec3 getPassengerAttachmentPoint(Entity passenger, EntityDimensions dimensions, float partialTick) {
+      return new Vec3(0.0, (double)(dimensions.height() * 1.2F), 0.0);
    }
 
    public ItemEntity dropItemStack(ItemStack itemIn, float offsetY) {

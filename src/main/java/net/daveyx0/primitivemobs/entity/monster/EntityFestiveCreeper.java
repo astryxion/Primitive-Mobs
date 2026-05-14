@@ -1,5 +1,8 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.IMultiMob;
 import net.daveyx0.multimob.entity.ai.EntityAIBackOffFromEntity;
@@ -53,7 +56,7 @@ public class EntityFestiveCreeper extends EntityPrimitiveCreeper implements IMul
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_FESTIVECREEPER;
    }
 

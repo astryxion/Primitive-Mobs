@@ -1,5 +1,8 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import java.util.List;
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.common.capabilities.CapabilityTameableEntity;
@@ -70,7 +73,7 @@ public class EntitySupportCreeper extends EntityPrimitiveCreeper {
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_SUPPORTCREEPER;
    }
 

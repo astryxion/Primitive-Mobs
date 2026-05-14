@@ -57,7 +57,10 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -65,9 +68,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive {
    private float LeavesR = 0.0F;
@@ -123,7 +126,7 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData livingdata, @Nullable CompoundTag tag) {
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData livingdata) {
       if (!this.level().isClientSide) {
          this.determineLogAndLeaves();
          BlockState leavesState = this.getLeaves();
@@ -138,7 +141,7 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
          this.setSaplingTimer(this.random.nextInt(1000) + 1000);
       }
 
-      return super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata, tag);
+      return super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata);
    }
 
    private void determineLogAndLeaves() {
@@ -148,7 +151,7 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
       }
 
       if (tree == null || tree.length == 0) {
-         tree = EntityUtil.searchTree(this, (double)10.0F);
+         tree = EntityUtil.searchTree(this, 10.0F);
       }
 
       if (tree != null && tree.length > 0) {
@@ -167,16 +170,16 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(IS_CINDER, false);
-      this.entityData.define(SAPLING_AMOUNT, 0);
-      this.entityData.define(LEAVES_ID, Block.getId(Blocks.OAK_LEAVES.defaultBlockState()));
-      this.entityData.define(LOG_ID, Block.getId(Blocks.OAK_LOG.defaultBlockState()));
-      this.entityData.define(LEAVES_POS, new BlockPos(0, 0, 0));
-      this.entityData.define(CAN_DESPAWN, true);
-      this.entityData.define(IS_BEGGING, false);
-      this.entityData.define(SAPLING_TIMER, 0);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(IS_CINDER, false);
+      builder.define(SAPLING_AMOUNT, 0);
+      builder.define(LEAVES_ID, Block.getId(Blocks.OAK_LEAVES.defaultBlockState()));
+      builder.define(LOG_ID, Block.getId(Blocks.OAK_LOG.defaultBlockState()));
+      builder.define(LEAVES_POS, new BlockPos(0, 0, 0));
+      builder.define(CAN_DESPAWN, true);
+      builder.define(IS_BEGGING, false);
+      builder.define(SAPLING_TIMER, 0);
    }
 
    @Override
@@ -211,8 +214,8 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
             if (this.getLog() != null) {
                int[] logTop = this.getColor(this.level(), this.getLog(), BlockPos.ZERO, (Direction)null);
                Color logTopColor = new Color(logTop[0], logTop[1], logTop[2]);
-               ItemGroveSpriteSap.setColor(clientSap, logTopColor.hashCode());
-               PrimitiveMobsMessageRegistry.getPrimitiveNetwork().sendToServer(new MessagePrimitiveColorSap(ItemGroveSpriteSap.getColor(clientSap), this.getUUID().toString()));
+               ItemGroveSpriteSap.setColor(clientSap, logTopColor.getRGB() & 16777215);
+               PacketDistributor.sendToServer(new MessagePrimitiveColorSap(ItemGroveSpriteSap.getColor(clientSap), this.getUUID().toString()));
             }
          } else {
             this.setLeavesRGB(new int[]{177, 100, 0});
@@ -238,38 +241,43 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
    @Override
    public boolean doHurtTarget(Entity entityIn) {
       float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
-      int i = 0;
-      if (entityIn instanceof LivingEntity) {
-         f += EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity)entityIn).getMobType());
-         i += EnchantmentHelper.getKnockbackBonus(this);
+      DamageSource damagesource = this.damageSources().mobAttack(this);
+      if (this.level() instanceof ServerLevel serverlevel) {
+         f = EnchantmentHelper.modifyDamage(serverlevel, this.getWeaponItem(), entityIn, damagesource, f);
       }
 
-      boolean flag = entityIn.hurt(this.damageSources().mobAttack(this), f);
+      boolean flag = entityIn.hurt(damagesource, f);
       if (flag) {
-         if (i > 0 && entityIn instanceof LivingEntity) {
-            ((LivingEntity)entityIn).knockback((float)i * 0.5F, (double)Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (double)(-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
+         float f1 = this.getKnockback(entityIn, damagesource);
+         if (f1 > 0.0F && entityIn instanceof LivingEntity livingentity) {
+            livingentity.knockback(
+               (double)(f1 * 0.5F),
+               (double)Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)),
+               (double)(-Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)))
+            );
             Vec3 motion = this.getDeltaMovement();
             this.setDeltaMovement(motion.x * 0.6, motion.y, motion.z * 0.6);
          }
 
          if (this.isCinderSprite()) {
-            entityIn.setSecondsOnFire(8);
+            entityIn.igniteForSeconds(8);
          }
 
-         if (entityIn instanceof Player) {
-            Player entityplayer = (Player)entityIn;
+         if (entityIn instanceof Player entityplayer) {
             ItemStack itemstack = this.getMainHandItem();
             ItemStack itemstack1 = entityplayer.isUsingItem() ? entityplayer.getUseItem() : ItemStack.EMPTY;
-            if (!itemstack.isEmpty() && !itemstack1.isEmpty() && itemstack.getItem().canDisableShield(itemstack, itemstack1, entityplayer, this) && itemstack1.getItem().canPerformAction(itemstack1, net.minecraftforge.common.ToolActions.SHIELD_BLOCK)) {
-               float f1 = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(this) * 0.05F;
-               if (this.random.nextFloat() < f1) {
+            if (!itemstack.isEmpty() && !itemstack1.isEmpty() && itemstack.getItem().canDisableShield(itemstack, itemstack1, entityplayer, this) && itemstack1.getItem().canPerformAction(itemstack1, net.neoforged.neoforge.common.ItemAbilities.SHIELD_BLOCK)) {
+               float f2 = 0.25F + (float)this.getMainHandItem().getEnchantmentLevel(this.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.EFFICIENCY)) * 0.05F;
+               if (this.random.nextFloat() < f2) {
                   entityplayer.getCooldowns().addCooldown(itemstack1.getItem(), 100);
                   this.level().broadcastEntityEvent(entityplayer, (byte)30);
                }
             }
          }
 
-         this.doEnchantDamageEffects(this, entityIn);
+         if (this.level() instanceof ServerLevel serverlevel1) {
+            EnchantmentHelper.doPostAttackEffects(serverlevel1, entityIn, damagesource);
+         }
       }
 
       return flag;
@@ -325,7 +333,7 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
             this.level().addParticle(ParticleTypes.HAPPY_VILLAGER, this.getX() + (double)(this.random.nextFloat() - this.random.nextFloat()), this.getY() + (double)this.random.nextFloat() + (double)1.0F, this.getZ() + (double)(this.random.nextFloat() - this.random.nextFloat()), (double)0.0F, (double)0.0F, (double)0.0F);
          }
 
-         this.playSound(PrimitiveMobsSoundEvents.ENTITY_GROVESPRITE_THANKS.get(), 1.0F, 1.0F);
+         this.playSound(PrimitiveMobsSoundEvents.ENTITY_GROVESPRITE_THANKS.value(), 1.0F, 1.0F);
          return InteractionResult.SUCCESS;
       } else if (itemstack.getItem() == Items.GOLD_INGOT) {
          this.consumeItemFromStack(player, itemstack);
@@ -334,7 +342,7 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
             this.level().addParticle(ParticleTypes.HEART, this.getX() + (double)(this.random.nextFloat() - this.random.nextFloat()), this.getY() + (double)this.random.nextFloat() + (double)1.0F, this.getZ() + (double)(this.random.nextFloat() - this.random.nextFloat()), (double)0.0F, (double)0.0F, (double)0.0F);
          }
 
-         this.playSound(PrimitiveMobsSoundEvents.ENTITY_GROVESPRITE_THANKS.get(), 1.0F, 1.0F);
+         this.playSound(PrimitiveMobsSoundEvents.ENTITY_GROVESPRITE_THANKS.value(), 1.0F, 1.0F);
          this.setHealth(this.getMaxHealth());
          return InteractionResult.SUCCESS;
       } else if (itemstack.getItem() == Items.BONE_MEAL && this.getSaplingAmount() > 0) {
@@ -346,7 +354,7 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
             }
 
             this.setSaplingAmount(this.getSaplingAmount() - 1);
-            this.playSound(PrimitiveMobsSoundEvents.ENTITY_GROVESPRITE_THANKS.get(), 1.0F, 1.0F);
+            this.playSound(PrimitiveMobsSoundEvents.ENTITY_GROVESPRITE_THANKS.value(), 1.0F, 1.0F);
             if (!this.level().isClientSide) {
                ItemStack sap = this.getOffhandItem().copy();
                sap.setCount(this.random.nextInt(4) + 1);
@@ -372,9 +380,10 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
    }
 
    @Override
-   protected void dropCustomDeathLoot(DamageSource source, int lootingModifier, boolean wasRecentlyHit) {
-      super.dropCustomDeathLoot(source, lootingModifier, wasRecentlyHit);
+   protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean wasRecentlyHit) {
+      super.dropCustomDeathLoot(level, source, wasRecentlyHit);
       if (this.isCinderSprite()) {
+         int lootingModifier = source.getEntity() instanceof LivingEntity livingentity ? EnchantmentHelper.getEnchantmentLevel(livingentity.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.LOOTING), livingentity) : 0;
          ItemStack coal = new ItemStack(Items.CHARCOAL, this.random.nextInt(5) + lootingModifier);
          this.spawnAtLocation(coal, 1.0F);
       }
@@ -471,7 +480,7 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
 
    @Override
    protected SoundEvent getAmbientSound() {
-      return PrimitiveMobsSoundEvents.ENTITY_GROVESPRITE_IDLE.get();
+      return PrimitiveMobsSoundEvents.ENTITY_GROVESPRITE_IDLE.value();
    }
 
    public void setIsBegging(boolean begging) {
@@ -562,7 +571,7 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
             if (this.type == 0) {
                this.manageDelay = this.sprite.level().random.nextInt(200) + 200;
                BoneMealItem.growCrop(new ItemStack(Items.BONE_MEAL), this.sprite.level(), this.blockPos);
-               MMMessageRegistry.getNetwork().send(PacketDistributor.ALL.noArg(), new MessageMMParticle(19, 10, (float)this.blockPos.getX() + 0.5F + (this.sprite.random.nextFloat() - this.sprite.random.nextFloat()), (float)this.blockPos.getY() + 0.5F, (float)this.blockPos.getZ() + 0.5F + (this.sprite.random.nextFloat() - this.sprite.random.nextFloat()), (double)0.0F, (double)0.0F, (double)0.0F, 0));
+               MMMessageRegistry.getNetwork().sendToAll(new MessageMMParticle(19, 10, (float)this.blockPos.getX() + 0.5F + (this.sprite.random.nextFloat() - this.sprite.random.nextFloat()), (float)this.blockPos.getY() + 0.5F, (float)this.blockPos.getZ() + 0.5F + (this.sprite.random.nextFloat() - this.sprite.random.nextFloat()), (double)0.0F, (double)0.0F, (double)0.0F, 0));
                this.isNearGoal = false;
             } else {
                this.manageDelay = this.sprite.level().random.nextInt(300) + 300;

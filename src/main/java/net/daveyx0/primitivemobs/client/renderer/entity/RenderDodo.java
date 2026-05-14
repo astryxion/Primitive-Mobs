@@ -7,13 +7,13 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderDodo extends MobRenderer<EntityDodo, ModelDodo<EntityDodo>> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "dodo"), "main");
-   private static final ResourceLocation DODO_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/rareanimals/dodo.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "dodo"), "main");
+   private static final ResourceLocation DODO_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/rareanimals/dodo.png");
 
    public RenderDodo(EntityRendererProvider.Context context) {
       super(context, new ModelDodo<>(context.bakeLayer(MODEL_LAYER)), 0.4F);

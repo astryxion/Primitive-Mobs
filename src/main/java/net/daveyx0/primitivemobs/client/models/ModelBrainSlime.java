@@ -61,15 +61,15 @@ public class ModelBrainSlime<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
         poseStack.translate(0.0F, 0.001F, 0.0F);
         if (this.slimeBodies != null) {
-            this.slimeBodies.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.slimeBodies.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
         if (this.slimeRightEye != null) {
-            this.slimeRightEye.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.slimeLeftEye.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.slimeMouth.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.slimeRightEye.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.slimeLeftEye.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.slimeMouth.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
     }
 }

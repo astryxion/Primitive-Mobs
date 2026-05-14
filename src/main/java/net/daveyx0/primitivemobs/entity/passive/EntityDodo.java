@@ -1,5 +1,8 @@
 package net.daveyx0.primitivemobs.entity.passive;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.IMultiMobPassive;
 import net.daveyx0.multimob.entity.ai.EntityAITemptItemStack;
@@ -131,7 +134,7 @@ public class EntityDodo extends Chicken implements IMultiMobPassive {
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_DODO;
    }
 

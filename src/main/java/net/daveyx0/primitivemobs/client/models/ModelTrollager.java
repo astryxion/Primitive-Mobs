@@ -208,13 +208,13 @@ public class ModelTrollager extends EntityModel<EntityTrollager> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.armLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.armRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.armLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.armRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 
     public void idleMouth(float e) {

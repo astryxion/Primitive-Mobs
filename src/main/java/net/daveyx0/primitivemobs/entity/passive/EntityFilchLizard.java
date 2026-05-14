@@ -10,7 +10,8 @@ import net.daveyx0.multimob.util.EntityUtil;
 import net.daveyx0.primitivemobs.config.PrimitiveMobsConfigSpecial;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsLootTables;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -75,12 +76,12 @@ public class EntityFilchLizard extends PathfinderMob implements IMultiMobPassive
    }
 
    @Nullable
-   protected ResourceLocation getSpawnLootTable() {
+   protected ResourceKey<LootTable> getSpawnLootTable() {
       return PrimitiveMobsLootTables.FILCHLIZARD_SPAWN;
    }
 
    @Nullable
-   protected ResourceLocation getStealLootTable() {
+   protected ResourceKey<LootTable> getStealLootTable() {
       return PrimitiveMobsLootTables.FILCHLIZARD_STEAL;
    }
 
@@ -97,7 +98,7 @@ public class EntityFilchLizard extends PathfinderMob implements IMultiMobPassive
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData livingdata, @Nullable net.minecraft.nbt.CompoundTag tag) {
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData livingdata) {
       int chance = PrimitiveMobsConfigSpecial.getFilchLizardLootChance();
       if (chance > 0 && (chance >= 100 || this.random.nextInt(100 / chance) == 0)) {
          while(this.getMainHandItem().isEmpty() && !this.level().isClientSide) {
@@ -105,14 +106,14 @@ public class EntityFilchLizard extends PathfinderMob implements IMultiMobPassive
          }
       }
 
-      return super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata, tag);
+      return super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata);
    }
 
    @Nullable
-   private static ItemStack getSpawnLootItem(net.minecraft.world.entity.Entity entityIn, ResourceLocation resourceLootTable, ItemStack defaultItem) {
+   private static ItemStack getSpawnLootItem(net.minecraft.world.entity.Entity entityIn, ResourceKey<LootTable> resourceLootTable, ItemStack defaultItem) {
       if (resourceLootTable != null && entityIn.level() instanceof net.minecraft.server.level.ServerLevel) {
          net.minecraft.server.level.ServerLevel serverLevel = (net.minecraft.server.level.ServerLevel) entityIn.level();
-         net.minecraft.world.level.storage.loot.LootTable loottable = serverLevel.getServer().getLootData().getLootTable(resourceLootTable);
+         net.minecraft.world.level.storage.loot.LootTable loottable = serverLevel.getServer().reloadableRegistries().getLootTable(resourceLootTable);
          net.minecraft.world.level.storage.loot.LootParams lootparams = new net.minecraft.world.level.storage.loot.LootParams.Builder(serverLevel)
             .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, entityIn)
             .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, entityIn.position())
@@ -126,11 +127,11 @@ public class EntityFilchLizard extends PathfinderMob implements IMultiMobPassive
    }
 
    @Nullable
-   private static ItemStack[] getSpawnLootItems(net.minecraft.world.entity.Entity entityIn, ResourceLocation resourceLootTable, ItemStack defaultItem) {
+   private static ItemStack[] getSpawnLootItems(net.minecraft.world.entity.Entity entityIn, ResourceKey<LootTable> resourceLootTable, ItemStack defaultItem) {
       ItemStack[] arrayOfItems = null;
       if (resourceLootTable != null && entityIn.level() instanceof net.minecraft.server.level.ServerLevel) {
          net.minecraft.server.level.ServerLevel serverLevel = (net.minecraft.server.level.ServerLevel) entityIn.level();
-         net.minecraft.world.level.storage.loot.LootTable loottable = serverLevel.getServer().getLootData().getLootTable(resourceLootTable);
+         net.minecraft.world.level.storage.loot.LootTable loottable = serverLevel.getServer().reloadableRegistries().getLootTable(resourceLootTable);
          net.minecraft.world.level.storage.loot.LootParams lootparams = new net.minecraft.world.level.storage.loot.LootParams.Builder(serverLevel)
             .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, entityIn)
             .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, entityIn.position())

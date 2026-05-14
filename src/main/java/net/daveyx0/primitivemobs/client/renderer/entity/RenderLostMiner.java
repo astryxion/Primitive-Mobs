@@ -10,14 +10,14 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @SuppressWarnings("unchecked")
 @OnlyIn(Dist.CLIENT)
 public class RenderLostMiner extends MobRenderer<EntityLostMiner, ModelLostMiner> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "lost_miner"), "main");
-   private static final ResourceLocation LOST_MINER_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/villager/lostminer.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "lost_miner"), "main");
+   private static final ResourceLocation LOST_MINER_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/villager/lostminer.png");
 
    public RenderLostMiner(EntityRendererProvider.Context context) {
       super(context, new ModelLostMiner(context.bakeLayer(MODEL_LAYER)), 0.5F);

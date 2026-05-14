@@ -11,12 +11,12 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LayerBrainSlimeGel extends RenderLayer<EntityBrainSlime, ModelBrainSlime<EntityBrainSlime>> {
-   private static final ResourceLocation SLIME_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/brainslime/slime_brain.png");
+   private static final ResourceLocation SLIME_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/brainslime/slime_brain.png");
    private final ModelBrainSlime<EntityBrainSlime> slimeModel;
 
    public LayerBrainSlimeGel(RenderBrainSlime slimeRendererIn, EntityRendererProvider.Context context) {
@@ -31,7 +31,7 @@ public class LayerBrainSlimeGel extends RenderLayer<EntityBrainSlime, ModelBrain
          this.slimeModel.prepareMobModel(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks);
          this.slimeModel.setupAnim(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
          VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(SLIME_TEXTURES));
-         this.slimeModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), 1.0F, 1.0F, 1.0F, 1.0F);
+         this.slimeModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), -1);
       }
    }
 }

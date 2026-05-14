@@ -62,21 +62,30 @@ public class ModelTreasureSlime<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        int tintedColor = color;
         if (this.hasEyes && this.currentEntity instanceof EntityTreasureSlime) {
             float[] RGB = ((EntityTreasureSlime) this.currentEntity).getSkinRGB();
+            float alpha = (float)(color >> 24 & 255) / 255.0F;
+            if (alpha == 0.0F) {
+                alpha = 1.0F;
+            }
+            float red = (float)(color >> 16 & 255) / 255.0F;
+            float green = (float)(color >> 8 & 255) / 255.0F;
+            float blue = (float)(color & 255) / 255.0F;
             red *= RGB[0] / 255.0F;
             green *= RGB[1] / 255.0F;
             blue *= RGB[2] / 255.0F;
+            tintedColor = ((int)(alpha * 255.0F) << 24) | ((int)(red * 255.0F) << 16) | ((int)(green * 255.0F) << 8) | (int)(blue * 255.0F);
         }
         poseStack.translate(0.0F, 0.001F, 0.0F);
         if (this.slimeBodies != null) {
-            this.slimeBodies.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.slimeBodies.render(poseStack, vertexConsumer, packedLight, packedOverlay, tintedColor);
         }
         if (this.slimeRightEye != null) {
-            this.slimeRightEye.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.slimeLeftEye.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.slimeMouth.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.slimeRightEye.render(poseStack, vertexConsumer, packedLight, packedOverlay, tintedColor);
+            this.slimeLeftEye.render(poseStack, vertexConsumer, packedLight, packedOverlay, tintedColor);
+            this.slimeMouth.render(poseStack, vertexConsumer, packedLight, packedOverlay, tintedColor);
         }
     }
 }

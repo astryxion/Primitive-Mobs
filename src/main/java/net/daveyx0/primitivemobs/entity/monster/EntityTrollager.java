@@ -1,5 +1,7 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.server.level.ServerLevel;
+
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.IMultiMob;
 import net.daveyx0.multimob.entity.ai.EntityAISenseEntityNearestPlayer;
@@ -13,6 +15,7 @@ import net.daveyx0.primitivemobs.entity.IAnimatedMob;
 import net.daveyx0.primitivemobs.entity.ai.EntityAITrollagerAttacks;
 import net.daveyx0.primitivemobs.entity.item.EntityThrownBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -22,9 +25,12 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -52,8 +58,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob {
    private static final EntityDataAccessor<Integer> ANIMATION_STATE = SynchedEntityData.defineId(EntityTrollager.class, EntityDataSerializers.INT);
@@ -105,12 +111,12 @@ public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob 
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData livingdata, @Nullable CompoundTag dataTag) {
-      livingdata = super.finalizeSpawn(level, difficulty, reason, livingdata, dataTag);
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData livingdata) {
+      livingdata = super.finalizeSpawn(level, difficulty, reason, livingdata);
       if (this.level().random.nextInt(20) == 0) {
          EntityGoblin goblin = new EntityGoblin(PrimitiveMobsEntityRegistry.GOBLIN.get(), this.level());
          goblin.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-         goblin.finalizeSpawn(level, difficulty, MobSpawnType.JOCKEY, null, null);
+         goblin.finalizeSpawn(level, difficulty, MobSpawnType.JOCKEY, null);
          this.level().addFreshEntity(goblin);
          goblin.startRiding(this);
       }
@@ -119,8 +125,8 @@ public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob 
    }
 
    @Override
-   public double getPassengersRidingOffset() {
-      return (double)this.getBbHeight() * 0.9;
+   protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
+      return new Vec3(0.0, (double)(dimensions.height() * 0.9F), 0.0);
    }
 
    @Override
@@ -205,8 +211,9 @@ public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob 
    }
 
    @Override
-   protected void dropCustomDeathLoot(DamageSource source, int lootingModifier, boolean wasRecentlyHit) {
+   protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean wasRecentlyHit) {
       if (!this.isStone() && !this.level().isClientSide) {
+         int lootingModifier = source.getEntity() instanceof LivingEntity livingentity ? EnchantmentHelper.getEnchantmentLevel(livingentity.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.LOOTING), livingentity) : 0;
          int i = 1 + this.random.nextInt(2);
          if (lootingModifier > 0) {
             i += this.random.nextInt(lootingModifier + 1);
@@ -299,11 +306,11 @@ public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob 
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(ANIMATION_STATE, 0);
-      this.entityData.define(CURRENT_THROWN_BLOCK, BlockPos.ZERO);
-      this.entityData.define(IS_STONE, false);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(ANIMATION_STATE, 0);
+      builder.define(CURRENT_THROWN_BLOCK, BlockPos.ZERO);
+      builder.define(IS_STONE, false);
    }
 
    @Override
@@ -318,17 +325,17 @@ public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob 
 
    @Override
    protected SoundEvent getAmbientSound() {
-      return this.isStone() ? null : PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_IDLE.get();
+      return this.isStone() ? null : PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_IDLE.value();
    }
 
    @Override
    protected SoundEvent getHurtSound(DamageSource p_184601_1_) {
-      return this.isStone() ? SoundEvents.STONE_HIT : PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_HIT.get();
+      return this.isStone() ? SoundEvents.STONE_HIT : PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_HIT.value();
    }
 
    @Override
    protected SoundEvent getDeathSound() {
-      return PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_DEATH.get();
+      return PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_DEATH.value();
    }
 
    @Override
@@ -375,7 +382,7 @@ public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob 
             double motionZ = (target.getZ() - thrownBlock.getZ()) / (double)18.0F;
             thrownBlock.setDeltaMovement(motionX, motionY, motionZ);
             this.level().addFreshEntity(thrownBlock);
-            this.playSound(PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_ATTACK.get(), this.getSoundVolume(), ((this.getRandom().nextFloat() - this.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);
+            this.playSound(PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_ATTACK.value(), this.getSoundVolume(), ((this.getRandom().nextFloat() - this.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);
             break;
          case 1:
             double distanceX = this.getLookControl().getWantedX() - this.getX();
@@ -402,8 +409,8 @@ public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob 
             }
 
             this.newExplosion(this, explosionX, this.getY() + (double)this.getEyeHeight(), explosionZ, 3.0F, false, griefingFlag);
-            MMMessageRegistry.getNetwork().send(PacketDistributor.ALL.noArg(), new MessageMMParticle(1, 10, (float)explosionX, (float)explosionY, (float)explosionZ, (double)1.0F, (double)0.0F, (double)0.0F, 0));
-            this.playSound(PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_ATTACK.get(), this.getSoundVolume(), ((this.getRandom().nextFloat() - this.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);
+            MMMessageRegistry.getNetwork().sendToAll(new MessageMMParticle(1, 10, (float)explosionX, (float)explosionY, (float)explosionZ, (double)1.0F, (double)0.0F, (double)0.0F, 0));
+            this.playSound(PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_ATTACK.value(), this.getSoundVolume(), ((this.getRandom().nextFloat() - this.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);
             break;
          case 2:
             if (this.getTarget() != null && !this.isStone()) {
@@ -414,7 +421,7 @@ public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob 
                   this.doHurtTarget(this.getTarget());
                }
 
-               this.playSound(PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_ATTACK.get(), this.getSoundVolume(), ((this.getRandom().nextFloat() - this.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);
+               this.playSound(PrimitiveMobsSoundEvents.ENTITY_TROLLAGER_ATTACK.value(), this.getSoundVolume(), ((this.getRandom().nextFloat() - this.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);
             }
       }
 
@@ -427,7 +434,7 @@ public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob 
    public Explosion newExplosion(@Nullable Entity entityIn, double x, double y, double z, float strength, boolean isFlaming, boolean isSmoking) {
       Explosion.BlockInteraction blockInteraction = isSmoking ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP;
       Explosion explosion = new Explosion(this.level(), entityIn, x, y, z, strength, isFlaming, blockInteraction);
-      if (ForgeEventFactory.onExplosionStart(this.level(), explosion)) {
+      if (EventHooks.onExplosionStart(this.level(), explosion)) {
          return explosion;
       } else {
          explosion.explode();

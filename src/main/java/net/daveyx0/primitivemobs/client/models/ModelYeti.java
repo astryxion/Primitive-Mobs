@@ -103,19 +103,19 @@ public class ModelYeti extends EntityModel<EntityYeti> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.armLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.nose.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.armRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.armLeftHide.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.armRightHide.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.headHide.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legRightHide.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legLeftHide.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.armLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.nose.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.armRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.armLeftHide.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.armRightHide.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.headHide.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legRightHide.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legLeftHide.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 
     private float triangleWave(float p_78172_1_, float p_78172_2_) {

@@ -1,14 +1,20 @@
 package net.daveyx0.primitivemobs.message;
 
 import java.util.UUID;
-import java.util.function.Supplier;
 import net.daveyx0.primitivemobs.entity.passive.EntityGroveSprite;
 import net.daveyx0.primitivemobs.item.ItemGroveSpriteSap;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public class MessagePrimitiveColorSap {
+public class MessagePrimitiveColorSap implements CustomPacketPayload {
+   public static final CustomPacketPayload.Type<MessagePrimitiveColorSap> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("primitivemobs", "primitive_color_sap"));
+   public static final StreamCodec<RegistryFriendlyByteBuf, MessagePrimitiveColorSap> STREAM_CODEC = StreamCodec.ofMember(MessagePrimitiveColorSap::encode, MessagePrimitiveColorSap::decode);
    private int color;
    private String id;
 
@@ -32,9 +38,10 @@ public class MessagePrimitiveColorSap {
       return message;
    }
 
-   public static void handle(MessagePrimitiveColorSap message, Supplier<NetworkEvent.Context> ctx) {
-      ctx.get().enqueueWork(() -> {
-         Entity entity = ctx.get().getSender().serverLevel().getEntity(UUID.fromString(message.id));
+   public static void handle(MessagePrimitiveColorSap message, IPayloadContext ctx) {
+      ctx.enqueueWork(() -> {
+         ServerPlayer sender = (ServerPlayer)ctx.player();
+         Entity entity = sender.serverLevel().getEntity(UUID.fromString(message.id));
          if (entity != null && entity instanceof EntityGroveSprite) {
             EntityGroveSprite sprite = (EntityGroveSprite)entity;
             if (!sprite.getOffhandItem().isEmpty()) {
@@ -43,6 +50,10 @@ public class MessagePrimitiveColorSap {
             }
          }
       });
-      ctx.get().setPacketHandled(true);
+   }
+
+   @Override
+   public Type<? extends CustomPacketPayload> type() {
+      return TYPE;
    }
 }

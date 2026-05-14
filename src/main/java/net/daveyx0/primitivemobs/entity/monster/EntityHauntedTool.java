@@ -1,5 +1,10 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.network.syncher.SynchedEntityData;
+
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import java.util.Collection;
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.IMultiMob;
@@ -8,6 +13,7 @@ import net.daveyx0.multimob.util.EntityUtil;
 import net.daveyx0.primitivemobs.config.PrimitiveMobsConfigSpecial;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsLootTables;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -19,13 +25,14 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -91,13 +98,13 @@ public class EntityHauntedTool extends Monster implements IMultiMob {
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
    }
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnData, @Nullable net.minecraft.nbt.CompoundTag tag) {
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnData) {
       while(this.getMainHandItem().isEmpty() && !this.level().isClientSide) {
          ItemStack tool = getSpawnLootItem(this, this.getSpawnLootTable(), new ItemStack(Items.IRON_SWORD));
          this.setItemSlot(EquipmentSlot.MAINHAND, tool);
@@ -109,14 +116,14 @@ public class EntityHauntedTool extends Monster implements IMultiMob {
          }
       }
 
-      return super.finalizeSpawn(levelAccessor, difficulty, spawnType, spawnData, tag);
+      return super.finalizeSpawn(levelAccessor, difficulty, spawnType, spawnData);
    }
 
    @Nullable
-   private static ItemStack getSpawnLootItem(net.minecraft.world.entity.Entity entityIn, ResourceLocation resourceLootTable, ItemStack defaultItem) {
+   private static ItemStack getSpawnLootItem(net.minecraft.world.entity.Entity entityIn, ResourceKey<LootTable> resourceLootTable, ItemStack defaultItem) {
       if (resourceLootTable != null && entityIn.level() instanceof ServerLevel) {
          ServerLevel serverLevel = (ServerLevel) entityIn.level();
-         LootTable loottable = serverLevel.getServer().getLootData().getLootTable(resourceLootTable);
+         LootTable loottable = serverLevel.getServer().reloadableRegistries().getLootTable(resourceLootTable);
          LootParams lootparams = new LootParams.Builder(serverLevel)
             .withParameter(LootContextParams.THIS_ENTITY, entityIn)
             .withParameter(LootContextParams.ORIGIN, entityIn.position())
@@ -127,11 +134,6 @@ public class EntityHauntedTool extends Monster implements IMultiMob {
          }
       }
       return defaultItem;
-   }
-
-   @Override
-   public MobType getMobType() {
-      return MobType.UNDEAD;
    }
 
    @Override
@@ -170,12 +172,12 @@ public class EntityHauntedTool extends Monster implements IMultiMob {
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
-      return null;
+   protected ResourceKey<LootTable> getDefaultLootTable() {
+      return PrimitiveMobsLootTables.EMPTY;
    }
 
    @Nullable
-   protected ResourceLocation getSpawnLootTable() {
+   protected ResourceKey<LootTable> getSpawnLootTable() {
       return PrimitiveMobsLootTables.HAUNTEDTOOL_SPAWN;
    }
 
@@ -189,10 +191,11 @@ public class EntityHauntedTool extends Monster implements IMultiMob {
    }
 
    @Override
-   protected void dropCustomDeathLoot(DamageSource source, int lootingModifier, boolean wasRecentlyHit) {
+   protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean wasRecentlyHit) {
       ItemStack stack = this.getMainHandItem();
       if (!stack.isEmpty() && !this.level().isClientSide) {
          if (!PrimitiveMobsConfigSpecial.getHauntedToolDurability()) {
+            int lootingModifier = source.getEntity() instanceof LivingEntity livingentity ? EnchantmentHelper.getEnchantmentLevel(livingentity.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.LOOTING), livingentity) : 0;
             if (lootingModifier > 3) {
                lootingModifier = 3;
             }
@@ -258,8 +261,8 @@ public class EntityHauntedTool extends Monster implements IMultiMob {
    }
 
    public static float getHealthFromTool(ItemStack tool) {
-      if (!tool.isEmpty() && tool.getItem().canBeDepleted()) {
-         float health = (float)tool.getItem().getMaxDamage(tool) / 10.0F;
+      if (!tool.isEmpty() && tool.isDamageableItem()) {
+         float health = (float)tool.getMaxDamage() / 10.0F;
          if (health > 100.0F) {
             health = 100.0F;
          }
@@ -271,14 +274,15 @@ public class EntityHauntedTool extends Monster implements IMultiMob {
    }
 
    public static double getDamageFromHeldItem(Mob entity) {
-      if (!entity.getMainHandItem().isEmpty() && entity.getMainHandItem().getItem().canBeDepleted()) {
+      ItemStack stack = entity.getMainHandItem();
+      if (!stack.isEmpty() && stack.isDamageableItem()) {
       }
 
-      Collection<AttributeModifier> modifiers = entity.getMainHandItem().getAttributeModifiers(Mob.getEquipmentSlotForItem(entity.getMainHandItem())).get(Attributes.ATTACK_DAMAGE);
+      Collection<AttributeModifier> modifiers = stack.getAttributeModifiers().modifiers().stream().filter(entry -> entry.attribute().is(Attributes.ATTACK_DAMAGE)).map(entry -> entry.modifier()).toList();
       if (modifiers != null && !modifiers.isEmpty()) {
          Object[] mods = modifiers.toArray(new Object[modifiers.size()]);
          AttributeModifier attribute = (AttributeModifier)mods[0];
-         double attackDamage = attribute.getAmount() / (double)2.0F;
+         double attackDamage = attribute.amount() / (double)2.0F;
          if (attackDamage <= (double)1.0F) {
             attackDamage = (double)1.0F;
          } else if (attackDamage > (double)8.0F) {
@@ -292,12 +296,13 @@ public class EntityHauntedTool extends Monster implements IMultiMob {
    }
 
    public static double getSpeedFromHeldItem(Mob entity) {
-      if (!entity.getMainHandItem().isEmpty() && entity.getMainHandItem().getItem().canBeDepleted()) {
-         Collection<AttributeModifier> modifiers = entity.getMainHandItem().getAttributeModifiers(Mob.getEquipmentSlotForItem(entity.getMainHandItem())).get(Attributes.ATTACK_SPEED);
+      ItemStack stack = entity.getMainHandItem();
+      if (!stack.isEmpty() && stack.isDamageableItem()) {
+         Collection<AttributeModifier> modifiers = stack.getAttributeModifiers().modifiers().stream().filter(entry -> entry.attribute().is(Attributes.ATTACK_SPEED)).map(entry -> entry.modifier()).toList();
          if (modifiers != null && !modifiers.isEmpty()) {
             Object[] mods = modifiers.toArray(new Object[modifiers.size()]);
             AttributeModifier attribute = (AttributeModifier)mods[0];
-            double attackSpeed = (double)0.5F - attribute.getAmount() * (double)-1.0F * 0.1;
+            double attackSpeed = (double)0.5F - attribute.amount() * (double)-1.0F * 0.1;
             if (attackSpeed <= 0.1) {
                attackSpeed = 0.1;
             } else if (attackSpeed > 0.3) {

@@ -82,8 +82,8 @@ public class EntityLostMiner extends Villager implements IMultiMobPassive {
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData livingdata, @Nullable CompoundTag tag) {
-      SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata, tag);
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData livingdata) {
+      SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata);
       this.setVillagerData(this.getVillagerData().setProfession(PrimitiveMobsVillagerProfessions.MINER_PROFESSION.get()));
       this.setVillagerXp(1);
       this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_PICKAXE));
@@ -135,12 +135,12 @@ public class EntityLostMiner extends Villager implements IMultiMobPassive {
 
    @Override
    protected SoundEvent getHurtSound(DamageSource p_184601_1_) {
-      return PrimitiveMobsConfigSpecial.getLostMinerSounds() ? SoundEvents.VILLAGER_HURT : SoundEvents.NOTE_BLOCK_BASS.get();
+      return PrimitiveMobsConfigSpecial.getLostMinerSounds() ? SoundEvents.VILLAGER_HURT : SoundEvents.NOTE_BLOCK_BASS.value();
    }
 
    @Override
    protected SoundEvent getDeathSound() {
-      return PrimitiveMobsConfigSpecial.getLostMinerSounds() ? SoundEvents.VILLAGER_DEATH : SoundEvents.NOTE_BLOCK_BASS.get();
+      return PrimitiveMobsConfigSpecial.getLostMinerSounds() ? SoundEvents.VILLAGER_DEATH : SoundEvents.NOTE_BLOCK_BASS.value();
    }
 
    @Override
@@ -149,9 +149,9 @@ public class EntityLostMiner extends Villager implements IMultiMobPassive {
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(IS_SAVED, false);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(IS_SAVED, false);
    }
 
    public void setSaved(boolean b) {

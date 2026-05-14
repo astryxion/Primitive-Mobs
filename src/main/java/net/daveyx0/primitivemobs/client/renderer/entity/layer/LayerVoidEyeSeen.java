@@ -12,12 +12,12 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LayerVoidEyeSeen extends RenderLayer<EntityVoidEye, ModelVoidEye<EntityVoidEye>> {
-   private static final ResourceLocation VOIDEYESEEN_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/voideye/voideye_glow.png");
+   private static final ResourceLocation VOIDEYESEEN_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/voideye/voideye_glow.png");
    private final ModelVoidEye<EntityVoidEye> voideyeModel;
 
    public LayerVoidEyeSeen(RenderVoidEye voideyeRendererIn, EntityRendererProvider.Context context) {
@@ -32,7 +32,7 @@ public class LayerVoidEyeSeen extends RenderLayer<EntityVoidEye, ModelVoidEye<En
          this.voideyeModel.prepareMobModel(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks);
          this.voideyeModel.setupAnim(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
          VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.eyes(VOIDEYESEEN_TEXTURES));
-         this.voideyeModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+         this.voideyeModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, -1);
       }
    }
 }

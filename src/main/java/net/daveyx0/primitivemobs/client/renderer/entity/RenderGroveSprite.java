@@ -16,11 +16,11 @@ import net.minecraft.resources.ResourceLocation;
 
 @SuppressWarnings("unchecked")
 public class RenderGroveSprite extends MobRenderer<EntityGroveSprite, ModelGroveSprite> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "grove_sprite"), "main");
-   public static final ModelLayerLocation STUMP_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "grove_sprite"), "stump");
-   public static final ModelLayerLocation LEAVES_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "grove_sprite"), "leaves");
-   private static final ResourceLocation GROVEBASE_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/grovesprite/grovebase.png");
-   private static final ResourceLocation GROVEBASE_CINDER_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/grovesprite/grovecinder.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "grove_sprite"), "main");
+   public static final ModelLayerLocation STUMP_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "grove_sprite"), "stump");
+   public static final ModelLayerLocation LEAVES_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "grove_sprite"), "leaves");
+   private static final ResourceLocation GROVEBASE_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/grovesprite/grovebase.png");
+   private static final ResourceLocation GROVEBASE_CINDER_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/grovesprite/grovecinder.png");
 
    public RenderGroveSprite(EntityRendererProvider.Context context) {
       super(context, new ModelGroveSprite(context.bakeLayer(MODEL_LAYER), false), 0.3F);

@@ -69,38 +69,38 @@ public class ModelFlameSpewer extends EntityModel<EntityFlameSpewer> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
         EntityFlameSpewer spewer = null;
         poseStack.pushPose();
-        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         poseStack.popPose();
         poseStack.pushPose();
-        this.mouth.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        this.mouth.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         poseStack.popPose();
         if (this.renderTentacles) {
             for (int i = 0; i < this.tentacles.length; ++i) {
-                this.tentacles[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+                this.tentacles[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
             }
         }
         Item mob = Items.SHIELD;
     }
 
-    public void renderWithScale(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, EntityFlameSpewer spewer) {
+    public void renderWithScale(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color, EntityFlameSpewer spewer) {
         poseStack.pushPose();
         float f = 1.0F + spewer.getAttackSignal();
         poseStack.translate(0.0F, (double)(-f) + 0.9, 0.0F);
         poseStack.scale(f, f, f);
-        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         poseStack.popPose();
         poseStack.pushPose();
         float e = Mth.sin((float)spewer.tickCount * 0.5F) * 0.03F + 1.0F;
         poseStack.translate(0.0F, -0.1, 0.0F);
         poseStack.scale(e, e, e);
-        this.mouth.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        this.mouth.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         poseStack.popPose();
         if (this.renderTentacles) {
             for (int i = 0; i < this.tentacles.length; ++i) {
-                this.tentacles[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+                this.tentacles[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
             }
         }
         Item mob = Items.SHIELD;

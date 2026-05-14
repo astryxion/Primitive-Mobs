@@ -94,39 +94,39 @@ public class ModelSheepman extends EntityModel<EntitySheepman> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
         if (this.young) {
             float var8 = 1.5F;
             poseStack.pushPose();
             poseStack.scale(1.0F / var8, 1.0F / var8, 1.0F / var8);
             poseStack.translate(0.0F, 28.0F * 0.0625F - 1.0F, 0.0F);
-            renderByScale(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            renderByScale(poseStack, vertexConsumer, packedLight, packedOverlay, color);
             poseStack.popPose();
         } else {
             poseStack.pushPose();
-            renderByScale(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            renderByScale(poseStack, vertexConsumer, packedLight, packedOverlay, color);
             poseStack.popPose();
         }
     }
 
-    private void renderByScale(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    private void renderByScale(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
         if (this.scale == 0) {
-            this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.legLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.legRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.legLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.legRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
             if (this.sheared) {
-                this.armLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-                this.armRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+                this.armLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+                this.armRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
             }
         } else {
-            this.foldedArms.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.foldedArms.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
             poseStack.scale(1.1F, 1.1F, 1.1F);
-            this.headWool.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.legLeftWool.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.legRightWool.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.headWool.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.legLeftWool.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.legRightWool.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
             poseStack.translate(0.0F, -0.05F, 0.0F);
-            this.bodyWool.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.bodyWool.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
     }
 }

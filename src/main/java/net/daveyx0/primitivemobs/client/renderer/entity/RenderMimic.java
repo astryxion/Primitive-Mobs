@@ -13,10 +13,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 public class RenderMimic extends MobRenderer<EntityMimic, ModelMimic<EntityMimic>> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "mimic"), "main");
-   public static final ModelLayerLocation MOUTH_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "mimic"), "mouth");
-   private static final ResourceLocation CHEST_TEXTURES = new ResourceLocation("minecraft", "textures/entity/chest/normal.png");
-   private static final ResourceLocation CHEST_CHRISTMAS_TEXTURES = new ResourceLocation("minecraft", "textures/entity/chest/christmas.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "mimic"), "main");
+   public static final ModelLayerLocation MOUTH_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "mimic"), "mouth");
+   private static final ResourceLocation CHEST_TEXTURES = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/chest/normal.png");
+   private static final ResourceLocation CHEST_CHRISTMAS_TEXTURES = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/chest/christmas.png");
    private boolean isChristmas;
 
    public RenderMimic(EntityRendererProvider.Context context) {

@@ -45,11 +45,11 @@ public class ModelVoidEye<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
         if (this.renderBody) {
-            this.body1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.body2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.body1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.body2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
-        this.eye.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        this.eye.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 }

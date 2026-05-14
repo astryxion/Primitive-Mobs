@@ -1,13 +1,19 @@
 package net.daveyx0.primitivemobs.message;
 
 import java.util.UUID;
-import java.util.function.Supplier;
 import net.daveyx0.primitivemobs.entity.monster.EntityBabySpider;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public class MessagePrimitiveJumping {
+public class MessagePrimitiveJumping implements CustomPacketPayload {
+   public static final CustomPacketPayload.Type<MessagePrimitiveJumping> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("primitivemobs", "primitive_jumping"));
+   public static final StreamCodec<RegistryFriendlyByteBuf, MessagePrimitiveJumping> STREAM_CODEC = StreamCodec.ofMember(MessagePrimitiveJumping::encode, MessagePrimitiveJumping::decode);
    private String text;
 
    public MessagePrimitiveJumping() {
@@ -27,16 +33,19 @@ public class MessagePrimitiveJumping {
       return message;
    }
 
-   public static void handle(MessagePrimitiveJumping message, Supplier<NetworkEvent.Context> ctx) {
-      ctx.get().enqueueWork(() -> {
+   public static void handle(MessagePrimitiveJumping message, IPayloadContext ctx) {
+      ctx.enqueueWork(() -> {
          UUID id = UUID.fromString(message.text);
-         if (ctx.get().getSender() != null) {
-            Player truePlayer = ctx.get().getSender().level().getPlayerByUUID(id);
-            if (truePlayer.getVehicle() != null && truePlayer.getVehicle() instanceof EntityBabySpider) {
-               ((EntityBabySpider)truePlayer.getVehicle()).setIsJumping(true);
-            }
+         ServerPlayer sender = (ServerPlayer)ctx.player();
+         Player truePlayer = sender.level().getPlayerByUUID(id);
+         if (truePlayer != null && truePlayer.getVehicle() != null && truePlayer.getVehicle() instanceof EntityBabySpider) {
+            ((EntityBabySpider)truePlayer.getVehicle()).setIsJumping(true);
          }
       });
-      ctx.get().setPacketHandled(true);
+   }
+
+   @Override
+   public Type<? extends CustomPacketPayload> type() {
+      return TYPE;
    }
 }

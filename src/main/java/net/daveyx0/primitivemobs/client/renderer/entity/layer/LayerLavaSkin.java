@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 
 public class LayerLavaSkin extends RenderLayer<EntityFlameSpewer, ModelFlameSpewer> {
    private final ModelFlameSpewer lavaModel;
@@ -18,7 +19,7 @@ public class LayerLavaSkin extends RenderLayer<EntityFlameSpewer, ModelFlameSpew
 
    public LayerLavaSkin(RenderFlameSpewer renderer, EntityRendererProvider.Context context) {
       super(renderer);
-      this.lavaTexture = new ResourceLocation("minecraft", "textures/block/lava_flow.png");
+      this.lavaTexture = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/block/lava_flow.png");
       this.lavaModel = new ModelFlameSpewer(context.bakeLayer(RenderFlameSpewer.LAVA_LAYER), true, true);
    }
 
@@ -42,7 +43,8 @@ public class LayerLavaSkin extends RenderLayer<EntityFlameSpewer, ModelFlameSpew
       this.lavaModel.prepareMobModel(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks);
       this.lavaModel.setupAnim(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
       VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.energySwirl(this.lavaTexture, 0.0F, vScroll));
-      this.lavaModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), 1.0F, 1.0F, 1.0F, alpha);
+      int color = FastColor.ARGB32.color((int)(alpha * 255.0F), 255, 255, 255);
+      this.lavaModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), color);
       poseStack.popPose();
    }
 }

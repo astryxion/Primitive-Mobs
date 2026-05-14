@@ -11,12 +11,12 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LayerMimicMouth extends RenderLayer<EntityMimic, ModelMimic<EntityMimic>> {
-   private static final ResourceLocation MIMICMOUTH_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/mimic/chest.png");
+   private static final ResourceLocation MIMICMOUTH_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/mimic/chest.png");
    private final ModelMimic<EntityMimic> mimicModel;
 
    public LayerMimicMouth(RenderMimic mimicRendererIn, EntityRendererProvider.Context context) {
@@ -30,6 +30,6 @@ public class LayerMimicMouth extends RenderLayer<EntityMimic, ModelMimic<EntityM
       this.mimicModel.prepareMobModel(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks);
       this.mimicModel.setupAnim(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
       VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(MIMICMOUTH_TEXTURES));
-      this.mimicModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), 1.0F, 1.0F, 1.0F, 1.0F);
+      this.mimicModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), -1);
    }
 }

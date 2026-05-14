@@ -121,14 +121,14 @@ public class ModelGroveSprite extends EntityModel<EntityGroveSprite> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
         if (this.bipedHeadwear != null) {
-            this.bipedRightArm.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.bipedLeftArm.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.bipedRightLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.bipedLeftLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.bipedHeadwear.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.stem.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.bipedRightArm.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.bipedLeftArm.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.bipedRightLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.bipedLeftLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.bipedHeadwear.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.stem.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
 
         if (this.leaf != null) {
@@ -140,12 +140,12 @@ public class ModelGroveSprite extends EntityModel<EntityGroveSprite> {
                 poseStack.translate(0.0F, -0.8125F, 0.0F);
                 this.leaf[i].xRot = 0.0F;
                 this.leaf[i].yRot = 2.0F * ((float)i + 1.0F);
-                this.leaf[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+                this.leaf[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
                 poseStack.popPose();
             }
         }
 
-        this.bipedHead.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.bipedBody.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        this.bipedHead.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.bipedBody.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 }

@@ -88,17 +88,17 @@ public class ModelTravelingMerchant<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.armLeftShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.armLeftHand.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.burden1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.burden2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.armRightShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.armRightHand.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.nose.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.armLeftShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.armLeftHand.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.burden1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.burden2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.armRightShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.armRightHand.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.nose.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 }

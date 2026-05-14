@@ -1,11 +1,14 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.IMultiMob;
 import net.daveyx0.multimob.message.MMMessageRegistry;
 import net.daveyx0.multimob.message.MessageMMParticle;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.daveyx0.multimob.util.NBTUtil;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsLootTables;
 import net.minecraft.core.particles.ParticleTypes;
@@ -131,7 +134,7 @@ public class EntityMimic extends Monster implements IMultiMob {
 
       if (this.explode) {
          this.setSpeed(0.0F);
-         MMMessageRegistry.getNetwork().send(PacketDistributor.ALL.noArg(), new MessageMMParticle(10, 10, (float)this.getX() + (this.random.nextFloat() - this.random.nextFloat()), (float)this.getY() + 1.0F + (this.random.nextFloat() - this.random.nextFloat()), (float)this.getZ() + (this.random.nextFloat() - this.random.nextFloat()), (double)0.0F, (double)0.0F, (double)0.0F, 0));
+         MMMessageRegistry.getNetwork().sendToAll(new MessageMMParticle(10, 10, (float)this.getX() + (this.random.nextFloat() - this.random.nextFloat()), (float)this.getY() + 1.0F + (this.random.nextFloat() - this.random.nextFloat()), (float)this.getZ() + (this.random.nextFloat() - this.random.nextFloat()), (double)0.0F, (double)0.0F, (double)0.0F, 0));
          if (this.explosionTimer == 0) {
             this.playSound(SoundEvents.TNT_PRIMED, 1.0F, 1.0F);
          } else if (this.explosionTimer >= 40 && !this.level().isClientSide) {
@@ -156,10 +159,10 @@ public class EntityMimic extends Monster implements IMultiMob {
    }
 
    @Override
-   protected void defineSynchedData() {
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
       Optional<BlockState> chest = Optional.of(Blocks.CHEST.defaultBlockState());
-      this.entityData.define(CHEST, chest);
-      super.defineSynchedData();
+      builder.define(CHEST, chest);
+      super.defineSynchedData(builder);
    }
 
    public void setChest(BlockState chest) {
@@ -174,7 +177,7 @@ public class EntityMimic extends Monster implements IMultiMob {
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_MIMIC;
    }
 

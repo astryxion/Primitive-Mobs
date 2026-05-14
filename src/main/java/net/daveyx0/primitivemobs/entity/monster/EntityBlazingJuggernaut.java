@@ -1,5 +1,8 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.IMultiMob;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsLootTables;
@@ -24,7 +27,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.phys.Vec3;
 
@@ -34,10 +37,10 @@ public class EntityBlazingJuggernaut extends Monster implements IMultiMob {
 
    public EntityBlazingJuggernaut(EntityType<? extends EntityBlazingJuggernaut> type, Level worldIn) {
       super(type, worldIn);
-      this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
-      this.setPathfindingMalus(BlockPathTypes.LAVA, 8.0F);
-      this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 0.0F);
-      this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, 0.0F);
+      this.setPathfindingMalus(PathType.WATER, -1.0F);
+      this.setPathfindingMalus(PathType.LAVA, 8.0F);
+      this.setPathfindingMalus(PathType.DANGER_FIRE, 0.0F);
+      this.setPathfindingMalus(PathType.DAMAGE_FIRE, 0.0F);
       this.blocksBuilding = true;
       this.xpReward = 10;
    }
@@ -137,7 +140,7 @@ public class EntityBlazingJuggernaut extends Monster implements IMultiMob {
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_BLAZINGJUGGERNAUT;
    }
 

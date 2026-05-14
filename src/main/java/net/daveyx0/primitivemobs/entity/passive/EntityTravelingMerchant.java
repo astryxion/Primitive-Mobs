@@ -51,15 +51,15 @@ public class EntityTravelingMerchant extends Villager implements IMultiMobPassiv
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(CAN_DESPAWN, true);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(CAN_DESPAWN, true);
    }
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData livingdata, @Nullable CompoundTag tag) {
-      SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata, tag);
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData livingdata) {
+      SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata);
       this.setVillagerData(this.getVillagerData().setProfession(PrimitiveMobsVillagerProfessions.MERCHANT_PROFESSION.get()));
       this.setVillagerXp(1);
       return data;

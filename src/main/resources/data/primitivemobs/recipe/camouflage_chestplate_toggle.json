@@ -1,0 +1,12 @@
+﻿{
+    "type":  "primitivemobs:camouflage_toggle",
+    "ingredients":  [
+                        {
+                            "item":  "primitivemobs:camouflage_chestplate"
+                        }
+                    ],
+    "result":  {
+                   "id":  "primitivemobs:camouflage_chestplate",
+                   "count":  1
+               }
+}

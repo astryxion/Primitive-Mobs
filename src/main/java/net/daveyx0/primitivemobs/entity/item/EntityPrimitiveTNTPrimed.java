@@ -41,9 +41,9 @@ public class EntityPrimitiveTNTPrimed extends Entity {
    }
 
    @Override
-   protected void defineSynchedData() {
-      this.entityData.define(FUSE, 80);
-      this.entityData.define(STRENGTH, 1.5F);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      builder.define(FUSE, 80);
+      builder.define(STRENGTH, 1.5F);
    }
 
    protected boolean isMovementNoisy() {
@@ -108,11 +108,6 @@ public class EntityPrimitiveTNTPrimed extends Entity {
 
    public LivingEntity getTntPlacedBy() {
       return this.tntPlacedBy;
-   }
-
-   @Override
-   public float getEyeHeight(net.minecraft.world.entity.Pose pose) {
-      return 0.0F;
    }
 
    public void setFuse(int fuseIn) {

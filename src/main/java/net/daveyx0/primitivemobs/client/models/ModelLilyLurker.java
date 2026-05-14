@@ -72,24 +72,24 @@ public class ModelLilyLurker<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.body1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.fin1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.fin2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.body2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.fin3.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.fin4.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        this.body1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.fin1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.fin2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.body2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.fin3.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.fin4.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         if (this.currentEntity != null) {
-            this.renderRoots(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, this.currentEntity);
+            this.renderRoots(poseStack, vertexConsumer, packedLight, packedOverlay, color, this.currentEntity);
         }
     }
 
-    public void renderRoots(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, T entity) {
+    public void renderRoots(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color, T entity) {
         if (entity != null && entity instanceof Mob) {
             Mob living = (Mob)entity;
             if (!living.getMainHandItem().isEmpty()) {
-                this.root1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-                this.root2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+                this.root1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+                this.root2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
             }
         }
     }

@@ -85,10 +85,10 @@ public class ModelGoblin<T extends LivingEntity> extends HumanoidModel<T> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        super.renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.armor.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.bag.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        super.renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.armor.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.bag.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 
     private float rotate(float p_78172_1_, float p_78172_2_) {

@@ -1,5 +1,8 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.IMultiMobLava;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsEntityRegistry;
@@ -18,7 +21,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -39,7 +41,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 
@@ -56,7 +58,7 @@ public class EntityFlameSpewer extends Monster implements RangedAttackMob, IMult
       this.setInDanger(false);
       this.setAttackTime(10);
       this.setAttackSignal(0.0F);
-      this.setPathfindingMalus(BlockPathTypes.LAVA, 10.0F);
+      this.setPathfindingMalus(PathType.LAVA, 10.0F);
    }
 
    @Override
@@ -77,17 +79,17 @@ public class EntityFlameSpewer extends Monster implements RangedAttackMob, IMult
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(ON_FIRE, (byte)0);
-      this.entityData.define(IN_DANGER, (byte)0);
-      this.entityData.define(ATTACK_TIME, 0);
-      this.entityData.define(ATTACK_SIGNAL, 0.0F);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(ON_FIRE, (byte)0);
+      builder.define(IN_DANGER, (byte)0);
+      builder.define(ATTACK_TIME, 0);
+      builder.define(ATTACK_SIGNAL, 0.0F);
    }
 
    @Override
    protected SoundEvent getAmbientSound() {
-      return PrimitiveMobsSoundEvents.ENTITY_FLAMESPEWER_IDLE.get();
+      return PrimitiveMobsSoundEvents.ENTITY_FLAMESPEWER_IDLE.value();
    }
 
    @Override
@@ -200,7 +202,7 @@ public class EntityFlameSpewer extends Monster implements RangedAttackMob, IMult
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_FLAMESPEWER;
    }
 
@@ -247,11 +249,6 @@ public class EntityFlameSpewer extends Monster implements RangedAttackMob, IMult
    @Override
    public boolean checkSpawnRules(net.minecraft.world.level.LevelAccessor level, MobSpawnType spawnType) {
       return this.getY() < (double)64.0F;
-   }
-
-   @Override
-   public MobCategory getClassification(boolean forSpawnCount) {
-      return forSpawnCount && MobCategory.MONSTER == MobCategory.MONSTER ? MobCategory.CREATURE : super.getClassification(forSpawnCount);
    }
 
    static class AIFlameSpewAttack extends Goal {

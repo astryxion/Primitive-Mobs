@@ -69,29 +69,29 @@ public class ModelPrimitiveCreeper extends EntityModel<EntityPrimitiveCreeper> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
         if (this.young) {
             float var8 = 2.0F;
             poseStack.pushPose();
             poseStack.translate(0.0F, this.childYOffset * 0.0625F + 0.125F, this.childZOffset * 0.0625F - 0.25F);
-            this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
             poseStack.popPose();
             poseStack.pushPose();
             poseStack.scale(1.0F / var8, 1.0F / var8, 1.0F / var8);
             poseStack.translate(0.0F, 28.0F * 0.0625F - 0.25F, 0.0F);
-            this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.rightHindLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.leftHindLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.rightFrontLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.leftFrontLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.rightHindLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.leftHindLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.rightFrontLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.leftFrontLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
             poseStack.popPose();
         } else {
-            this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.rightHindLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.leftHindLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.rightFrontLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.leftFrontLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.rightHindLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.leftHindLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.rightFrontLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.leftFrontLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
     }
 }

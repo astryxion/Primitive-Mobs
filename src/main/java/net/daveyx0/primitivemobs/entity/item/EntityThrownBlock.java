@@ -41,8 +41,8 @@ public class EntityThrownBlock extends Entity {
    }
 
    @Override
-   protected void defineSynchedData() {
-      this.entityData.define(ORIGIN, BlockPos.ZERO);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      builder.define(ORIGIN, BlockPos.ZERO);
    }
 
    public void setOrigin(BlockPos p_184530_1_) {
@@ -115,11 +115,6 @@ public class EntityThrownBlock extends Entity {
 
    public LivingEntity getOwner() {
       return this.owner;
-   }
-
-   @Override
-   public float getEyeHeight(net.minecraft.world.entity.Pose pose) {
-      return 0.0F;
    }
 
    @Override

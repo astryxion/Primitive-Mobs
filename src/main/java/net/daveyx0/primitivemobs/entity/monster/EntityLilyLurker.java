@@ -1,5 +1,8 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import java.util.List;
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.EntityMMSwimmingCreature;
@@ -17,6 +20,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -72,28 +76,29 @@ public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMulti
    }
 
    @Override
-   protected float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
-      return this.getBbHeight() * 0.25F;
+   protected EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
+      EntityDimensions dimensions = super.getDefaultDimensions(pose);
+      return dimensions.withEyeHeight(dimensions.height() * 0.25F);
    }
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag dataTag) {
-      return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData) {
+      return super.finalizeSpawn(level, difficulty, reason, spawnData);
    }
 
    public static AttributeSupplier.Builder createAttributes() {
       return EntityMMSwimmingCreature.createAttributes()
-         .add(Attributes.ATTACK_DAMAGE, (double)4.0F)
+         .add(Attributes.ATTACK_DAMAGE, 4.0F)
          .add(Attributes.MOVEMENT_SPEED, (double)1.0F)
          .add(Attributes.FOLLOW_RANGE, (double)30.0F);
    }
 
    @Override
-   protected void defineSynchedData() {
-      this.entityData.define(IS_CAMOUFLAGED, false);
-      this.entityData.define(TIME_REGROW, 0);
-      super.defineSynchedData();
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      builder.define(IS_CAMOUFLAGED, false);
+      builder.define(TIME_REGROW, 0);
+      super.defineSynchedData(builder);
    }
 
    @Override
@@ -216,7 +221,7 @@ public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMulti
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_LILYLURKER;
    }
 

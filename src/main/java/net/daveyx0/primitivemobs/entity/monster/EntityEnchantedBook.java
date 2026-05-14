@@ -1,10 +1,18 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.server.level.ServerLevel;
+
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.IMultiMob;
+import net.daveyx0.primitivemobs.core.PrimitiveMobsLootTables;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -12,7 +20,6 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -83,8 +90,8 @@ public class EntityEnchantedBook extends Monster implements IMultiMob {
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnData, @Nullable net.minecraft.nbt.CompoundTag tag) {
-      return super.finalizeSpawn(levelAccessor, difficulty, spawnType, spawnData, tag);
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnData) {
+      return super.finalizeSpawn(levelAccessor, difficulty, spawnType, spawnData);
    }
 
    @Override
@@ -113,15 +120,10 @@ public class EntityEnchantedBook extends Monster implements IMultiMob {
       super.aiStep();
    }
 
-   @Override
-   public MobType getMobType() {
-      return MobType.UNDEAD;
-   }
-
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
-      return null;
+   protected ResourceKey<LootTable> getDefaultLootTable() {
+      return PrimitiveMobsLootTables.EMPTY;
    }
 
    @Override
@@ -130,17 +132,15 @@ public class EntityEnchantedBook extends Monster implements IMultiMob {
    }
 
    @Override
-   protected void dropCustomDeathLoot(DamageSource source, int lootingModifier, boolean wasRecentlyHit) {
+   protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean wasRecentlyHit) {
       if (!this.level().isClientSide) {
          int chance = this.getRandom().nextInt(2);
          if (chance == 0) {
-            Enchantment enchantment = getRandomEnchantment();
-            int maxPower = enchantment.getMaxLevel();
+            Holder<Enchantment> enchantment = getRandomEnchantment();
+            int maxPower = enchantment.value().getMaxLevel();
             int randomPower = 1 + this.getRandom().nextInt(maxPower);
-            ItemEntity drop = this.spawnAtLocation(new ItemStack(Items.ENCHANTED_BOOK), 1.0F);
-            ItemStack stack = drop.getItem();
-            if (stack != null && randomPower > 0 && enchantment != null) {
-               EnchantedBookItem.addEnchantment(stack, new EnchantmentInstance(enchantment, randomPower));
+            if (randomPower > 0 && enchantment != null) {
+               this.spawnAtLocation(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(enchantment, randomPower)), 1.0F);
             }
          } else {
             this.spawnAtLocation(new ItemStack(Items.BOOK), 1.0F);
@@ -149,9 +149,9 @@ public class EntityEnchantedBook extends Monster implements IMultiMob {
 
    }
 
-   private Enchantment getRandomEnchantment() {
-      Object[] enchantments = BuiltInRegistries.ENCHANTMENT.stream().toArray();
-      return (Enchantment) enchantments[this.getRandom().nextInt(enchantments.length)];
+   private Holder<Enchantment> getRandomEnchantment() {
+      var enchantments = this.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).listElements().toList();
+      return enchantments.get(this.getRandom().nextInt(enchantments.size()));
    }
 
    @Override

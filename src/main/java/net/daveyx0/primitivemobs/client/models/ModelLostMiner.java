@@ -53,7 +53,7 @@ public class ModelLostMiner extends EntityModel<EntityLostMiner> implements Head
             CubeListBuilder.create().texOffs(16, 20).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 12.0F, 6.0F),
             PartPose.ZERO);
         partdefinition.addOrReplaceChild("arms",
-            CubeListBuilder.create().texOffs(40, 38).addBox(-4.0F, 2.0F, -2.0F, 8.0F, 4.0F, 4.0F),
+            CubeListBuilder.create().texOffs(40, 38).addBox(-4.0F, 2.0F, -2.0F, 4.0F, 4.0F, 4.0F).addBox(0.0F, 2.0F, -2.0F, 4.0F, 4.0F, 4.0F),
             PartPose.offsetAndRotation(0.0F, 3.0F, -1.0F, -0.75F, 0.0F, 0.0F));
         partdefinition.addOrReplaceChild("right_leg",
             CubeListBuilder.create().texOffs(0, 22).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F),
@@ -95,13 +95,13 @@ public class ModelLostMiner extends EntityModel<EntityLostMiner> implements Head
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.rightLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.leftLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.rightLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.leftLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         if (this.currentEntity != null) {
-            this.renderArms(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, this.currentEntity);
+            this.renderArms(poseStack, vertexConsumer, packedLight, packedOverlay, color, this.currentEntity);
         }
     }
 
@@ -110,14 +110,14 @@ public class ModelLostMiner extends EntityModel<EntityLostMiner> implements Head
         return this.head;
     }
 
-    public void renderArms(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, EntityLostMiner lostMiner) {
+    public void renderArms(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color, EntityLostMiner lostMiner) {
         if (lostMiner.isSaved()) {
-            this.arms.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.arms.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         } else {
-            this.armLeftShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.armLeftHand.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.armRightShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.armRightHand.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.armLeftShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.armLeftHand.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.armRightShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.armRightHand.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
     }
 }

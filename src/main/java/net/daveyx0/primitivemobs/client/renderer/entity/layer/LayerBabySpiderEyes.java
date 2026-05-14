@@ -10,14 +10,14 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.DyeColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LayerBabySpiderEyes<T extends EntityBabySpider> extends RenderLayer<T, SpiderModel<T>> {
-   private static final ResourceLocation SPIDER_EYES = new ResourceLocation("primitivemobs", "textures/entity/spider_eyes.png");
+   private static final ResourceLocation SPIDER_EYES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/spider_eyes.png");
 
    public LayerBabySpiderEyes(RenderLayerParent<T, SpiderModel<T>> spiderRendererIn) {
       super(spiderRendererIn);
@@ -32,8 +32,8 @@ public class LayerBabySpiderEyes<T extends EntityBabySpider> extends RenderLayer
          int k1 = i2 % j1;
          int l = (i2 + 1) % j1;
          float f = ((float)(entitylivingbaseIn.tickCount % 25) + partialTicks) / 25.0F;
-         float[] afloat1 = Sheep.getColorArray(DyeColor.byId(k1));
-         float[] afloat2 = Sheep.getColorArray(DyeColor.byId(l));
+         float[] afloat1 = getDyeColorArray(DyeColor.byId(k1));
+         float[] afloat2 = getDyeColorArray(DyeColor.byId(l));
          r = afloat1[0] * (1.0F - f) + afloat2[0] * f;
          g = afloat1[1] * (1.0F - f) + afloat2[1] * f;
          b = afloat1[2] * (1.0F - f) + afloat2[2] * f;
@@ -42,13 +42,23 @@ public class LayerBabySpiderEyes<T extends EntityBabySpider> extends RenderLayer
          g = 0.007843138F;
          b = 0.007843138F;
       } else {
-         float[] afloat = Sheep.getColorArray(entitylivingbaseIn.getEyeColor());
+         float[] afloat = getDyeColorArray(entitylivingbaseIn.getEyeColor());
          r = afloat[0];
          g = afloat[1];
          b = afloat[2];
       }
 
       VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(SPIDER_EYES));
-      this.getParentModel().renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, r, g, b, 1.0F);
+      int color = FastColor.ARGB32.color(255, (int)(r * 255.0F), (int)(g * 255.0F), (int)(b * 255.0F));
+      this.getParentModel().renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, color);
+   }
+
+   private static float[] getDyeColorArray(DyeColor color) {
+      int rgb = color.getTextureDiffuseColor();
+      return new float[]{
+         (float)FastColor.ARGB32.red(rgb) / 255.0F,
+         (float)FastColor.ARGB32.green(rgb) / 255.0F,
+         (float)FastColor.ARGB32.blue(rgb) / 255.0F
+      };
    }
 }

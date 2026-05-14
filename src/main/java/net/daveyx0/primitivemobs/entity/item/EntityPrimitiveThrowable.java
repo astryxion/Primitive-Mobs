@@ -1,11 +1,14 @@
 package net.daveyx0.primitivemobs.entity.item;
 
+import net.minecraft.network.syncher.SynchedEntityData;
+
 import net.daveyx0.multimob.common.capabilities.CapabilityTameableEntity;
 import net.daveyx0.multimob.common.capabilities.ITameableEntity;
 import net.daveyx0.multimob.common.capabilities.CapabilityTameableEntity.EventHandler;
 import net.daveyx0.multimob.util.EntityUtil;
 import net.daveyx0.primitivemobs.entity.monster.EntityPrimitiveCreeper;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.damagesource.DamageSource;
@@ -21,8 +24,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class EntityPrimitiveThrowable extends ThrowableProjectile {
    public Class<? extends Mob> spawnEntityClass;
@@ -36,7 +39,7 @@ public class EntityPrimitiveThrowable extends ThrowableProjectile {
    }
 
    @Override
-   protected void defineSynchedData() {
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
    }
 
    public EntityPrimitiveThrowable(Level worldIn, int chance) {
@@ -129,7 +132,7 @@ public class EntityPrimitiveThrowable extends ThrowableProjectile {
       if (cached != null) {
          return cached;
       }
-      for (EntityType<?> type : net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES) {
+      for (EntityType<?> type : BuiltInRegistries.ENTITY_TYPE) {
          if (type != null) {
             try {
                Entity testEntity = type.create(level);

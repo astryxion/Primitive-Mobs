@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -17,42 +18,43 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraftforge.event.village.VillagerTradesEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.event.village.VillagerTradesEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class PrimitiveMobsVillagerProfessions {
    public static final DeferredRegister<VillagerProfession> PROFESSION_REGISTRY =
-      DeferredRegister.create(ForgeRegistries.VILLAGER_PROFESSIONS, PrimitiveMobsReference.MODID);
+      DeferredRegister.create(Registries.VILLAGER_PROFESSION, PrimitiveMobsReference.MODID);
 
-   public static final RegistryObject<VillagerProfession> MINER_PROFESSION = PROFESSION_REGISTRY.register("miner",
+   public static final DeferredHolder<VillagerProfession, VillagerProfession> MINER_PROFESSION = PROFESSION_REGISTRY.register("miner",
       () -> new VillagerProfession("primitivemobs:miner", holder -> false, holder -> false,
          ImmutableSet.of(), ImmutableSet.of(), null));
 
-   public static final RegistryObject<VillagerProfession> MERCHANT_PROFESSION = PROFESSION_REGISTRY.register("merchant",
+   public static final DeferredHolder<VillagerProfession, VillagerProfession> MERCHANT_PROFESSION = PROFESSION_REGISTRY.register("merchant",
       () -> new VillagerProfession("primitivemobs:merchant", holder -> false, holder -> false,
          ImmutableSet.of(), ImmutableSet.of(), null));
 
-   public static final RegistryObject<VillagerProfession> FAKE_MERCHANT_PROFESSION = PROFESSION_REGISTRY.register("fakemerchant",
+   public static final DeferredHolder<VillagerProfession, VillagerProfession> FAKE_MERCHANT_PROFESSION = PROFESSION_REGISTRY.register("fakemerchant",
       () -> new VillagerProfession("primitivemobs:fakemerchant", holder -> false, holder -> false,
          ImmutableSet.of(), ImmutableSet.of(), null));
 
-   public static final RegistryObject<VillagerProfession> SHEEPMAN_PROFESSION_SCAVENGER = PROFESSION_REGISTRY.register("sheepman_scavenger",
+   public static final DeferredHolder<VillagerProfession, VillagerProfession> SHEEPMAN_PROFESSION_SCAVENGER = PROFESSION_REGISTRY.register("sheepman_scavenger",
       () -> new VillagerProfession("primitivemobs:sheepman_scavenger", holder -> false, holder -> false,
          ImmutableSet.of(), ImmutableSet.of(), null));
 
-   public static final RegistryObject<VillagerProfession> SHEEPMAN_PROFESSION_ALCHEMIST = PROFESSION_REGISTRY.register("sheepman_alchemist",
+   public static final DeferredHolder<VillagerProfession, VillagerProfession> SHEEPMAN_PROFESSION_ALCHEMIST = PROFESSION_REGISTRY.register("sheepman_alchemist",
       () -> new VillagerProfession("primitivemobs:sheepman_alchemist", holder -> false, holder -> false,
          ImmutableSet.of(), ImmutableSet.of(), null));
 
-   public static final RegistryObject<VillagerProfession> SHEEPMAN_PROFESSION_THIEF = PROFESSION_REGISTRY.register("sheepman_thief",
+   public static final DeferredHolder<VillagerProfession, VillagerProfession> SHEEPMAN_PROFESSION_THIEF = PROFESSION_REGISTRY.register("sheepman_thief",
       () -> new VillagerProfession("primitivemobs:sheepman_thief", holder -> false, holder -> false,
          ImmutableSet.of(), ImmutableSet.of(), null));
 
@@ -143,7 +145,7 @@ public class PrimitiveMobsVillagerProfessions {
       sellPool3.add(new PrimitiveListItemForEmeralds(Items.COOKED_RABBIT, -7, -4));
       sellPool3.add(new PrimitiveListItemForEmeralds(Items.EXPERIENCE_BOTTLE, -10, -5));
       sellPool3.add(new PrimitiveListItemForEmeralds(
-         PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.POISON), -15, -10));
+         PotionContents.createItemStack(Items.SPLASH_POTION, Potions.POISON), -15, -10));
       sellPool3.add(new PrimitiveListItemForEmeralds(Items.SLIME_BALL, 4, 6));
       sellPool3.add(new PrimitiveListItemForEmeralds(Items.ELYTRA, -3, -2));
       sellPool3.add(new PrimitiveListItemForEmeralds(Items.NAME_TAG, 1, 1));
@@ -180,7 +182,7 @@ public class PrimitiveMobsVillagerProfessions {
       trades.get(level).add(listing);
    }
 
-   @Mod.EventBusSubscriber(modid = PrimitiveMobsReference.MODID)
+   @EventBusSubscriber(modid = PrimitiveMobsReference.MODID)
    public static class TradeHandler {
       @SubscribeEvent
       public static void registerTrades(VillagerTradesEvent event) {
@@ -264,15 +266,15 @@ public class PrimitiveMobsVillagerProfessions {
          addTrade(trades, 1, new ListItemForGoldIngots(Items.MAGMA_CREAM, 2, 4));
          addTrade(trades, 1, new ListItemForGoldIngots(Items.FERMENTED_SPIDER_EYE, 1, 2));
          addTrade(trades, 2, new ListItemForGoldIngots(
-            PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.FIRE_RESISTANCE), 4, 6));
+            PotionContents.createItemStack(Items.POTION, Potions.FIRE_RESISTANCE), 4, 6));
          addTrade(trades, 3, new ListItemForGoldIngots(
-            PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.STRONG_HEALING), 12, 15));
+            PotionContents.createItemStack(Items.POTION, Potions.STRONG_HEALING), 12, 15));
          addTrade(trades, 3, new ListItemForGoldIngots(
-            PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.STRONG_STRENGTH), 10, 13));
+            PotionContents.createItemStack(Items.POTION, Potions.STRONG_STRENGTH), 10, 13));
          addTrade(trades, 3, new ListItemForGoldIngots(
-            PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.LONG_REGENERATION), 15, 18));
+            PotionContents.createItemStack(Items.POTION, Potions.LONG_REGENERATION), 15, 18));
          addTrade(trades, 4, new ListItemForGoldIngots(
-            PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.STRONG_SWIFTNESS), 32, 40));
+            PotionContents.createItemStack(Items.POTION, Potions.STRONG_SWIFTNESS), 32, 40));
       }
 
       private static void registerSheepmanThiefTrades(Int2ObjectMap<List<VillagerTrades.ItemListing>> trades) {
@@ -313,19 +315,13 @@ public class PrimitiveMobsVillagerProfessions {
          ItemStack result;
          if (i < 0) {
             cost = new ItemStack(Items.EMERALD);
-            result = new ItemStack(this.itemToBuy.getItem(), -i);
-            if (this.itemToBuy.hasTag()) {
-               result.setTag(this.itemToBuy.getTag().copy());
-            }
+            result = this.itemToBuy.copyWithCount(-i);
          } else {
             cost = new ItemStack(Items.EMERALD, i);
-            result = new ItemStack(this.itemToBuy.getItem(), 1);
-            if (this.itemToBuy.hasTag()) {
-               result.setTag(this.itemToBuy.getTag().copy());
-            }
+            result = this.itemToBuy.copyWithCount(1);
          }
 
-         return new MerchantOffer(cost, result, 12, 2, 0.05F);
+         return new MerchantOffer(new ItemCost(cost.getItem(), cost.getCount()), result, 12, 2, 0.05F);
       }
    }
 
@@ -350,7 +346,7 @@ public class PrimitiveMobsVillagerProfessions {
             i = this.priceMin + random.nextInt(this.priceMax - this.priceMin + 1);
          }
 
-         return new MerchantOffer(new ItemStack(this.buyingItem, i), new ItemStack(Items.EMERALD), 12, 2, 0.05F);
+         return new MerchantOffer(new ItemCost(this.buyingItem, i), new ItemStack(Items.EMERALD), 12, 2, 0.05F);
       }
    }
 
@@ -403,8 +399,8 @@ public class PrimitiveMobsVillagerProfessions {
          }
 
          return new MerchantOffer(
-            new ItemStack(this.buyingItemStack.getItem(), i),
-            new ItemStack(this.buyingItemStack2.getItem(), i),
+            new ItemCost(this.buyingItemStack.getItem(), i),
+            Optional.of(new ItemCost(this.buyingItemStack2.getItem(), i)),
             new ItemStack(Items.EMERALD),
             12, 2, 0.05F
          );
@@ -432,7 +428,7 @@ public class PrimitiveMobsVillagerProfessions {
             i = this.priceMin + random.nextInt(this.priceMax - this.priceMin + 1);
          }
 
-         return new MerchantOffer(new ItemStack(this.buyingItem, i), new ItemStack(Items.GOLD_INGOT), 12, 2, 0.05F);
+         return new MerchantOffer(new ItemCost(this.buyingItem, i), new ItemStack(Items.GOLD_INGOT), 12, 2, 0.05F);
       }
    }
 
@@ -481,7 +477,7 @@ public class PrimitiveMobsVillagerProfessions {
             }
          }
 
-         return new MerchantOffer(cost, result, 12, 2, 0.05F);
+         return new MerchantOffer(new ItemCost(cost.getItem(), cost.getCount()), result, 12, 2, 0.05F);
       }
    }
 }

@@ -1,5 +1,8 @@
 package net.daveyx0.primitivemobs.entity.passive;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +11,7 @@ import net.daveyx0.multimob.entity.IMultiMobPassive;
 import net.daveyx0.multimob.entity.ai.EntityAITemptItemStack;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsVillagerProfessions;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -22,6 +26,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.MobSpawnType;
@@ -39,9 +44,9 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.common.IForgeShearable;
+import net.neoforged.neoforge.common.IShearable;
 
-public class EntitySheepman extends Villager implements IForgeShearable, IMultiMobPassive {
+public class EntitySheepman extends Villager implements IShearable, IMultiMobPassive {
    private static final EntityDataAccessor<Byte> DYE_COLOR = SynchedEntityData.defineId(EntitySheepman.class, EntityDataSerializers.BYTE);
    private static final EntityDataAccessor<Boolean> CAN_DESPAWN = SynchedEntityData.defineId(EntitySheepman.class, EntityDataSerializers.BOOLEAN);
    private static final Map<DyeColor, ItemLike> WOOL_BY_DYE = Map.ofEntries(
@@ -75,10 +80,10 @@ public class EntitySheepman extends Villager implements IForgeShearable, IMultiM
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(DYE_COLOR, (byte)0);
-      this.entityData.define(CAN_DESPAWN, true);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(DYE_COLOR, (byte)0);
+      builder.define(CAN_DESPAWN, true);
    }
 
    public void setCanDespawn(boolean b) {
@@ -87,8 +92,8 @@ public class EntitySheepman extends Villager implements IForgeShearable, IMultiM
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData livingdata, @Nullable CompoundTag tag) {
-      SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata, tag);
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData livingdata) {
+      SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata);
       int profession = this.random.nextInt(3);
       switch (profession) {
          case 0:
@@ -142,31 +147,31 @@ public class EntitySheepman extends Villager implements IForgeShearable, IMultiM
       this.playSound(SoundEvents.SHEEP_STEP, 0.15F, 1.0F);
    }
 
-   private static final Map<DyeColor, ResourceLocation> LOOT_TABLE_BY_COLOR = Map.ofEntries(
-      Map.entry(DyeColor.WHITE, new ResourceLocation("minecraft", "entities/sheep/white")),
-      Map.entry(DyeColor.ORANGE, new ResourceLocation("minecraft", "entities/sheep/orange")),
-      Map.entry(DyeColor.MAGENTA, new ResourceLocation("minecraft", "entities/sheep/magenta")),
-      Map.entry(DyeColor.LIGHT_BLUE, new ResourceLocation("minecraft", "entities/sheep/light_blue")),
-      Map.entry(DyeColor.YELLOW, new ResourceLocation("minecraft", "entities/sheep/yellow")),
-      Map.entry(DyeColor.LIME, new ResourceLocation("minecraft", "entities/sheep/lime")),
-      Map.entry(DyeColor.PINK, new ResourceLocation("minecraft", "entities/sheep/pink")),
-      Map.entry(DyeColor.GRAY, new ResourceLocation("minecraft", "entities/sheep/gray")),
-      Map.entry(DyeColor.LIGHT_GRAY, new ResourceLocation("minecraft", "entities/sheep/light_gray")),
-      Map.entry(DyeColor.CYAN, new ResourceLocation("minecraft", "entities/sheep/cyan")),
-      Map.entry(DyeColor.PURPLE, new ResourceLocation("minecraft", "entities/sheep/purple")),
-      Map.entry(DyeColor.BLUE, new ResourceLocation("minecraft", "entities/sheep/blue")),
-      Map.entry(DyeColor.BROWN, new ResourceLocation("minecraft", "entities/sheep/brown")),
-      Map.entry(DyeColor.GREEN, new ResourceLocation("minecraft", "entities/sheep/green")),
-      Map.entry(DyeColor.RED, new ResourceLocation("minecraft", "entities/sheep/red")),
-      Map.entry(DyeColor.BLACK, new ResourceLocation("minecraft", "entities/sheep/black"))
+   private static final Map<DyeColor, ResourceKey<LootTable>> LOOT_TABLE_BY_COLOR = Map.ofEntries(
+      Map.entry(DyeColor.WHITE, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/white"))),
+      Map.entry(DyeColor.ORANGE, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/orange"))),
+      Map.entry(DyeColor.MAGENTA, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/magenta"))),
+      Map.entry(DyeColor.LIGHT_BLUE, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/light_blue"))),
+      Map.entry(DyeColor.YELLOW, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/yellow"))),
+      Map.entry(DyeColor.LIME, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/lime"))),
+      Map.entry(DyeColor.PINK, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/pink"))),
+      Map.entry(DyeColor.GRAY, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/gray"))),
+      Map.entry(DyeColor.LIGHT_GRAY, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/light_gray"))),
+      Map.entry(DyeColor.CYAN, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/cyan"))),
+      Map.entry(DyeColor.PURPLE, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/purple"))),
+      Map.entry(DyeColor.BLUE, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/blue"))),
+      Map.entry(DyeColor.BROWN, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/brown"))),
+      Map.entry(DyeColor.GREEN, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/green"))),
+      Map.entry(DyeColor.RED, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/red"))),
+      Map.entry(DyeColor.BLACK, ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/black")))
    );
 
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       if (this.getSheared()) {
-         return new ResourceLocation("minecraft", "entities/sheep");
+         return ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep"));
       } else {
-         return LOOT_TABLE_BY_COLOR.getOrDefault(this.getFleeceColor(), new ResourceLocation("minecraft", "entities/sheep/white"));
+         return LOOT_TABLE_BY_COLOR.getOrDefault(this.getFleeceColor(), ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "entities/sheep/white")));
       }
    }
 
@@ -197,7 +202,7 @@ public class EntitySheepman extends Villager implements IForgeShearable, IMultiM
             }
          }
 
-         itemstack.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(hand));
+         itemstack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
          this.playSound(SoundEvents.SHEEP_SHEAR, 1.0F, 1.0F);
          return InteractionResult.SUCCESS;
       } else {
@@ -252,12 +257,12 @@ public class EntitySheepman extends Villager implements IForgeShearable, IMultiM
    }
 
    @Override
-   public boolean isShearable(ItemStack item, Level world, BlockPos pos) {
+   public boolean isShearable(@Nullable Player player, ItemStack item, Level level, BlockPos pos) {
       return !this.getSheared() && !this.isBaby();
    }
 
    @Override
-   public List<ItemStack> onSheared(@Nullable Player player, ItemStack item, Level world, BlockPos pos, int fortune) {
+   public List<ItemStack> onSheared(@Nullable Player player, ItemStack item, Level level, BlockPos pos) {
       this.setSheared(true);
       int i = 1 + this.random.nextInt(3);
       List<ItemStack> ret = new ArrayList<>();
@@ -297,7 +302,7 @@ public class EntitySheepman extends Villager implements IForgeShearable, IMultiM
       if (!this.level().isClientSide && !this.isRemoved()) {
          Sheep sheep = EntityType.SHEEP.create(this.level());
          sheep.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
-         sheep.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(new BlockPos(sheep.blockPosition())), MobSpawnType.CONVERSION, (SpawnGroupData)null, (CompoundTag)null);
+         sheep.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(new BlockPos(sheep.blockPosition())), MobSpawnType.CONVERSION, (SpawnGroupData)null);
          sheep.setNoAi(this.isNoAi());
          sheep.setColor(this.getFleeceColor());
          if (this.hasCustomName()) {

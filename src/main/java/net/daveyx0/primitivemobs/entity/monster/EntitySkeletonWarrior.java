@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.daveyx0.primitivemobs.entity.ai.EntityAISwitchBetweenRangedAndMelee;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -111,8 +112,8 @@ public class EntitySkeletonWarrior extends Skeleton {
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData livingdata, @Nullable CompoundTag dataTag) {
-      this.getAttribute(Attributes.FOLLOW_RANGE).addPermanentModifier(new AttributeModifier("Random spawn bonus", this.random.nextGaussian() * 0.05, AttributeModifier.Operation.ADDITION));
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData livingdata) {
+      this.getAttribute(Attributes.FOLLOW_RANGE).addPermanentModifier(new AttributeModifier(ResourceLocation.fromNamespaceAndPath("primitivemobs", "random_spawn_bonus"), this.random.nextGaussian() * 0.05, AttributeModifier.Operation.ADD_VALUE));
       if (this.random.nextFloat() < 0.05F) {
          this.setLeftHanded(true);
       } else {
@@ -136,8 +137,8 @@ public class EntitySkeletonWarrior extends Skeleton {
    }
 
    @Override
-   protected AbstractArrow getArrow(ItemStack arrowStack, float velocity) {
-      AbstractArrow entityarrow = super.getArrow(arrowStack, velocity);
+   protected AbstractArrow getArrow(ItemStack arrowStack, float velocity, ItemStack weapon) {
+      AbstractArrow entityarrow = super.getArrow(arrowStack, velocity, weapon);
       if (entityarrow instanceof Arrow) {
          ((Arrow)entityarrow).addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 600));
       }

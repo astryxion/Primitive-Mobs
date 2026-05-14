@@ -1,0 +1,85 @@
+﻿{
+  "type": "neoforge:add_spawns",
+  "biomes": "#minecraft:is_overworld",
+  "spawners": [
+    {
+      "type": "primitivemobs:haunted_tool",
+      "weight": 70,
+      "minCount": 1,
+      "maxCount": 1
+    },
+    {
+      "type": "primitivemobs:rocket_creeper",
+      "weight": 50,
+      "minCount": 1,
+      "maxCount": 1
+    },
+    {
+      "type": "primitivemobs:festive_creeper",
+      "weight": 10,
+      "minCount": 1,
+      "maxCount": 1
+    },
+    {
+      "type": "primitivemobs:support_creeper",
+      "weight": 30,
+      "minCount": 1,
+      "maxCount": 1
+    },
+    {
+      "type": "primitivemobs:treasure_slime",
+      "weight": 20,
+      "minCount": 1,
+      "maxCount": 1
+    },
+    {
+      "type": "primitivemobs:bewitched_tome",
+      "weight": 20,
+      "minCount": 1,
+      "maxCount": 1
+    },
+    {
+      "type": "primitivemobs:skeleton_warrior",
+      "weight": 100,
+      "minCount": 1,
+      "maxCount": 3
+    },
+    {
+      "type": "primitivemobs:mother_spider",
+      "weight": 40,
+      "minCount": 1,
+      "maxCount": 1
+    },
+    {
+      "type": "primitivemobs:trollager",
+      "weight": 25,
+      "minCount": 1,
+      "maxCount": 1
+    },
+    {
+      "type": "primitivemobs:void_eye",
+      "weight": 10,
+      "minCount": 1,
+      "maxCount": 1
+    },
+    {
+      "type": "primitivemobs:goblin",
+      "weight": 50,
+      "minCount": 1,
+      "maxCount": 3
+    },
+    {
+      "type": "primitivemobs:harpy",
+      "weight": 100,
+      "minCount": 1,
+      "maxCount": 3
+    },
+    {
+      "type": "primitivemobs:flame_spewer",
+      "weight": 100,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}
+

@@ -46,10 +46,10 @@ public class ModelMimic<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.Top.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.Lock.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.Bottom.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.Teeth.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        this.Top.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.Lock.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.Bottom.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.Teeth.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 }

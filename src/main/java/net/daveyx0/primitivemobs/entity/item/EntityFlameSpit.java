@@ -6,8 +6,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.SmallFireball;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class EntityFlameSpit extends SmallFireball {
    public EntityFlameSpit(EntityType<? extends EntityFlameSpit> type, Level worldIn) {
@@ -15,7 +16,7 @@ public class EntityFlameSpit extends SmallFireball {
    }
 
    public EntityFlameSpit(Level worldIn, LivingEntity shooter, double accelX, double accelY, double accelZ) {
-      super(worldIn, shooter, accelX, accelY, accelZ);
+      super(worldIn, shooter, new Vec3(accelX, accelY, accelZ));
    }
 
    @Override

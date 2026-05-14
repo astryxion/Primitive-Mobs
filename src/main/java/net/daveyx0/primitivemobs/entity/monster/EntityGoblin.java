@@ -1,5 +1,8 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.IMultiMob;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsEntityRegistry;
@@ -68,9 +71,9 @@ public class EntityGoblin extends Monster implements IMultiMob {
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData livingdata, @Nullable CompoundTag dataTag) {
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData livingdata) {
       this.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(PrimitiveMobsItems.GOBLIN_MACE.get()));
-      return super.finalizeSpawn(level, difficulty, reason, livingdata, dataTag);
+      return super.finalizeSpawn(level, difficulty, reason, livingdata);
    }
 
    @Override
@@ -90,7 +93,7 @@ public class EntityGoblin extends Monster implements IMultiMob {
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_GOBLIN;
    }
 

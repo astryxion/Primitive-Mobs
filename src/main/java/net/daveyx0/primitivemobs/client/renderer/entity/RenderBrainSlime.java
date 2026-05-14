@@ -10,14 +10,14 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderBrainSlime extends MobRenderer<EntityBrainSlime, ModelBrainSlime<EntityBrainSlime>> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "brain_slime"), "main");
-   public static final ModelLayerLocation OUTER_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "brain_slime"), "outer");
-   private static final ResourceLocation SLIME_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/brainslime/slime_brain.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "brain_slime"), "main");
+   public static final ModelLayerLocation OUTER_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "brain_slime"), "outer");
+   private static final ResourceLocation SLIME_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/brainslime/slime_brain.png");
 
    public RenderBrainSlime(EntityRendererProvider.Context context) {
       super(context, new ModelBrainSlime<EntityBrainSlime>(context.bakeLayer(MODEL_LAYER), true), 0.4F);

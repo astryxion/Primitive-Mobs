@@ -11,12 +11,13 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.util.FastColor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LayerGroveSpriteStump extends RenderLayer<EntityGroveSprite, ModelGroveSprite> {
-   private static final ResourceLocation GROVESTUMP_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/grovesprite/grovestump.png");
+   private static final ResourceLocation GROVESTUMP_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/grovesprite/grovestump.png");
    private final ModelGroveSprite spriteModel;
 
    public LayerGroveSpriteStump(RenderGroveSprite spriteRendererIn, EntityRendererProvider.Context context) {
@@ -31,6 +32,7 @@ public class LayerGroveSpriteStump extends RenderLayer<EntityGroveSprite, ModelG
       this.spriteModel.prepareMobModel(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks);
       this.spriteModel.setupAnim(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
       VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(GROVESTUMP_TEXTURES));
-      this.spriteModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), RGB[0] / 255.0F, RGB[1] / 255.0F, RGB[2] / 255.0F, 1.0F);
+      int color = FastColor.ARGB32.color(255, (int)RGB[0], (int)RGB[1], (int)RGB[2]);
+      this.spriteModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), color);
    }
 }

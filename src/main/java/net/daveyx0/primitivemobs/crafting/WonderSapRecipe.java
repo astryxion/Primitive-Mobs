@@ -1,29 +1,30 @@
 package net.daveyx0.primitivemobs.crafting;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
 import net.daveyx0.primitivemobs.item.ItemGroveSpriteSap;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 
 public class WonderSapRecipe extends ShapelessRecipe {
 
-   public WonderSapRecipe(ResourceLocation id, String group, CraftingBookCategory category, ItemStack result, NonNullList<Ingredient> ingredients) {
-      super(id, group, category, result, ingredients);
+   public WonderSapRecipe(String group, CraftingBookCategory category, ItemStack result, NonNullList<Ingredient> ingredients) {
+      super(group, category, result, ingredients);
    }
 
    @Override
-   public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
-      ItemStack output = super.assemble(inv, registryAccess);
+   public ItemStack assemble(CraftingInput inv, HolderLookup.Provider registries) {
+      ItemStack output = super.assemble(inv, registries);
       if (!output.isEmpty()) {
-         for(int i = 0; i < inv.getContainerSize(); ++i) {
+         for(int i = 0; i < inv.size(); ++i) {
             ItemStack ingredient = inv.getItem(i);
             if (!ingredient.isEmpty() && ingredient.getItem() instanceof ItemGroveSpriteSap) {
                ItemStack log = ItemGroveSpriteSap.getLogFromSap(ingredient, 1);
@@ -43,21 +44,22 @@ public class WonderSapRecipe extends ShapelessRecipe {
    }
 
    public static class Serializer implements RecipeSerializer<WonderSapRecipe> {
+      private final ShapelessRecipe.Serializer vanilla = new ShapelessRecipe.Serializer();
+
       @Override
-      public WonderSapRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
-         ShapelessRecipe base = RecipeSerializer.SHAPELESS_RECIPE.fromJson(recipeId, json);
-         return new WonderSapRecipe(recipeId, base.getGroup(), base.category(), base.getResultItem(RegistryAccess.EMPTY), base.getIngredients());
+      public MapCodec<WonderSapRecipe> codec() {
+         return vanilla.codec().xmap(
+            shapeless -> new WonderSapRecipe(shapeless.getGroup(), shapeless.category(), shapeless.getResultItem(RegistryAccess.EMPTY), NonNullList.copyOf(shapeless.getIngredients())),
+            recipe -> new ShapelessRecipe(recipe.getGroup(), recipe.category(), recipe.getResultItem(RegistryAccess.EMPTY), recipe.getIngredients())
+         );
       }
 
       @Override
-      public WonderSapRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
-         ShapelessRecipe base = RecipeSerializer.SHAPELESS_RECIPE.fromNetwork(recipeId, buffer);
-         return new WonderSapRecipe(recipeId, base.getGroup(), base.category(), base.getResultItem(RegistryAccess.EMPTY), base.getIngredients());
-      }
-
-      @Override
-      public void toNetwork(FriendlyByteBuf buffer, WonderSapRecipe recipe) {
-         RecipeSerializer.SHAPELESS_RECIPE.toNetwork(buffer, recipe);
+      public StreamCodec<RegistryFriendlyByteBuf, WonderSapRecipe> streamCodec() {
+         return vanilla.streamCodec().map(
+            shapeless -> new WonderSapRecipe(shapeless.getGroup(), shapeless.category(), shapeless.getResultItem(RegistryAccess.EMPTY), NonNullList.copyOf(shapeless.getIngredients())),
+            recipe -> new ShapelessRecipe(recipe.getGroup(), recipe.category(), recipe.getResultItem(RegistryAccess.EMPTY), recipe.getIngredients())
+         );
       }
    }
 }

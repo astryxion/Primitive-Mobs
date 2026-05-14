@@ -9,15 +9,15 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @SuppressWarnings("unchecked")
 @OnlyIn(Dist.CLIENT)
 public class RenderTrollager extends MobRenderer<EntityTrollager, ModelTrollager> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "trollager"), "main");
-   private static final ResourceLocation TROLLAGER_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/troll/troll.png");
-   private static final ResourceLocation TROLLAGER_STONED_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/troll/troll_stoned.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "trollager"), "main");
+   private static final ResourceLocation TROLLAGER_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/troll/troll.png");
+   private static final ResourceLocation TROLLAGER_STONED_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/troll/troll_stoned.png");
 
    public RenderTrollager(EntityRendererProvider.Context context) {
       super(context, new ModelTrollager(context.bakeLayer(MODEL_LAYER)), 2.35F);

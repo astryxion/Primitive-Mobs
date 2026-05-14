@@ -1,5 +1,9 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.IMultiMob;
 import net.daveyx0.primitivemobs.config.PrimitiveMobsConfigMobs;
@@ -19,6 +23,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -63,13 +68,13 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
       if (!PrimitiveMobsConfigMobs.enableSpiderFamily) {
          this.discard();
       }
 
-      this.entityData.define(IS_ANGRY, false);
+      builder.define(IS_ANGRY, false);
    }
 
    @Override
@@ -124,7 +129,7 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
 
    @Override
    protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
-      return PrimitiveMobsSoundEvents.ENTITY_MOTHERSPIDER_SCREECH.get();
+      return PrimitiveMobsSoundEvents.ENTITY_MOTHERSPIDER_SCREECH.value();
    }
 
    public void addFollower(LivingEntity follower) {
@@ -176,8 +181,8 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag tag) {
-      this.getAttribute(Attributes.FOLLOW_RANGE).addTransientModifier(new AttributeModifier("Random spawn bonus", this.random.nextGaussian() * 0.05D, AttributeModifier.Operation.MULTIPLY_BASE));
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnData) {
+      this.getAttribute(Attributes.FOLLOW_RANGE).addTransientModifier(new AttributeModifier(ResourceLocation.fromNamespaceAndPath("primitivemobs", "random_spawn_bonus"), this.random.nextGaussian() * 0.05D, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
       if (spawnData == null) {
          spawnData = new EntityPrimitiveSpider.GroupData();
          if (this.level().getDifficulty() == Difficulty.HARD && this.level().random.nextFloat() < 0.1F * difficulty.getSpecialMultiplier()) {
@@ -186,7 +191,7 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
       }
 
       if (spawnData instanceof EntityPrimitiveSpider.GroupData) {
-         MobEffect effect = ((EntityPrimitiveSpider.GroupData)spawnData).effect;
+         Holder<MobEffect> effect = ((EntityPrimitiveSpider.GroupData)spawnData).effect;
          if (effect != null) {
             this.addEffect(new MobEffectInstance(effect, Integer.MAX_VALUE));
          }
@@ -233,7 +238,7 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
          f2 = 0.25F;
       }
 
-      moveFunction.accept(passenger, this.getX() + (double)(0.1F * f), this.getY() + (double)(this.getBbHeight() * 0.5F + f2) + passenger.getMyRidingOffset() + 0.0D, this.getZ() - (double)(0.1F * f1));
+      moveFunction.accept(passenger, this.getX() + (double)(0.1F * f), this.getY() + (double)(this.getBbHeight() * 0.5F + f2) + passenger.getVehicleAttachmentPoint(this).y + 0.0D, this.getZ() - (double)(0.1F * f1));
       if (passenger instanceof LivingEntity) {
          ((LivingEntity)passenger).yBodyRot = this.yBodyRot;
       }
@@ -242,7 +247,7 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_MOTHERSPIDER;
    }
 }

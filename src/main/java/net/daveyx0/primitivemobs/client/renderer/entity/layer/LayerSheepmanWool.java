@@ -11,11 +11,11 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.DyeColor;
 
 public class LayerSheepmanWool extends RenderLayer<EntitySheepman, ModelSheepman> {
-   private static final ResourceLocation TEXTURE = new ResourceLocation("primitivemobs", "textures/entity/villager/sheepman.png");
+   private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/villager/sheepman.png");
    private final ModelSheepman sheepModel;
 
    public LayerSheepmanWool(RenderSheepman sheepRendererIn, EntityRendererProvider.Context context) {
@@ -33,13 +33,13 @@ public class LayerSheepmanWool extends RenderLayer<EntitySheepman, ModelSheepman
             int k = i % j;
             int l = (i + 1) % j;
             float f = ((float)(entitylivingbaseIn.tickCount % 25) + partialTicks) / 25.0F;
-            float[] afloat1 = Sheep.getColorArray(DyeColor.byId(k));
-            float[] afloat2 = Sheep.getColorArray(DyeColor.byId(l));
+            float[] afloat1 = getDyeColorArray(DyeColor.byId(k));
+            float[] afloat2 = getDyeColorArray(DyeColor.byId(l));
             r = afloat1[0] * (1.0F - f) + afloat2[0] * f;
             g = afloat1[1] * (1.0F - f) + afloat2[1] * f;
             b = afloat1[2] * (1.0F - f) + afloat2[2] * f;
          } else {
-            float[] afloat = Sheep.getColorArray(entitylivingbaseIn.getFleeceColor());
+            float[] afloat = getDyeColorArray(entitylivingbaseIn.getFleeceColor());
             r = afloat[0];
             g = afloat[1];
             b = afloat[2];
@@ -49,7 +49,17 @@ public class LayerSheepmanWool extends RenderLayer<EntitySheepman, ModelSheepman
          this.sheepModel.prepareMobModel(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks);
          this.sheepModel.setupAnim(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
          VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
-         this.sheepModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), r, g, b, 1.0F);
+         int color = FastColor.ARGB32.color(255, (int)(r * 255.0F), (int)(g * 255.0F), (int)(b * 255.0F));
+         this.sheepModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), color);
       }
+   }
+
+   private static float[] getDyeColorArray(DyeColor color) {
+      int rgb = color.getTextureDiffuseColor();
+      return new float[]{
+         (float)FastColor.ARGB32.red(rgb) / 255.0F,
+         (float)FastColor.ARGB32.green(rgb) / 255.0F,
+         (float)FastColor.ARGB32.blue(rgb) / 255.0F
+      };
    }
 }

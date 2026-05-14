@@ -28,7 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.scores.Team;
+import net.minecraft.world.scores.PlayerTeam;
 
 public abstract class EntityTameableSlime extends Slime implements OwnableEntity {
    protected static final EntityDataAccessor<Boolean> TAMED = SynchedEntityData.defineId(EntityTameableSlime.class, EntityDataSerializers.BOOLEAN);
@@ -50,11 +50,11 @@ public abstract class EntityTameableSlime extends Slime implements OwnableEntity
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(TAMED, false);
-      this.entityData.define(SITTING, false);
-      this.entityData.define(OWNER_UNIQUE_ID, Optional.empty());
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(TAMED, false);
+      builder.define(SITTING, false);
+      builder.define(OWNER_UNIQUE_ID, Optional.empty());
    }
 
    @Override
@@ -206,7 +206,7 @@ public abstract class EntityTameableSlime extends Slime implements OwnableEntity
    }
 
    @Override
-   public Team getTeam() {
+   public PlayerTeam getTeam() {
       if (this.isTamed()) {
          LivingEntity entitylivingbase = this.getOwner();
          if (entitylivingbase != null) {

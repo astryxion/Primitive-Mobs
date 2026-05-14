@@ -7,14 +7,14 @@ import net.daveyx0.primitivemobs.crafting.PrimitiveMobsRecipeSerializers;
 import net.daveyx0.primitivemobs.message.PrimitiveMobsMessageRegistry;
 import net.daveyx0.multimob.spawn.MMSpawnRegistry;
 import net.daveyx0.primitivemobs.world.gen.WorldGenMimic;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,7 +25,8 @@ public class PrimitiveMobs {
 
    public PrimitiveMobs() {
       instance = this;
-      IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+      ModLoadingContext context = ModLoadingContext.get();
+      IEventBus modEventBus = context.getActiveContainer().getEventBus();
 
       PrimitiveMobsEntityRegistry.init(modEventBus);
       PrimitiveMobsSoundEvents.init(modEventBus);
@@ -41,12 +42,12 @@ public class PrimitiveMobs {
       modEventBus.addListener(PrimitiveMobsEntityRegistry::registerLayerDefinitions);
       modEventBus.addListener(PrimitiveMobsEntityRegistry::registerAttributes);
       modEventBus.addListener(PrimitiveMobsEntityRegistry::registerSpawnPlacements);
+      modEventBus.addListener(PrimitiveMobsMessageRegistry::registerPayloads);
 
-      ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, PrimitiveMobsConfig.CONFIG_SPEC, "primitivemobs/primitivemobs.toml");
-      ModLoadingContext.get().registerExtensionPoint(net.minecraftforge.client.ConfigScreenHandler.ConfigScreenFactory.class, PrimitiveMobsFactoryGui::getFactory);
-
-      MinecraftForge.EVENT_BUS.register(this);
-      MinecraftForge.EVENT_BUS.register(new PrimitiveMobsEvents.EntityEventHandler());
+      context.getActiveContainer().registerConfig(ModConfig.Type.COMMON, PrimitiveMobsConfig.CONFIG_SPEC, "primitivemobs/primitivemobs.toml");
+      if (FMLEnvironment.dist == Dist.CLIENT) {
+         context.getActiveContainer().registerExtensionPoint(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class, PrimitiveMobsFactoryGui.getFactory());
+      }
    }
 
    private void commonSetup(final FMLCommonSetupEvent event) {

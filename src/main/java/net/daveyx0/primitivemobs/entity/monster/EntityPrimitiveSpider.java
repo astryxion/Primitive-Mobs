@@ -2,6 +2,7 @@ package net.daveyx0.primitivemobs.entity.monster;
 
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -15,11 +16,11 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -45,8 +46,8 @@ public class EntityPrimitiveSpider extends EntityPrimitiveTameableMob {
    }
 
    @Override
-   public double getPassengersRidingOffset() {
-      return (double)(this.getBbHeight() * 0.5F);
+   protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
+      return new Vec3(0.0, (double)(dimensions.height() * 0.5F), 0.0);
    }
 
    @Override
@@ -55,9 +56,9 @@ public class EntityPrimitiveSpider extends EntityPrimitiveTameableMob {
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(CLIMBING, (byte)0);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(CLIMBING, (byte)0);
    }
 
    @Override
@@ -105,11 +106,6 @@ public class EntityPrimitiveSpider extends EntityPrimitiveTameableMob {
    }
 
    @Override
-   public MobType getMobType() {
-      return MobType.ARTHROPOD;
-   }
-
-   @Override
    public boolean canBeAffected(MobEffectInstance effectInstance) {
       return effectInstance.getEffect() == MobEffects.POISON ? false : super.canBeAffected(effectInstance);
    }
@@ -131,12 +127,12 @@ public class EntityPrimitiveSpider extends EntityPrimitiveTameableMob {
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData livingdata, @Nullable CompoundTag tag) {
-      livingdata = super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata, tag);
+   public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData livingdata) {
+      livingdata = super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata);
       if (this.random.nextInt(100) == 0) {
          Skeleton entityskeleton = new Skeleton(EntityType.SKELETON, this.level());
          entityskeleton.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-         entityskeleton.finalizeSpawn(levelAccessor, difficulty, MobSpawnType.JOCKEY, (SpawnGroupData)null, (CompoundTag)null);
+         entityskeleton.finalizeSpawn(levelAccessor, difficulty, MobSpawnType.JOCKEY, (SpawnGroupData)null);
          levelAccessor.addFreshEntity(entityskeleton);
          entityskeleton.startRiding(this);
       }
@@ -149,7 +145,7 @@ public class EntityPrimitiveSpider extends EntityPrimitiveTameableMob {
       }
 
       if (livingdata instanceof Spider.SpiderEffectsGroupData) {
-         MobEffect mobeffect = ((Spider.SpiderEffectsGroupData)livingdata).effect;
+         Holder<MobEffect> mobeffect = ((Spider.SpiderEffectsGroupData)livingdata).effect;
          if (mobeffect != null) {
             this.addEffect(new MobEffectInstance(mobeffect, Integer.MAX_VALUE));
          }
@@ -159,8 +155,14 @@ public class EntityPrimitiveSpider extends EntityPrimitiveTameableMob {
    }
 
    @Override
-   protected float getStandingEyeHeight(Pose pose, EntityDimensions size) {
-      return 0.65F;
+   protected EntityDimensions getDefaultDimensions(Pose pose) {
+      return super.getDefaultDimensions(pose).withEyeHeight(0.65F);
+   }
+
+   @Override
+   public boolean isWithinMeleeAttackRange(LivingEntity entity) {
+      double reach = this instanceof EntityBabySpider ? (double)(2.0F + entity.getBbWidth()) : (double)(4.0F + entity.getBbWidth());
+      return this.distanceToSqr(entity) <= reach * reach;
    }
 
    static class AISpiderAttack extends MeleeAttackGoal {
@@ -182,10 +184,6 @@ public class EntityPrimitiveSpider extends EntityPrimitiveTameableMob {
          }
       }
 
-      @Override
-      protected double getAttackReachSqr(LivingEntity attackTarget) {
-         return this.spider instanceof EntityBabySpider ? (double)(2.0F + attackTarget.getBbWidth()) : (double)(4.0F + attackTarget.getBbWidth());
-      }
    }
 
    static class AISpiderTarget<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
@@ -201,7 +199,7 @@ public class EntityPrimitiveSpider extends EntityPrimitiveTameableMob {
    }
 
    public static class GroupData implements SpawnGroupData {
-      public MobEffect effect;
+      public Holder<MobEffect> effect;
 
       public void setRandomEffect(RandomSource rand) {
          int i = rand.nextInt(5);

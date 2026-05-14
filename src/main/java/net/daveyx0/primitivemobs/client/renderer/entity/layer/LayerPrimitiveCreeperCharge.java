@@ -11,12 +11,12 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LayerPrimitiveCreeperCharge extends RenderLayer<EntityPrimitiveCreeper, ModelPrimitiveCreeper> {
-   private static final ResourceLocation LIGHTNING_TEXTURE = new ResourceLocation("textures/entity/creeper/creeper_armor.png");
+   private static final ResourceLocation LIGHTNING_TEXTURE = ResourceLocation.parse("textures/entity/creeper/creeper_armor.png");
    private final ModelPrimitiveCreeper creeperModel;
 
    public LayerPrimitiveCreeperCharge(RenderPrimitiveCreeper creeperRendererIn, EntityRendererProvider.Context context) {
@@ -32,7 +32,7 @@ public class LayerPrimitiveCreeperCharge extends RenderLayer<EntityPrimitiveCree
          this.creeperModel.prepareMobModel(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks);
          this.creeperModel.setupAnim(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
          VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.energySwirl(LIGHTNING_TEXTURE, f * 0.01F, f * 0.01F));
-         this.creeperModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), 0.5F, 0.5F, 0.5F, 1.0F);
+         this.creeperModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), -8421505);
       }
    }
 }

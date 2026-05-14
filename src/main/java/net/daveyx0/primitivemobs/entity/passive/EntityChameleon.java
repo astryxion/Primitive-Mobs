@@ -1,12 +1,16 @@
 package net.daveyx0.primitivemobs.entity.passive;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.IMultiMobPassive;
 import net.daveyx0.multimob.util.ColorUtil;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsLootTables;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
@@ -29,8 +33,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class EntityChameleon extends Animal implements IMultiMobPassive {
    private float R;
@@ -46,7 +50,11 @@ public class EntityChameleon extends Animal implements IMultiMobPassive {
    public EntityChameleon(EntityType<? extends EntityChameleon> type, Level worldIn) {
       super(type, worldIn);
       this.setSkinRGB(new int[]{0, 125, 25});
-      this.setMaxUpStep(1.0F);
+   }
+
+   @Override
+   public float maxUpStep() {
+      return 1.0F;
    }
 
    @Override
@@ -87,7 +95,7 @@ public class EntityChameleon extends Animal implements IMultiMobPassive {
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_CHAMELEON;
    }
 

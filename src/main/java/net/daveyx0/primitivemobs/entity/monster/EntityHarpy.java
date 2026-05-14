@@ -1,7 +1,10 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import javax.annotation.Nullable;
-import net.daveyx0.multimob.entity.EntityMMFlyingMob;
+import net.daveyx0.primitivemobs.entity.EntityPrimitiveFlyingMob;
 import net.daveyx0.multimob.entity.IMultiMob;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsLootTables;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsSoundEvents;
@@ -24,9 +27,11 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.phys.Vec3;
 
-public class EntityHarpy extends EntityMMFlyingMob implements IMultiMob {
-   public EntityHarpy(EntityType<? extends EntityMMFlyingMob> type, Level worldIn) {
+public class EntityHarpy extends EntityPrimitiveFlyingMob implements IMultiMob {
+   public EntityHarpy(EntityType<? extends EntityPrimitiveFlyingMob> type, Level worldIn) {
       super(type, worldIn);
       this.moveControl = new EntityHarpyFlyHelper(this);
    }
@@ -43,7 +48,7 @@ public class EntityHarpy extends EntityMMFlyingMob implements IMultiMob {
    }
 
    public static AttributeSupplier.Builder createAttributes() {
-      return EntityMMFlyingMob.createAttributes()
+      return EntityPrimitiveFlyingMob.createAttributes()
          .add(Attributes.MAX_HEALTH, (double)20.0F)
          .add(Attributes.FLYING_SPEED, 0.5000000059604645)
          .add(Attributes.MOVEMENT_SPEED, (double)0.2F);
@@ -52,7 +57,7 @@ public class EntityHarpy extends EntityMMFlyingMob implements IMultiMob {
    @Nullable
    @Override
    public SoundEvent getAmbientSound() {
-      return PrimitiveMobsSoundEvents.ENTITY_HARPY_IDLE.get();
+      return PrimitiveMobsSoundEvents.ENTITY_HARPY_IDLE.value();
    }
 
    @Override
@@ -102,15 +107,20 @@ public class EntityHarpy extends EntityMMFlyingMob implements IMultiMob {
    }
 
    @Override
-   public double getPassengersRidingOffset() {
-      return this.isVehicle() && !this.getPassengers().isEmpty() && this.getPassengers().get(0) != null ? (double)((Entity)this.getPassengers().get(0)).getBbHeight() : super.getPassengersRidingOffset();
+   protected Vec3 getPassengerAttachmentPoint(Entity passenger, EntityDimensions dimensions, float partialTick) {
+      if (this.isVehicle() && !this.getPassengers().isEmpty() && this.getPassengers().get(0) != null) {
+         return new Vec3(0.0, (double)this.getPassengers().get(0).getBbHeight(), 0.0);
+      }
+
+      return super.getPassengerAttachmentPoint(passenger, dimensions, partialTick);
    }
 
    @Override
    protected void positionRider(Entity entity, Entity.MoveFunction moveFunction) {
       super.positionRider(entity, moveFunction);
       if (entity instanceof LivingEntity) {
-         moveFunction.accept(entity, this.getX(), this.getY() - this.getPassengersRidingOffset(), this.getZ());
+         Vec3 attachment = this.getPassengerAttachmentPoint(entity, entity.getDimensions(entity.getPose()), 0.0F);
+         moveFunction.accept(entity, this.getX(), this.getY() - attachment.y, this.getZ());
          if (entity.isShiftKeyDown()) {
             entity.setShiftKeyDown(false);
          }
@@ -120,7 +130,7 @@ public class EntityHarpy extends EntityMMFlyingMob implements IMultiMob {
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_HARPY;
    }
 
@@ -131,12 +141,12 @@ public class EntityHarpy extends EntityMMFlyingMob implements IMultiMob {
 
    @Override
    protected SoundEvent getHurtSound(DamageSource p_184601_1_) {
-      return PrimitiveMobsSoundEvents.ENTITY_HARPY_HURT.get();
+      return PrimitiveMobsSoundEvents.ENTITY_HARPY_HURT.value();
    }
 
    @Override
    protected SoundEvent getDeathSound() {
-      return PrimitiveMobsSoundEvents.ENTITY_HARPY_HURT.get();
+      return PrimitiveMobsSoundEvents.ENTITY_HARPY_HURT.value();
    }
 
    public class AIHarpyLift extends MeleeAttackGoal {
@@ -150,14 +160,14 @@ public class EntityHarpy extends EntityMMFlyingMob implements IMultiMob {
       }
 
       @Override
-      protected void checkAndPerformAttack(LivingEntity p_190102_1_, double p_190102_2_) {
-         double d0 = this.getAttackReachSqr(p_190102_1_);
-         if (p_190102_2_ <= d0 && this.getTicksUntilNextAttack() <= 0) {
+      protected void checkAndPerformAttack(LivingEntity target) {
+         double d0 = this.mob.getBbWidth() * 2.0F * this.mob.getBbWidth() * 2.0F + target.getBbWidth();
+         if (this.mob.distanceToSqr(target) <= d0 && this.getTicksUntilNextAttack() <= 0) {
             if (!this.mob.getTarget().isVehicle() && this.mob.level().canSeeSky(new BlockPos((int)this.mob.getX(), (int)this.mob.getY(), (int)this.mob.getZ()))) {
                this.mob.getTarget().startRiding(this.mob);
             } else {
                this.mob.swing(InteractionHand.MAIN_HAND);
-               this.mob.doHurtTarget(p_190102_1_);
+               this.mob.doHurtTarget(target);
             }
 
             this.resetAttackCooldown();

@@ -1,5 +1,8 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.loot.LootTable;
+
 import java.util.Collection;
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.common.capabilities.CapabilityTameableEntity;
@@ -96,9 +99,9 @@ public class EntityRocketCreeper extends EntityPrimitiveCreeper implements IMult
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(IS_ROCKET, false);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(IS_ROCKET, false);
    }
 
    @Override
@@ -179,7 +182,7 @@ public class EntityRocketCreeper extends EntityPrimitiveCreeper implements IMult
 
    @Nullable
    @Override
-   protected ResourceLocation getDefaultLootTable() {
+   protected ResourceKey<LootTable> getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_ROCKETCREEPER;
    }
 

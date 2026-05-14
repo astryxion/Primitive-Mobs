@@ -3,33 +3,35 @@ package net.daveyx0.primitivemobs.item;
 import java.awt.Color;
 import java.util.List;
 import javax.annotation.Nullable;
-import net.daveyx0.multimob.message.MMMessageRegistry;
 import net.daveyx0.multimob.util.ColorUtil;
 import net.daveyx0.primitivemobs.message.MessagePrimitiveColor;
-import net.daveyx0.primitivemobs.message.PrimitiveMobsMessageRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterials;
-import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.core.Holder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.network.PacketDistributor;
 
-public class ItemCamouflageArmor extends ArmorItem implements DyeableLeatherItem {
+public class ItemCamouflageArmor extends ArmorItem {
    private float R;
    private float G;
    private float B;
@@ -40,21 +42,45 @@ public class ItemCamouflageArmor extends ArmorItem implements DyeableLeatherItem
    private BlockState currentState;
    private int currentMultiplier;
 
-   public ItemCamouflageArmor(ArmorMaterials material, ArmorItem.Type type, Item.Properties properties) {
+   public ItemCamouflageArmor(Holder<ArmorMaterial> material, ArmorItem.Type type, Item.Properties properties) {
       super(material, type, properties);
       this.setSkinRGB(new int[]{255, 255, 255});
    }
 
    @Override
-   public void onArmorTick(ItemStack armor, Level world, Player player) {
-      if (player != null && player.level().isClientSide && !this.getCannotChange(armor)) {
+   public ItemStack getDefaultInstance() {
+      ItemStack stack = super.getDefaultInstance();
+      this.setColor(stack, 16777215);
+      return stack;
+   }
+
+   public static int getTintColor(ItemStack stack) {
+      DyedItemColor dyed = stack.get(DataComponents.DYED_COLOR);
+      if (dyed != null) {
+         return dyed.rgb() & 16777215;
+      }
+
+      if (stack.getItem() instanceof ItemCamouflageArmor armor) {
+         return armor.getColor(stack) & 16777215;
+      }
+
+      return 16777215;
+   }
+
+   @Override
+   public void inventoryTick(ItemStack armor, Level world, Entity entity, int slotId, boolean isSelected) {
+      super.inventoryTick(armor, world, entity, slotId, isSelected);
+   }
+
+   public void onCamouflageTick(ItemStack armor, Player player, EquipmentSlot slot) {
+      if (player.level().isClientSide && !this.getCannotChange(armor)) {
          this.changeColor(player);
          this.setColor(armor, (new Color((int)this.getSkinRGB()[0], (int)this.getSkinRGB()[1], (int)this.getSkinRGB()[2])).hashCode());
          if (this.currentState != null) {
             this.setColorBlockState(armor, this.currentState);
          }
 
-         PrimitiveMobsMessageRegistry.getPrimitiveNetwork().sendToServer(new MessagePrimitiveColor(this.getColor(armor), this.getEquipmentSlot(), player.getUUID().toString()));
+         PacketDistributor.sendToServer(new MessagePrimitiveColor(this.getColor(armor), slot, player.getUUID().toString()));
       }
 
       if (this.R != this.NewR || this.G != this.NewG || this.B != this.NewB) {
@@ -80,12 +106,11 @@ public class ItemCamouflageArmor extends ArmorItem implements DyeableLeatherItem
       }
 
       player.inventoryMenu.broadcastChanges();
-      super.onArmorTick(armor, world, player);
    }
 
    @OnlyIn(Dist.CLIENT)
    @Override
-   public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+   public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
       if (!stack.isEmpty() && stack.getItem() instanceof ItemCamouflageArmor) {
          ItemCamouflageArmor armor = (ItemCamouflageArmor)stack.getItem();
          if (armor.getCannotChange(stack)) {
@@ -106,7 +131,7 @@ public class ItemCamouflageArmor extends ArmorItem implements DyeableLeatherItem
          }
       }
 
-      super.appendHoverText(stack, worldIn, tooltip, flagIn);
+      super.appendHoverText(stack, context, tooltip, flagIn);
    }
 
    public boolean hasOverlay(ItemStack stack) {
@@ -160,15 +185,13 @@ public class ItemCamouflageArmor extends ArmorItem implements DyeableLeatherItem
 
    }
 
-   @Override
    public boolean hasCustomColor(ItemStack stack) {
-      CompoundTag nbttagcompound = stack.getTag();
+      CompoundTag nbttagcompound = getCustomTag(stack);
       return nbttagcompound != null && nbttagcompound.contains("display", 10) ? nbttagcompound.getCompound("display").contains("color", 3) : false;
    }
 
-   @Override
    public int getColor(ItemStack stack) {
-      CompoundTag nbttagcompound = stack.getTag();
+      CompoundTag nbttagcompound = getCustomTag(stack);
       if (nbttagcompound != null) {
          CompoundTag nbttagcompound1 = nbttagcompound.getCompound("display");
          if (nbttagcompound1 != null && nbttagcompound1.contains("color", 3)) {
@@ -179,13 +202,14 @@ public class ItemCamouflageArmor extends ArmorItem implements DyeableLeatherItem
       return 16777215;
    }
 
-   @Override
    public void clearColor(ItemStack stack) {
-      CompoundTag nbttagcompound = stack.getTag();
+      CompoundTag nbttagcompound = getCustomTag(stack);
       if (nbttagcompound != null) {
          CompoundTag nbttagcompound1 = nbttagcompound.getCompound("display");
          if (nbttagcompound1.contains("color")) {
             nbttagcompound1.remove("color");
+            stack.remove(DataComponents.DYED_COLOR);
+            setCustomTag(stack, nbttagcompound);
          }
       }
 
@@ -193,7 +217,7 @@ public class ItemCamouflageArmor extends ArmorItem implements DyeableLeatherItem
 
    @Nullable
    public BlockState getColorBlockState(ItemStack stack) {
-      CompoundTag nbttagcompound = stack.getTag();
+      CompoundTag nbttagcompound = getCustomTag(stack);
       if (nbttagcompound == null || !nbttagcompound.contains("BlockStateTag", 10)) {
          return Blocks.AIR.defaultBlockState();
       }
@@ -208,13 +232,13 @@ public class ItemCamouflageArmor extends ArmorItem implements DyeableLeatherItem
    }
 
    public void setColorBlockState(ItemStack stack, BlockState state) {
-      CompoundTag nbttagcompound = stack.getOrCreateTag();
+      CompoundTag nbttagcompound = getOrCreateCustomTag(stack);
       nbttagcompound.put("BlockStateTag", NbtUtils.writeBlockState(state));
+      setCustomTag(stack, nbttagcompound);
    }
 
-   @Override
    public void setColor(ItemStack stack, int color) {
-      CompoundTag nbttagcompound = stack.getOrCreateTag();
+      CompoundTag nbttagcompound = getOrCreateCustomTag(stack);
 
       CompoundTag nbttagcompound1 = nbttagcompound.getCompound("display");
       if (!nbttagcompound.contains("display", 10)) {
@@ -222,10 +246,12 @@ public class ItemCamouflageArmor extends ArmorItem implements DyeableLeatherItem
       }
 
       nbttagcompound1.putInt("color", color);
+      stack.set(DataComponents.DYED_COLOR, new DyedItemColor(color & 16777215, false));
+      setCustomTag(stack, nbttagcompound);
    }
 
    public boolean getCannotChange(ItemStack stack) {
-      CompoundTag nbttagcompound = stack.getTag();
+      CompoundTag nbttagcompound = getCustomTag(stack);
       if (nbttagcompound == null) {
          return false;
       } else {
@@ -234,8 +260,9 @@ public class ItemCamouflageArmor extends ArmorItem implements DyeableLeatherItem
    }
 
    public void setCannotChange(ItemStack stack, boolean set) {
-      CompoundTag nbttagcompound = stack.getOrCreateTag();
+      CompoundTag nbttagcompound = getOrCreateCustomTag(stack);
       nbttagcompound.putBoolean("change", set);
+      setCustomTag(stack, nbttagcompound);
    }
 
    public static void setCamouflageArmorNBT(LivingEntity entity, EquipmentSlot slot) {
@@ -244,13 +271,27 @@ public class ItemCamouflageArmor extends ArmorItem implements DyeableLeatherItem
          ItemCamouflageArmor item = (ItemCamouflageArmor)stack.getItem();
          if (!item.getCannotChange(stack) && entity.level().isClientSide) {
             int color = ColorUtil.getBlockColor(entity);
-            if (color < -1) {
+            if (color != -1) {
                item.setColor(stack, color);
                item.setColorBlockState(stack, ColorUtil.getBlockState(entity));
-               PrimitiveMobsMessageRegistry.getPrimitiveNetwork().sendToServer(new MessagePrimitiveColor(item.getColor(stack), slot, entity.getUUID().toString()));
+               PacketDistributor.sendToServer(new MessagePrimitiveColor(item.getColor(stack), slot, entity.getUUID().toString()));
             }
          }
       }
 
+   }
+
+   @Nullable
+   private static CompoundTag getCustomTag(ItemStack stack) {
+      CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+      return customData != null ? customData.copyTag() : null;
+   }
+
+   private static CompoundTag getOrCreateCustomTag(ItemStack stack) {
+      return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+   }
+
+   private static void setCustomTag(ItemStack stack, CompoundTag tag) {
+      stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
    }
 }

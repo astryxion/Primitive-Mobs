@@ -1,6 +1,6 @@
 package net.daveyx0.primitivemobs.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class PrimitiveMobsConfigMobs {
    public static boolean enableChameleon;
@@ -28,32 +28,32 @@ public class PrimitiveMobsConfigMobs {
    public static boolean enableFlameSpewer;
    public static boolean enableVoidWatcher;
 
-   static ForgeConfigSpec.BooleanValue ENABLE_CHAMELEON;
-   static ForgeConfigSpec.BooleanValue ENABLE_TREASURE_SLIME;
-   static ForgeConfigSpec.BooleanValue ENABLE_HAUNTED_TOOL;
-   static ForgeConfigSpec.BooleanValue ENABLE_GROVE_SPRITE;
-   static ForgeConfigSpec.BooleanValue ENABLE_ENCHANTED_BOOK;
-   static ForgeConfigSpec.BooleanValue ENABLE_FILCH_LIZARD;
-   static ForgeConfigSpec.BooleanValue ENABLE_BRAIN_SLIME;
-   static ForgeConfigSpec.BooleanValue ENABLE_ROCKET_CREEPER;
-   static ForgeConfigSpec.BooleanValue ENABLE_FESTIVE_CREEPER;
-   static ForgeConfigSpec.BooleanValue ENABLE_SUPPORT_CREEPER;
-   static ForgeConfigSpec.BooleanValue ENABLE_SKELETON_WARRIOR;
-   static ForgeConfigSpec.BooleanValue ENABLE_BLAZING_JUGGERNAUT;
-   static ForgeConfigSpec.BooleanValue ENABLE_LILY_LURKER;
-   static ForgeConfigSpec.BooleanValue ENABLE_SPIDER_FAMILY;
-   static ForgeConfigSpec.BooleanValue ENABLE_TROLLAGER;
-   static ForgeConfigSpec.BooleanValue ENABLE_LOST_MINER;
-   static ForgeConfigSpec.BooleanValue ENABLE_MERCHANT;
-   static ForgeConfigSpec.BooleanValue ENABLE_DODO;
-   static ForgeConfigSpec.BooleanValue ENABLE_MIMIC;
-   static ForgeConfigSpec.BooleanValue ENABLE_SHEEPMAN;
-   static ForgeConfigSpec.BooleanValue ENABLE_GOBLIN;
-   static ForgeConfigSpec.BooleanValue ENABLE_HARPY;
-   static ForgeConfigSpec.BooleanValue ENABLE_FLAME_SPEWER;
-   static ForgeConfigSpec.BooleanValue ENABLE_VOID_WATCHER;
+   static ModConfigSpec.BooleanValue ENABLE_CHAMELEON;
+   static ModConfigSpec.BooleanValue ENABLE_TREASURE_SLIME;
+   static ModConfigSpec.BooleanValue ENABLE_HAUNTED_TOOL;
+   static ModConfigSpec.BooleanValue ENABLE_GROVE_SPRITE;
+   static ModConfigSpec.BooleanValue ENABLE_ENCHANTED_BOOK;
+   static ModConfigSpec.BooleanValue ENABLE_FILCH_LIZARD;
+   static ModConfigSpec.BooleanValue ENABLE_BRAIN_SLIME;
+   static ModConfigSpec.BooleanValue ENABLE_ROCKET_CREEPER;
+   static ModConfigSpec.BooleanValue ENABLE_FESTIVE_CREEPER;
+   static ModConfigSpec.BooleanValue ENABLE_SUPPORT_CREEPER;
+   static ModConfigSpec.BooleanValue ENABLE_SKELETON_WARRIOR;
+   static ModConfigSpec.BooleanValue ENABLE_BLAZING_JUGGERNAUT;
+   static ModConfigSpec.BooleanValue ENABLE_LILY_LURKER;
+   static ModConfigSpec.BooleanValue ENABLE_SPIDER_FAMILY;
+   static ModConfigSpec.BooleanValue ENABLE_TROLLAGER;
+   static ModConfigSpec.BooleanValue ENABLE_LOST_MINER;
+   static ModConfigSpec.BooleanValue ENABLE_MERCHANT;
+   static ModConfigSpec.BooleanValue ENABLE_DODO;
+   static ModConfigSpec.BooleanValue ENABLE_MIMIC;
+   static ModConfigSpec.BooleanValue ENABLE_SHEEPMAN;
+   static ModConfigSpec.BooleanValue ENABLE_GOBLIN;
+   static ModConfigSpec.BooleanValue ENABLE_HARPY;
+   static ModConfigSpec.BooleanValue ENABLE_FLAME_SPEWER;
+   static ModConfigSpec.BooleanValue ENABLE_VOID_WATCHER;
 
-   public static void buildConfig(ForgeConfigSpec.Builder builder) {
+   public static void buildConfig(ModConfigSpec.Builder builder) {
       builder.comment("Enable/Disable mobs").push("mob_activation_settings");
       ENABLE_CHAMELEON = builder.comment("Enable/Disable the Chameleon").define("enableChameleon", true);
       ENABLE_TREASURE_SLIME = builder.comment("Enable/Disable the Treasure Slime").define("enableTreasureSlime", true);

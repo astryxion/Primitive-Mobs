@@ -1,13 +1,19 @@
 package net.daveyx0.primitivemobs.message;
 
 import java.util.UUID;
-import java.util.function.Supplier;
 import net.daveyx0.primitivemobs.entity.monster.EntityVoidEye;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public class MessageTeleportEye {
+public class MessageTeleportEye implements CustomPacketPayload {
+   public static final CustomPacketPayload.Type<MessageTeleportEye> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("primitivemobs", "teleport_eye"));
+   public static final StreamCodec<RegistryFriendlyByteBuf, MessageTeleportEye> STREAM_CODEC = StreamCodec.ofMember(MessageTeleportEye::encode, MessageTeleportEye::decode);
    private boolean teleport;
    private String id;
 
@@ -31,13 +37,18 @@ public class MessageTeleportEye {
       return message;
    }
 
-   public static void handle(MessageTeleportEye message, Supplier<NetworkEvent.Context> ctx) {
-      ctx.get().enqueueWork(() -> {
-         LivingEntity entity = (LivingEntity)ctx.get().getSender().serverLevel().getEntity(UUID.fromString(message.id));
+   public static void handle(MessageTeleportEye message, IPayloadContext ctx) {
+      ctx.enqueueWork(() -> {
+         ServerPlayer sender = (ServerPlayer)ctx.player();
+         LivingEntity entity = (LivingEntity)sender.serverLevel().getEntity(UUID.fromString(message.id));
          if (entity != null && entity instanceof EntityVoidEye) {
             ((EntityVoidEye)entity).setTeleports(message.teleport);
          }
       });
-      ctx.get().setPacketHandled(true);
+   }
+
+   @Override
+   public Type<? extends CustomPacketPayload> type() {
+      return TYPE;
    }
 }

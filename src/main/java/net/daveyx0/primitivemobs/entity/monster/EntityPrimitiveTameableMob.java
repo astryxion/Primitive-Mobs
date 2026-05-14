@@ -20,9 +20,9 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.scores.Team;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.scores.PlayerTeam;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class EntityPrimitiveTameableMob extends Monster {
    protected static final EntityDataAccessor<Byte> TAMED = SynchedEntityData.defineId(EntityPrimitiveTameableMob.class, EntityDataSerializers.BYTE);
@@ -35,10 +35,10 @@ public class EntityPrimitiveTameableMob extends Monster {
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(TAMED, (byte)0);
-      this.entityData.define(OWNER_UNIQUE_ID, Optional.empty());
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(TAMED, (byte)0);
+      builder.define(OWNER_UNIQUE_ID, Optional.empty());
    }
 
    @Override
@@ -192,7 +192,7 @@ public class EntityPrimitiveTameableMob extends Monster {
    }
 
    @Override
-   public Team getTeam() {
+   public PlayerTeam getTeam() {
       if (this.isTamed()) {
          LivingEntity entitylivingbase = this.getOwner();
          if (entitylivingbase != null) {

@@ -11,7 +11,6 @@ public class PrimitiveMobsClientProxy extends PrimitiveMobsCommonProxy {
    }
 
    public void postInit() {
-      PrimitiveMobsItems.registerItemColors();
       super.postInit();
    }
 }

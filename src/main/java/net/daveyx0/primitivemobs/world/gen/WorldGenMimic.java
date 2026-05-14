@@ -14,16 +14,16 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class WorldGenMimic extends Feature<NoneFeatureConfiguration> {
 
-   public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(ForgeRegistries.FEATURES, "primitivemobs");
+   public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, "primitivemobs");
 
-   public static final RegistryObject<Feature<NoneFeatureConfiguration>> MIMIC_FEATURE = FEATURES.register("mimic_chest",
+   public static final DeferredHolder<Feature<?>, Feature<NoneFeatureConfiguration>> MIMIC_FEATURE = FEATURES.register("mimic_chest",
       () -> new WorldGenMimic(NoneFeatureConfiguration.CODEC));
 
    public WorldGenMimic(Codec<NoneFeatureConfiguration> codec) {

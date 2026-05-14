@@ -27,6 +27,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
@@ -51,28 +52,28 @@ import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.properties.ChestType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.EntityMountEvent;
-import net.minecraftforge.event.PlayLevelSoundEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.event.entity.living.MobSpawnEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityMountEvent;
+import net.neoforged.neoforge.event.PlayLevelSoundEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
+import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class PrimitiveMobsEvents {
-   @Mod.EventBusSubscriber(modid = "primitivemobs")
+   @EventBusSubscriber(modid = "primitivemobs")
    public static class EntityEventHandler {
       @SubscribeEvent
       public static void spawnEvent(EntityJoinLevelEvent event) {
@@ -122,9 +123,9 @@ public class PrimitiveMobsEvents {
          if (event.getSpawnType() != MobSpawnType.CHUNK_GENERATION) {
             return;
          }
-         ResourceLocation id = ForgeRegistries.ENTITY_TYPES.getKey(event.getEntity().getType());
+         ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(event.getEntity().getType());
          if (id != null && PrimitiveMobsReference.MODID.equals(id.getNamespace())) {
-            event.setResult(Event.Result.DENY);
+            event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
          }
       }
 
@@ -166,7 +167,7 @@ public class PrimitiveMobsEvents {
             if (event.getEntity().isCrouching() && isEmpty && event.getEntity().getMainHandItem() != null && event.getEntity().getMainHandItem().getItem() == PrimitiveMobsItems.MIMIC_ORB.get() && isSingleChest) {
                consumeItemFromStack(event.getEntity(), event.getEntity().getMainHandItem());
                compound.putInt("Mimic", 1);
-               MMMessageRegistry.getNetwork().send(PacketDistributor.ALL.noArg(), new MessageMMParticle(9, 10, (float)event.getPos().getX() + 0.05F, (float)event.getPos().getY() + 0.05F, (float)event.getPos().getZ() + 0.05F, (double)0.0F, 0.01, (double)0.0F, 0));
+               MMMessageRegistry.getNetwork().sendToAll(new MessageMMParticle(9, 10, (float)event.getPos().getX() + 0.05F, (float)event.getPos().getY() + 0.05F, (float)event.getPos().getZ() + 0.05F, (double)0.0F, 0.01, (double)0.0F, 0));
                event.setCanceled(true);
             }
          }
@@ -196,12 +197,12 @@ public class PrimitiveMobsEvents {
 
                      event.getLevel().removeBlock(event.getPos(), false);
                      event.setCanceled(true);
-                     MMMessageRegistry.getNetwork().send(PacketDistributor.ALL.noArg(), new MessageMMParticle(26, 10, (float)event.getPos().getX() + 0.05F, (float)event.getPos().getY() + 0.05F, (float)event.getPos().getZ() + 0.05F, (double)0.0F, (double)0.0F, (double)0.0F, 0));
+                     MMMessageRegistry.getNetwork().sendToAll(new MessageMMParticle(26, 10, (float)event.getPos().getX() + 0.05F, (float)event.getPos().getY() + 0.05F, (float)event.getPos().getZ() + 0.05F, (double)0.0F, (double)0.0F, (double)0.0F, 0));
                   } else if (flag1 && isSingleChest) {
                      int option = event.getLevel().getRandom().nextInt(4);
                      if (option == 0) {
                         EntitySkeletonWarrior skeleton = new EntitySkeletonWarrior(PrimitiveMobsEntityRegistry.SKELETON_WARRIOR.get(), event.getLevel());
-                        skeleton.finalizeSpawn((ServerLevelAccessor)event.getLevel(), event.getLevel().getCurrentDifficultyAt(skeleton.blockPosition()), MobSpawnType.EVENT, (SpawnGroupData)null, (CompoundTag)null);
+                        skeleton.finalizeSpawn((ServerLevelAccessor)event.getLevel(), event.getLevel().getCurrentDifficultyAt(skeleton.blockPosition()), MobSpawnType.EVENT, (SpawnGroupData)null);
                         skeleton.moveTo((double)event.getPos().getX() + (double)0.5F, (double)event.getPos().getY() + (double)1.0F, (double)event.getPos().getZ() + (double)0.5F, 180.0F, 0.0F);
                         event.getLevel().addFreshEntity(skeleton);
                      } else if (option == 1) {
@@ -212,7 +213,7 @@ public class PrimitiveMobsEvents {
                         }
                      } else {
                         EntityHauntedTool tool = new EntityHauntedTool(PrimitiveMobsEntityRegistry.HAUNTED_TOOL.get(), event.getLevel());
-                        tool.finalizeSpawn((ServerLevelAccessor)event.getLevel(), event.getLevel().getCurrentDifficultyAt(tool.blockPosition()), MobSpawnType.EVENT, (SpawnGroupData)null, (CompoundTag)null);
+                        tool.finalizeSpawn((ServerLevelAccessor)event.getLevel(), event.getLevel().getCurrentDifficultyAt(tool.blockPosition()), MobSpawnType.EVENT, (SpawnGroupData)null);
                         tool.moveTo((double)event.getPos().getX() + (double)0.5F, (double)event.getPos().getY() + (double)1.0F, (double)event.getPos().getZ() + (double)0.5F, 180.0F, 0.0F);
                         event.getLevel().addFreshEntity(tool);
                      }
@@ -220,7 +221,7 @@ public class PrimitiveMobsEvents {
                      chest.setLootTable(PrimitiveMobsLootTables.MIMIC_TRAP, event.getLevel().getRandom().nextLong());
                      compound.putInt("Mimic", 0);
                      event.setCanceled(true);
-                     MMMessageRegistry.getNetwork().send(PacketDistributor.ALL.noArg(), new MessageMMParticle(26, 10, (float)event.getPos().getX() + 0.5F, (float)event.getPos().getY() + 0.5F, (float)event.getPos().getZ() + 0.5F, (double)0.0F, (double)0.0F, (double)0.0F, 0));
+                     MMMessageRegistry.getNetwork().sendToAll(new MessageMMParticle(26, 10, (float)event.getPos().getX() + 0.5F, (float)event.getPos().getY() + 0.5F, (float)event.getPos().getZ() + 0.5F, (double)0.0F, (double)0.0F, (double)0.0F, 0));
                   } else if (isSingleChest) {
                      chest.setLootTable(PrimitiveMobsLootTables.MIMIC_TREASURE, event.getLevel().getRandom().nextLong());
                      compound.putInt("Mimic", 0);
@@ -238,7 +239,7 @@ public class PrimitiveMobsEvents {
                if (isEmpty && event.getEntity().getMainHandItem() != null && event.getEntity().getMainHandItem().getItem() == PrimitiveMobsItems.MIMIC_ORB.get() && isSingleChest) {
                   consumeItemFromStack(event.getEntity(), event.getEntity().getMainHandItem());
                   compound.putInt("Mimic", 2);
-                  MMMessageRegistry.getNetwork().send(PacketDistributor.ALL.noArg(), new MessageMMParticle(26, 10, (float)event.getPos().getX() + 0.5F, (float)event.getPos().getY() + 0.5F, (float)event.getPos().getZ() + 0.5F, (double)0.0F, (double)0.0F, (double)0.0F, 0));
+                  MMMessageRegistry.getNetwork().sendToAll(new MessageMMParticle(26, 10, (float)event.getPos().getX() + 0.5F, (float)event.getPos().getY() + 0.5F, (float)event.getPos().getZ() + 0.5F, (double)0.0F, (double)0.0F, (double)0.0F, 0));
                   event.setCanceled(true);
                }
             }
@@ -247,8 +248,10 @@ public class PrimitiveMobsEvents {
       }
 
       @SubscribeEvent
-      public void onLivingUpdate(LivingEvent.LivingTickEvent event) {
-         LivingEntity entityLiving = event.getEntity();
+      public static void onLivingUpdate(EntityTickEvent.Pre event) {
+         if (!(event.getEntity() instanceof LivingEntity entityLiving)) {
+            return;
+         }
          if (entityLiving != null && entityLiving.tickCount % 5 == 0) {
             ItemCamouflageArmor.setCamouflageArmorNBT(entityLiving, EquipmentSlot.CHEST);
             ItemCamouflageArmor.setCamouflageArmorNBT(entityLiving, EquipmentSlot.FEET);
@@ -265,19 +268,34 @@ public class PrimitiveMobsEvents {
       }
 
       @SubscribeEvent
-      public void onSetAttackTarget(LivingChangeTargetEvent event) {
+      @OnlyIn(Dist.CLIENT)
+      public static void onLivingUpdatePost(EntityTickEvent.Post event) {
+         if (!(event.getEntity() instanceof Player player) || !player.level().isClientSide()) {
+            return;
+         }
+
+         for (EquipmentSlot slot : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+            ItemStack stack = player.getItemBySlot(slot);
+            if (stack.getItem() instanceof ItemCamouflageArmor armor) {
+               armor.onCamouflageTick(stack, player, slot);
+            }
+         }
+      }
+
+      @SubscribeEvent
+      public static void onSetAttackTarget(LivingChangeTargetEvent event) {
          LivingEntity entityLiving = event.getEntity();
          if (entityLiving != null && (entityLiving instanceof Zombie || entityLiving instanceof AbstractIllager || entityLiving instanceof EntityGoblin)) {
-            if (event.getNewTarget() instanceof EntitySheepman) {
-               event.setNewTarget(null);
+            if (event.getNewAboutToBeSetTarget() instanceof EntitySheepman) {
+               event.setNewAboutToBeSetTarget(null);
             }
          }
 
-         if (event.getNewTarget() != null && event.getNewTarget() instanceof Player && event.getEntity() instanceof Mob) {
-            Player player = (Player)event.getNewTarget();
+         if (event.getNewAboutToBeSetTarget() != null && event.getNewAboutToBeSetTarget() instanceof Player && event.getEntity() instanceof Mob) {
+            Player player = (Player)event.getNewAboutToBeSetTarget();
             Mob living = (Mob)event.getEntity();
             if (living.getLastHurtByMob() != player && living.getLastHurtMob() != player && hasFullCamouflageArmor(player) && living.distanceToSqr(player) > (double)36.0F) {
-               event.setNewTarget(null);
+               event.setNewAboutToBeSetTarget(null);
             } else {
                living.setLastHurtByMob(player);
             }
@@ -309,7 +327,7 @@ public class PrimitiveMobsEvents {
       }
 
       @SubscribeEvent
-      public void onLivingFall(LivingFallEvent event) {
+      public static void onLivingFall(LivingFallEvent event) {
          if (event.getEntity() != null && event.getEntity() instanceof EntityRocketCreeper) {
             event.setCanceled(true);
          }
@@ -317,7 +335,7 @@ public class PrimitiveMobsEvents {
       }
 
       @SubscribeEvent
-      public void onEntityAttacked(LivingAttackEvent event) {
+      public static void onEntityAttacked(LivingDamageEvent.Pre event) {
          if (event.getSource().getEntity() != null && event.getSource().getEntity() instanceof LivingEntity) {
             LivingEntity sourceEntity = (LivingEntity)event.getSource().getEntity();
             if (sourceEntity.getMainHandItem().getItem() == PrimitiveMobsItems.GOBLIN_MACE.get()) {
@@ -332,7 +350,9 @@ public class PrimitiveMobsEvents {
 
                   if (!damageableArmorPieces.isEmpty()) {
                      ItemStack targetPiece = (ItemStack)damageableArmorPieces.get(event.getEntity().getRandom().nextInt(damageableArmorPieces.size()));
-                     targetPiece.hurtAndBreak((int)((float)targetPiece.getMaxDamage() * 0.1F), event.getEntity(), (entity) -> {});
+                     if (event.getEntity().level() instanceof ServerLevel serverLevel) {
+                        targetPiece.hurtAndBreak((int)((float)targetPiece.getMaxDamage() * 0.1F), serverLevel, event.getEntity(), item -> {});
+                     }
                   }
                }
             }
@@ -385,10 +405,10 @@ public class PrimitiveMobsEvents {
 
       @SubscribeEvent
       @OnlyIn(Dist.CLIENT)
-      public void onKeyInput(InputEvent.Key event) {
+      public static void onKeyInput(InputEvent.Key event) {
          if (Minecraft.getInstance().options.keyJump.isDown()) {
             String UUID = Minecraft.getInstance().player.getUUID().toString();
-            PrimitiveMobsMessageRegistry.getPrimitiveNetwork().sendToServer(new MessagePrimitiveJumping(UUID));
+            PacketDistributor.sendToServer(new MessagePrimitiveJumping(UUID));
          }
 
       }

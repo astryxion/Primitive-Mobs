@@ -1,0 +1,13 @@
+﻿{
+  "type": "neoforge:add_spawns",
+  "biomes": "#forge:is_swamp",
+  "spawners": [
+    {
+      "type": "primitivemobs:lily_lurker",
+      "weight": 100,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}
+

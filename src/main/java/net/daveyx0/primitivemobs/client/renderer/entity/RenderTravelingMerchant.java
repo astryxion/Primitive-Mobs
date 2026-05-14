@@ -7,13 +7,13 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderTravelingMerchant extends MobRenderer<EntityTravelingMerchant, ModelTravelingMerchant<EntityTravelingMerchant>> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "traveling_merchant"), "main");
-   private static final ResourceLocation TRAVELINGMERCHANT_TEXTURE = new ResourceLocation("primitivemobs", "textures/entity/villager/travelingmerchant.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "traveling_merchant"), "main");
+   private static final ResourceLocation TRAVELINGMERCHANT_TEXTURE = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/villager/travelingmerchant.png");
 
    public RenderTravelingMerchant(EntityRendererProvider.Context context) {
       super(context, new ModelTravelingMerchant<>(context.bakeLayer(MODEL_LAYER)), 0.5F);

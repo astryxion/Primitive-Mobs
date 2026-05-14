@@ -132,25 +132,25 @@ public class ModelFilchLizard extends EntityModel<EntityFilchLizard> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.tail.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.leg1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.leg2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.leg3.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.leg4.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.tail.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.leg1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.leg2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.leg3.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.leg4.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         if (this.currentEntity != null) {
-            this.renderHead(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, this.currentEntity);
+            this.renderHead(poseStack, vertexConsumer, packedLight, packedOverlay, color, this.currentEntity);
         }
     }
 
-    public void renderHead(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, EntityFilchLizard lizard) {
+    public void renderHead(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color, EntityFilchLizard lizard) {
         if (!lizard.getMainHandItem().isEmpty()) {
-            this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         } else {
-            this.foldHead.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.foldFilch1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.foldFilch2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            this.foldHead.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.foldFilch1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+            this.foldFilch2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
     }
 }

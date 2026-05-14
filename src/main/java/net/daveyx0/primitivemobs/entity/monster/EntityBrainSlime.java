@@ -18,6 +18,7 @@ import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -30,7 +31,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.MobType;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -42,10 +43,12 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class EntityBrainSlime extends Slime implements IMultiMob {
    public int attackDelay;
@@ -84,16 +87,16 @@ public class EntityBrainSlime extends Slime implements IMultiMob {
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(ATTACK_DELAY, 0);
-      this.entityData.define(SATURATION, 0);
-      this.entityData.define(VICTIM_UNIQUE_ID, Optional.empty());
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(ATTACK_DELAY, 0);
+      builder.define(SATURATION, 0);
+      builder.define(VICTIM_UNIQUE_ID, Optional.empty());
    }
 
    @Nullable
    @Override
-   public SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor worldIn, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData livingdata, @Nullable CompoundTag dataTag) {
+   public SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor worldIn, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData livingdata) {
       int i = this.random.nextInt(3);
       this.setSize(i, true);
       return livingdata;
@@ -115,7 +118,7 @@ public class EntityBrainSlime extends Slime implements IMultiMob {
             this.setSaturation(0);
             this.setAttackDelay(50);
             if (!this.level().isClientSide) {
-               MMMessageRegistry.getNetwork().send(PacketDistributor.ALL.noArg(), new MessageMMParticle(9, 10, (float)this.getX() + 0.5F, (float)this.getY() + 0.5F, (float)this.getZ() + 0.5F, (double)0.0F, (double)0.0F, (double)0.0F, 0));
+               MMMessageRegistry.getNetwork().sendToAll(new MessageMMParticle(9, 10, (float)this.getX() + 0.5F, (float)this.getY() + 0.5F, (float)this.getZ() + 0.5F, (double)0.0F, (double)0.0F, (double)0.0F, 0));
             }
          }
       }
@@ -180,7 +183,7 @@ public class EntityBrainSlime extends Slime implements IMultiMob {
 
          if (entity instanceof net.minecraft.world.entity.PathfinderMob) {
             net.minecraft.world.entity.PathfinderMob creature = (net.minecraft.world.entity.PathfinderMob)entity;
-            if (creature.getMobType() == MobType.UNDEAD) {
+            if (creature.getType().is(EntityTypeTags.UNDEAD)) {
                return false;
             }
          }
@@ -255,13 +258,13 @@ public class EntityBrainSlime extends Slime implements IMultiMob {
    public void damageHelmetOrEntity(LivingEntity base) {
       ItemStack stack = base.getItemBySlot(EquipmentSlot.HEAD);
       int damage = (int)this.getAttackDamage();
-      if (!stack.isEmpty() && stack.getItem().canBeDepleted() && stack.isDamageableItem()) {
-         stack.hurtAndBreak(damage, base, (entity) -> {
-            entity.broadcastBreakEvent(EquipmentSlot.HEAD);
-         });
+      if (!stack.isEmpty() && stack.isDamageableItem()) {
+         stack.hurtAndBreak(damage, base, EquipmentSlot.HEAD);
       } else if (base.hurt(this.damageSources().mobAttack(this), damage >= 6 ? (float)damage : 6.0F)) {
          this.playSound(SoundEvents.SLIME_ATTACK, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
-         this.doEnchantDamageEffects(this, base);
+         if (this.level() instanceof ServerLevel serverLevel) {
+            EnchantmentHelper.doPostAttackEffects(serverLevel, base, this.damageSources().mobAttack(this));
+         }
       }
 
    }
@@ -325,8 +328,12 @@ public class EntityBrainSlime extends Slime implements IMultiMob {
    }
 
    @Override
-   public double getMyRidingOffset() {
-      return this.getVehicle() != null && this.getVehicle() instanceof Player ? (double)0.25F : (double)0.0F;
+   public Vec3 getVehicleAttachmentPoint(Entity entity) {
+      if (this.getVehicle() != null && this.getVehicle() instanceof Player) {
+         return super.getVehicleAttachmentPoint(entity).add(0.0, 0.25, 0.0);
+      }
+
+      return super.getVehicleAttachmentPoint(entity);
    }
 
    public void setAttackDelay(int delay) {
@@ -564,7 +571,7 @@ public class EntityBrainSlime extends Slime implements IMultiMob {
                   this.jumpDelay = this.slime.getJumpDelay();
                   if (this.isAggressive && this.slime.getSaturation() < 10) {
                      if (!this.slime.isTiny()) {
-                        this.slime.playSound(PrimitiveMobsSoundEvents.ENTITY_BRAINSLIME_CHARGE.get(), this.slime.getSoundVolume(), ((this.slime.getRandom().nextFloat() - this.slime.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);
+                        this.slime.playSound(PrimitiveMobsSoundEvents.ENTITY_BRAINSLIME_CHARGE.value(), this.slime.getSoundVolume(), ((this.slime.getRandom().nextFloat() - this.slime.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);
                      }
 
                      this.performChargeAttack();

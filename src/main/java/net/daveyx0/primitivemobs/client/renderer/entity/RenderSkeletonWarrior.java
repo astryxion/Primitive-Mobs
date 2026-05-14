@@ -10,13 +10,13 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @SuppressWarnings("unchecked")
 @OnlyIn(Dist.CLIENT)
 public class RenderSkeletonWarrior extends HumanoidMobRenderer<EntitySkeletonWarrior, SkeletonModel<EntitySkeletonWarrior>> {
-   private static final ResourceLocation SKELETONWARRIOR_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/skeletonwarrior/skeletonwarrior.png");
+   private static final ResourceLocation SKELETONWARRIOR_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/skeletonwarrior/skeletonwarrior.png");
 
    public RenderSkeletonWarrior(EntityRendererProvider.Context context) {
       super(context, new SkeletonModel<>(context.bakeLayer(ModelLayers.SKELETON)), 0.5F);

@@ -12,16 +12,16 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderPrimitiveCreeper extends MobRenderer<EntityPrimitiveCreeper, ModelPrimitiveCreeper> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "primitive_creeper"), "main");
-   public static final ModelLayerLocation CHARGE_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "primitive_creeper"), "charge");
-   private static final ResourceLocation ROCKETCREEPER_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/rocketcreeper/rocketcreeper.png");
-   private static final ResourceLocation FESTIVECREEPER_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/festivecreeper/festivecreeper.png");
-   private static final ResourceLocation SUPPORTCREEPER_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/supportcreeper/supportcreeper.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "primitive_creeper"), "main");
+   public static final ModelLayerLocation CHARGE_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "primitive_creeper"), "charge");
+   private static final ResourceLocation ROCKETCREEPER_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/rocketcreeper/rocketcreeper.png");
+   private static final ResourceLocation FESTIVECREEPER_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/festivecreeper/festivecreeper.png");
+   private static final ResourceLocation SUPPORTCREEPER_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/supportcreeper/supportcreeper.png");
 
    public RenderPrimitiveCreeper(EntityRendererProvider.Context context) {
       super(context, new ModelPrimitiveCreeper(context.bakeLayer(MODEL_LAYER)), 0.5F);

@@ -60,12 +60,12 @@ public class ModelEnchantedBook<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.book1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.book2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.pages1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.pages2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.page1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.page2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        this.book1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.book2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.pages1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.pages2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.page1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.page2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 }

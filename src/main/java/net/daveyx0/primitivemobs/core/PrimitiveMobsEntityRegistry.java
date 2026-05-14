@@ -32,7 +32,9 @@ import net.daveyx0.primitivemobs.entity.passive.EntityGroveSprite;
 import net.daveyx0.primitivemobs.entity.passive.EntityLostMiner;
 import net.daveyx0.primitivemobs.entity.passive.EntitySheepman;
 import net.daveyx0.primitivemobs.entity.passive.EntityTravelingMerchant;
+import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
@@ -40,113 +42,115 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.daveyx0.primitivemobs.client.models.*;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.world.entity.SpawnPlacementTypes;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.daveyx0.primitivemobs.client.renderer.entity.*;
 
 public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
    public static int id;
 
-   public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, "primitivemobs");
+   public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, "primitivemobs");
 
-   public static final RegistryObject<EntityType<EntityChameleon>> CHAMELEON = ENTITY_TYPES.register("chameleon",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityChameleon>> CHAMELEON = ENTITY_TYPES.register("chameleon",
       () -> EntityType.Builder.of(EntityChameleon::new, MobCategory.CREATURE).sized(0.6F, 0.5F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:chameleon"));
 
-   public static final RegistryObject<EntityType<EntityTreasureSlime>> TREASURE_SLIME = ENTITY_TYPES.register("treasure_slime",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityTreasureSlime>> TREASURE_SLIME = ENTITY_TYPES.register("treasure_slime",
       () -> EntityType.Builder.of(EntityTreasureSlime::new, MobCategory.MONSTER).sized(2.04F, 2.04F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:treasure_slime"));
 
-   public static final RegistryObject<EntityType<EntityHauntedTool>> HAUNTED_TOOL = ENTITY_TYPES.register("haunted_tool",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityHauntedTool>> HAUNTED_TOOL = ENTITY_TYPES.register("haunted_tool",
       () -> EntityType.Builder.of(EntityHauntedTool::new, MobCategory.MONSTER).sized(0.6F, 1.8F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:haunted_tool"));
 
-   public static final RegistryObject<EntityType<EntityGroveSprite>> GROVESPRITE = ENTITY_TYPES.register("grovesprite",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityGroveSprite>> GROVESPRITE = ENTITY_TYPES.register("grovesprite",
       () -> EntityType.Builder.of(EntityGroveSprite::new, MobCategory.CREATURE).sized(0.6F, 1.2F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:grovesprite"));
 
-   public static final RegistryObject<EntityType<EntityEnchantedBook>> BEWITCHED_TOME = ENTITY_TYPES.register("bewitched_tome",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityEnchantedBook>> BEWITCHED_TOME = ENTITY_TYPES.register("bewitched_tome",
       () -> EntityType.Builder.of(EntityEnchantedBook::new, MobCategory.MONSTER).sized(0.6F, 0.8F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:bewitched_tome"));
 
-   public static final RegistryObject<EntityType<EntityFilchLizard>> FILCH_LIZARD = ENTITY_TYPES.register("filch_lizard",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityFilchLizard>> FILCH_LIZARD = ENTITY_TYPES.register("filch_lizard",
       () -> EntityType.Builder.of(EntityFilchLizard::new, MobCategory.CREATURE).sized(0.6F, 0.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:filch_lizard"));
 
-   public static final RegistryObject<EntityType<EntityBrainSlime>> BRAIN_SLIME = ENTITY_TYPES.register("brain_slime",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityBrainSlime>> BRAIN_SLIME = ENTITY_TYPES.register("brain_slime",
       () -> EntityType.Builder.of(EntityBrainSlime::new, MobCategory.MONSTER).sized(2.04F, 2.04F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:brain_slime"));
 
-   public static final RegistryObject<EntityType<EntityRocketCreeper>> ROCKET_CREEPER = ENTITY_TYPES.register("rocket_creeper",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityRocketCreeper>> ROCKET_CREEPER = ENTITY_TYPES.register("rocket_creeper",
       () -> EntityType.Builder.of(EntityRocketCreeper::new, MobCategory.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:rocket_creeper"));
 
-   public static final RegistryObject<EntityType<EntityFestiveCreeper>> FESTIVE_CREEPER = ENTITY_TYPES.register("festive_creeper",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityFestiveCreeper>> FESTIVE_CREEPER = ENTITY_TYPES.register("festive_creeper",
       () -> EntityType.Builder.of(EntityFestiveCreeper::new, MobCategory.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:festive_creeper"));
 
-   public static final RegistryObject<EntityType<EntitySupportCreeper>> SUPPORT_CREEPER = ENTITY_TYPES.register("support_creeper",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntitySupportCreeper>> SUPPORT_CREEPER = ENTITY_TYPES.register("support_creeper",
       () -> EntityType.Builder.of(EntitySupportCreeper::new, MobCategory.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:support_creeper"));
 
-   public static final RegistryObject<EntityType<EntitySkeletonWarrior>> SKELETON_WARRIOR = ENTITY_TYPES.register("skeleton_warrior",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntitySkeletonWarrior>> SKELETON_WARRIOR = ENTITY_TYPES.register("skeleton_warrior",
       () -> EntityType.Builder.of(EntitySkeletonWarrior::new, MobCategory.MONSTER).sized(0.6F, 1.99F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:skeleton_warrior"));
 
-   public static final RegistryObject<EntityType<EntityBlazingJuggernaut>> BLAZING_JUGGERNAUT = ENTITY_TYPES.register("blazing_juggernaut",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityBlazingJuggernaut>> BLAZING_JUGGERNAUT = ENTITY_TYPES.register("blazing_juggernaut",
       () -> EntityType.Builder.of(EntityBlazingJuggernaut::new, MobCategory.MONSTER).sized(0.9F, 2.4F).fireImmune().clientTrackingRange(80).updateInterval(3).build("primitivemobs:blazing_juggernaut"));
 
-   public static final RegistryObject<EntityType<EntityLilyLurker>> LILY_LURKER = ENTITY_TYPES.register("lily_lurker",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityLilyLurker>> LILY_LURKER = ENTITY_TYPES.register("lily_lurker",
       () -> EntityType.Builder.of(EntityLilyLurker::new, MobCategory.MONSTER).sized(1.4F, 1.0F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:lily_lurker"));
 
-   public static final RegistryObject<EntityType<EntityMotherSpider>> MOTHER_SPIDER = ENTITY_TYPES.register("mother_spider",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityMotherSpider>> MOTHER_SPIDER = ENTITY_TYPES.register("mother_spider",
       () -> EntityType.Builder.of(EntityMotherSpider::new, MobCategory.MONSTER).sized(1.4F, 0.9F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:mother_spider"));
 
-   public static final RegistryObject<EntityType<EntityBabySpider>> BABY_SPIDER = ENTITY_TYPES.register("baby_spider",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityBabySpider>> BABY_SPIDER = ENTITY_TYPES.register("baby_spider",
       () -> EntityType.Builder.of(EntityBabySpider::new, MobCategory.MONSTER).sized(0.7F, 0.5F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:baby_spider"));
 
-   public static final RegistryObject<EntityType<EntityTrollager>> TROLLAGER = ENTITY_TYPES.register("trollager",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityTrollager>> TROLLAGER = ENTITY_TYPES.register("trollager",
       () -> EntityType.Builder.of(EntityTrollager::new, MobCategory.MONSTER).sized(1.2F, 2.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:trollager"));
 
-   public static final RegistryObject<EntityType<EntityLostMiner>> LOST_MINER = ENTITY_TYPES.register("lost_miner",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityLostMiner>> LOST_MINER = ENTITY_TYPES.register("lost_miner",
       () -> EntityType.Builder.of(EntityLostMiner::new, MobCategory.CREATURE).sized(0.6F, 1.95F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:lost_miner"));
 
-   public static final RegistryObject<EntityType<EntityTravelingMerchant>> TRAVELING_MERCHANT = ENTITY_TYPES.register("traveling_merchant",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityTravelingMerchant>> TRAVELING_MERCHANT = ENTITY_TYPES.register("traveling_merchant",
       () -> EntityType.Builder.of(EntityTravelingMerchant::new, MobCategory.CREATURE).sized(0.6F, 1.95F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:traveling_merchant"));
 
-   public static final RegistryObject<EntityType<EntityDodo>> DODO = ENTITY_TYPES.register("dodo",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityDodo>> DODO = ENTITY_TYPES.register("dodo",
       () -> EntityType.Builder.of(EntityDodo::new, MobCategory.CREATURE).sized(0.7F, 0.9F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:dodo"));
 
-   public static final RegistryObject<EntityType<EntityMimic>> MIMIC = ENTITY_TYPES.register("mimic",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityMimic>> MIMIC = ENTITY_TYPES.register("mimic",
       () -> EntityType.Builder.of(EntityMimic::new, MobCategory.MONSTER).sized(0.9F, 0.9F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:mimic"));
 
-   public static final RegistryObject<EntityType<EntitySheepman>> SHEEPMAN = ENTITY_TYPES.register("sheepman",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntitySheepman>> SHEEPMAN = ENTITY_TYPES.register("sheepman",
       () -> EntityType.Builder.of(EntitySheepman::new, MobCategory.CREATURE).sized(0.6F, 1.95F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:sheepman"));
 
-   public static final RegistryObject<EntityType<EntityGoblin>> GOBLIN = ENTITY_TYPES.register("goblin",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityGoblin>> GOBLIN = ENTITY_TYPES.register("goblin",
       () -> EntityType.Builder.of(EntityGoblin::new, MobCategory.MONSTER).sized(0.6F, 1.4F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:goblin"));
 
-   public static final RegistryObject<EntityType<EntityHarpy>> HARPY = ENTITY_TYPES.register("harpy",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityHarpy>> HARPY = ENTITY_TYPES.register("harpy",
       () -> EntityType.Builder.of(EntityHarpy::new, MobCategory.MONSTER).sized(0.6F, 1.8F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:harpy"));
 
-   public static final RegistryObject<EntityType<EntityFlameSpewer>> FLAME_SPEWER = ENTITY_TYPES.register("flame_spewer",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityFlameSpewer>> FLAME_SPEWER = ENTITY_TYPES.register("flame_spewer",
       () -> EntityType.Builder.of(EntityFlameSpewer::new, MobCategory.MONSTER).sized(1.0F, 1.8F).fireImmune().clientTrackingRange(80).updateInterval(3).build("primitivemobs:flame_spewer"));
 
-   public static final RegistryObject<EntityType<EntityVoidEye>> VOID_EYE = ENTITY_TYPES.register("void_eye",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityVoidEye>> VOID_EYE = ENTITY_TYPES.register("void_eye",
       () -> EntityType.Builder.of(EntityVoidEye::new, MobCategory.MONSTER).sized(0.8F, 0.8F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:void_eye"));
 
-   public static final RegistryObject<EntityType<EntityPrimitiveTNTPrimed>> PRIMITIVE_TNT_PRIMED = ENTITY_TYPES.register("primitive_tnt_primed",
-      () -> EntityType.Builder.<EntityPrimitiveTNTPrimed>of(EntityPrimitiveTNTPrimed::new, MobCategory.MISC).sized(0.98F, 0.98F).fireImmune().clientTrackingRange(64).updateInterval(20).build("primitivemobs:primitive_tnt_primed"));
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityPrimitiveTNTPrimed>> PRIMITIVE_TNT_PRIMED = ENTITY_TYPES.register("primitive_tnt_primed",
+      () -> EntityType.Builder.<EntityPrimitiveTNTPrimed>of(EntityPrimitiveTNTPrimed::new, MobCategory.MISC).sized(0.98F, 0.98F).eyeHeight(0.0F).fireImmune().clientTrackingRange(64).updateInterval(20).build("primitivemobs:primitive_tnt_primed"));
 
-   public static final RegistryObject<EntityType<EntityFlameSpit>> FLAME_SPIT = ENTITY_TYPES.register("flame_spit",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityFlameSpit>> FLAME_SPIT = ENTITY_TYPES.register("flame_spit",
       () -> EntityType.Builder.<EntityFlameSpit>of(EntityFlameSpit::new, MobCategory.MISC).sized(0.25F, 0.25F).clientTrackingRange(64).updateInterval(1).build("primitivemobs:flame_spit"));
 
-   public static final RegistryObject<EntityType<EntityThrownBlock>> THROWN_BLOCK = ENTITY_TYPES.register("thrown_block",
-      () -> EntityType.Builder.<EntityThrownBlock>of(EntityThrownBlock::new, MobCategory.MISC).sized(0.98F, 0.98F).clientTrackingRange(64).updateInterval(1).build("primitivemobs:thrown_block"));
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityThrownBlock>> THROWN_BLOCK = ENTITY_TYPES.register("thrown_block",
+      () -> EntityType.Builder.<EntityThrownBlock>of(EntityThrownBlock::new, MobCategory.MISC).sized(0.98F, 0.98F).eyeHeight(0.0F).clientTrackingRange(64).updateInterval(1).build("primitivemobs:thrown_block"));
 
-   public static final RegistryObject<EntityType<EntityPrimitiveThrowable>> PRIMITIVE_EGG = ENTITY_TYPES.register("primitive_egg",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntityPrimitiveThrowable>> PRIMITIVE_EGG = ENTITY_TYPES.register("primitive_egg",
       () -> EntityType.Builder.<EntityPrimitiveThrowable>of(EntityPrimitiveThrowable::new, MobCategory.MISC).sized(0.25F, 0.25F).clientTrackingRange(64).updateInterval(20).build("primitivemobs:primitive_egg"));
 
-   public static final RegistryObject<EntityType<EntitySpiderEgg>> SPIDER_EGG = ENTITY_TYPES.register("spider_egg",
+   public static final DeferredHolder<EntityType<?>, EntityType<EntitySpiderEgg>> SPIDER_EGG = ENTITY_TYPES.register("spider_egg",
       () -> EntityType.Builder.<EntitySpiderEgg>of(EntitySpiderEgg::new, MobCategory.MISC).sized(0.25F, 0.25F).clientTrackingRange(64).updateInterval(20).build("primitivemobs:spider_egg"));
 
    public static void registerEntities() {
@@ -252,7 +256,7 @@ public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
       event.registerLayerDefinition(RenderVoidEye.SEEN_LAYER, ModelVoidEye::createBodyLayer);
    }
 
-   public static void registerAttributes(net.minecraftforge.event.entity.EntityAttributeCreationEvent event) {
+   public static void registerAttributes(net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent event) {
       event.put(CHAMELEON.get(), net.daveyx0.primitivemobs.entity.passive.EntityChameleon.createAttributes().build());
       event.put(TREASURE_SLIME.get(), net.daveyx0.primitivemobs.entity.monster.EntityTreasureSlime.createAttributes().build());
       event.put(HAUNTED_TOOL.get(), net.daveyx0.primitivemobs.entity.monster.EntityHauntedTool.createAttributes().build());
@@ -280,47 +284,49 @@ public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
       event.put(VOID_EYE.get(), net.daveyx0.primitivemobs.entity.monster.EntityVoidEye.createAttributes().build());
    }
 
-   public static void registerSpawnPlacements(SpawnPlacementRegisterEvent event) {
-      SpawnPlacementRegisterEvent.Operation replace = SpawnPlacementRegisterEvent.Operation.REPLACE;
-      event.register(CHAMELEON.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules, replace);
-      event.register(TREASURE_SLIME.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
-      event.register(HAUNTED_TOOL.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
-      event.register(GROVESPRITE.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
-      event.register(BEWITCHED_TOME.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
-      event.register(FILCH_LIZARD.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
-      event.register(BRAIN_SLIME.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
-      event.register(ROCKET_CREEPER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
-      event.register(FESTIVE_CREEPER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
-      event.register(SUPPORT_CREEPER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
-      event.register(SKELETON_WARRIOR.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
-      event.register(BLAZING_JUGGERNAUT.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+   public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+      RegisterSpawnPlacementsEvent.Operation replace = RegisterSpawnPlacementsEvent.Operation.REPLACE;
+      event.register(CHAMELEON.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules, replace);
+      event.register(TREASURE_SLIME.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
+      event.register(HAUNTED_TOOL.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(GROVESPRITE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
+      event.register(BEWITCHED_TOME.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(FILCH_LIZARD.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
+      event.register(BRAIN_SLIME.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
+      event.register(ROCKET_CREEPER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(FESTIVE_CREEPER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(SUPPORT_CREEPER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(SKELETON_WARRIOR.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(BLAZING_JUGGERNAUT.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
       event.register(
          LILY_LURKER.get(),
-         SpawnPlacements.Type.IN_WATER,
+         SpawnPlacementTypes.IN_WATER,
          Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
          (type, world, spawnReason, pos, random) -> world.getFluidState(pos).is(FluidTags.WATER) && Mob.checkMobSpawnRules(type, world, spawnReason, pos, random),
          replace
       );
-      event.register(MOTHER_SPIDER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
-      event.register(BABY_SPIDER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
-      event.register(TROLLAGER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
-      event.register(LOST_MINER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
-      event.register(TRAVELING_MERCHANT.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
-      event.register(DODO.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules, replace);
-      event.register(MIMIC.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
-      event.register(SHEEPMAN.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
-      event.register(GOBLIN.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
-      event.register(HARPY.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(MOTHER_SPIDER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(BABY_SPIDER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(TROLLAGER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(LOST_MINER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
+      event.register(TRAVELING_MERCHANT.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
+      event.register(DODO.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules, replace);
+      event.register(MIMIC.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(SHEEPMAN.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
+      event.register(GOBLIN.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(HARPY.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
       event.register(
          FLAME_SPEWER.get(),
-         SpawnPlacements.Type.IN_LAVA,
+         SpawnPlacementTypes.IN_LAVA,
          Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-         (type, world, spawnReason, pos, random) -> world.getFluidState(pos).is(FluidTags.LAVA) && world.getFluidState(pos.below()).is(FluidTags.LAVA),
+         (type, world, spawnReason, pos, random) -> world.getFluidState(pos).is(FluidTags.LAVA)
+            && world.getFluidState(pos.below()).is(FluidTags.LAVA)
+            && hasLoadsOfSpaceAbove(world, pos),
          replace
       );
       event.register(
          VOID_EYE.get(),
-         SpawnPlacements.Type.ON_GROUND,
+         SpawnPlacementTypes.ON_GROUND,
          Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
          (type, world, spawnReason, pos, random) -> pos.getY() <= 20 && Mob.checkMobSpawnRules(type, world, spawnReason, pos, random),
          replace
@@ -341,5 +347,21 @@ public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
 
    public static void addCustomEntities(Class var1, String name1, int entityid, int track, int freq, boolean vel) {
       addCustomEntities("primitivemobs", var1, name1, entityid, track, freq, vel);
+   }
+
+   private static boolean hasLoadsOfSpaceAbove(LevelAccessor world, BlockPos pos) {
+      return check3x3IsAirBlock(world, pos.above()) && check3x3IsAirBlock(world, pos.above(2));
+   }
+
+   private static boolean check3x3IsAirBlock(LevelAccessor world, BlockPos pos) {
+      return world.isEmptyBlock(pos)
+         && world.isEmptyBlock(pos.west())
+         && world.isEmptyBlock(pos.west().north())
+         && world.isEmptyBlock(pos.west().south())
+         && world.isEmptyBlock(pos.east())
+         && world.isEmptyBlock(pos.east().north())
+         && world.isEmptyBlock(pos.east().south())
+         && world.isEmptyBlock(pos.north())
+         && world.isEmptyBlock(pos.south());
    }
 }

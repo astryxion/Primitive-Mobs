@@ -11,8 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 public class RenderEchantedBook extends MobRenderer<EntityEnchantedBook, ModelEnchantedBook<EntityEnchantedBook>> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "enchanted_book"), "main");
-   private static final ResourceLocation BOOK_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/enchantedbook/book.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "enchanted_book"), "main");
+   private static final ResourceLocation BOOK_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/enchantedbook/book.png");
 
    public RenderEchantedBook(EntityRendererProvider.Context context) {
       super(context, new ModelEnchantedBook<>(context.bakeLayer(MODEL_LAYER)), 0.4F);

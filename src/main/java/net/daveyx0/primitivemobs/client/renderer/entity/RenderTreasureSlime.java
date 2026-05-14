@@ -10,14 +10,14 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderTreasureSlime extends MobRenderer<EntityTreasureSlime, ModelTreasureSlime<EntityTreasureSlime>> {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "treasure_slime"), "main");
-   public static final ModelLayerLocation OUTER_LAYER = new ModelLayerLocation(new ResourceLocation("primitivemobs", "treasure_slime"), "outer");
-   private static final ResourceLocation SLIME_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/treasureslime/slime_treasure.png");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "treasure_slime"), "main");
+   public static final ModelLayerLocation OUTER_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("primitivemobs", "treasure_slime"), "outer");
+   private static final ResourceLocation SLIME_TEXTURES = ResourceLocation.fromNamespaceAndPath("primitivemobs", "textures/entity/treasureslime/slime_treasure.png");
 
    public RenderTreasureSlime(EntityRendererProvider.Context context) {
       super(context, new ModelTreasureSlime<EntityTreasureSlime>(context.bakeLayer(MODEL_LAYER), true), 0.4F);

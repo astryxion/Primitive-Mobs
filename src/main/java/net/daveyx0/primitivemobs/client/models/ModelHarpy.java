@@ -113,16 +113,16 @@ public class ModelHarpy<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legLeftOverlay.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legRightOverlay.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.wingLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.wingRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.tail.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legLeftOverlay.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legRightOverlay.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.wingLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.wingRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legRight.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legLeft.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.tail.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 
     private static enum State {

@@ -132,40 +132,49 @@ public class ModelChameleon extends EntityModel<EntityChameleon> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        int tintedColor = color;
         if (this.currentEntity != null) {
             float[] RGB = this.currentEntity.getSkinRGB();
+            float alpha = (float)(color >> 24 & 255) / 255.0F;
+            if (alpha == 0.0F) {
+                alpha = 1.0F;
+            }
+            float red = (float)(color >> 16 & 255) / 255.0F;
+            float green = (float)(color >> 8 & 255) / 255.0F;
+            float blue = (float)(color & 255) / 255.0F;
             red *= RGB[0] / 255.0F;
             green *= RGB[1] / 255.0F;
             blue *= RGB[2] / 255.0F;
+            tintedColor = ((int)(alpha * 255.0F) << 24) | ((int)(red * 255.0F) << 16) | ((int)(green * 255.0F) << 8) | (int)(blue * 255.0F);
         }
         if (this.young) {
             float var8 = 2.0F;
             poseStack.pushPose();
             poseStack.scale(1.0F / var8, 1.0F / var8, 1.0F / var8);
             poseStack.translate(0.0F, 23.0F * 0.0625F, 0.0F);
-            renderModel(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            renderModel(poseStack, vertexConsumer, packedLight, packedOverlay, tintedColor);
             poseStack.popPose();
         } else {
-            renderModel(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            renderModel(poseStack, vertexConsumer, packedLight, packedOverlay, tintedColor);
         }
     }
 
-    private void renderModel(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.body1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.body2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.tail.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.head2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.eyeleft.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.eyeright.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legfrontleft1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legfrontright1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legfrontleft2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legfrontright2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legbackleft1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legbackright1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legbackleft2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.legbackright2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    private void renderModel(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        this.body1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.body2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.tail.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.head2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.eyeleft.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.eyeright.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legfrontleft1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legfrontright1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legfrontleft2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legfrontright2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legbackleft1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legbackright1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legbackleft2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.legbackright2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 }

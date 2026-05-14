@@ -67,9 +67,9 @@ public class EntityPrimitiveCreeper extends Creeper {
    }
 
    @Override
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(BABY, false);
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(BABY, false);
    }
 
    public int getGrowingAge() {
@@ -189,7 +189,7 @@ public class EntityPrimitiveCreeper extends Creeper {
    }
 
    @Override
-   public EntityDimensions getDimensions(Pose pose) {
-      return super.getDimensions(pose).scale(this.isBaby() ? 0.5F : 1.0F);
+   protected EntityDimensions getDefaultDimensions(Pose pose) {
+      return super.getDefaultDimensions(pose).scale(this.isBaby() ? 0.5F : 1.0F);
    }
 }

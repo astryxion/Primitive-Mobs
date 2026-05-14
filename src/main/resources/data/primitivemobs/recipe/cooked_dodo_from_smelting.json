@@ -1,0 +1,13 @@
+﻿{
+    "type":  "minecraft:smelting",
+    "category":  "food",
+    "cookingtime":  200,
+    "experience":  0.45,
+    "ingredient":  {
+                       "item":  "primitivemobs:dodo"
+                   },
+    "result":  {
+                   "id":  "primitivemobs:cooked_dodo",
+                   "count":  1
+               }
+}

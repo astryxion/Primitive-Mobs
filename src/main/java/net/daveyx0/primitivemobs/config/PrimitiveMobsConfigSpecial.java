@@ -2,7 +2,7 @@ package net.daveyx0.primitivemobs.config;
 
 import java.util.Arrays;
 import java.util.List;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class PrimitiveMobsConfigSpecial {
    public static String[] treasureSlimeLoot;
@@ -25,25 +25,25 @@ public class PrimitiveMobsConfigSpecial {
    public static int mimicSpawnRate;
    public static int[] lostMinerLootRange;
 
-   static ForgeConfigSpec.BooleanValue MINER_IN_VILLAGE;
-   static ForgeConfigSpec.BooleanValue FESTIVE_CREEPER_DESTRUCTION;
-   static ForgeConfigSpec.BooleanValue LOST_MINER_SOUNDS;
-   static ForgeConfigSpec.IntValue MAX_SPIDER_FAMILY_SIZE;
-   static ForgeConfigSpec.BooleanValue TROLL_DESTRUCTION;
-   static ForgeConfigSpec.IntValue TAMEABLE_SLIME_CHANCE;
-   static ForgeConfigSpec.IntValue FILCH_LIZARD_LOOT_CHANCE;
-   static ForgeConfigSpec.BooleanValue MERCHANT_CAN_SETTLE;
-   static ForgeConfigSpec.BooleanValue MIMIC_GENERATES;
-   static ForgeConfigSpec.BooleanValue DODO_MYCELIUM;
-   static ForgeConfigSpec.BooleanValue TRAVELER_VISIT;
-   static ForgeConfigSpec.BooleanValue ROCKET_CREEPER_ALWAYS_JUMP;
-   static ForgeConfigSpec.IntValue LOST_MINER_LOOT_MIN;
-   static ForgeConfigSpec.IntValue LOST_MINER_LOOT_VARIABLE;
-   static ForgeConfigSpec.BooleanValue HAUNTED_TOOL_FULL_DURABILITY;
-   static ForgeConfigSpec.IntValue MIMIC_SPAWN_RATE;
-   static ForgeConfigSpec.BooleanValue GROVE_SPRITES_PLANT;
+   static ModConfigSpec.BooleanValue MINER_IN_VILLAGE;
+   static ModConfigSpec.BooleanValue FESTIVE_CREEPER_DESTRUCTION;
+   static ModConfigSpec.BooleanValue LOST_MINER_SOUNDS;
+   static ModConfigSpec.IntValue MAX_SPIDER_FAMILY_SIZE;
+   static ModConfigSpec.BooleanValue TROLL_DESTRUCTION;
+   static ModConfigSpec.IntValue TAMEABLE_SLIME_CHANCE;
+   static ModConfigSpec.IntValue FILCH_LIZARD_LOOT_CHANCE;
+   static ModConfigSpec.BooleanValue MERCHANT_CAN_SETTLE;
+   static ModConfigSpec.BooleanValue MIMIC_GENERATES;
+   static ModConfigSpec.BooleanValue DODO_MYCELIUM;
+   static ModConfigSpec.BooleanValue TRAVELER_VISIT;
+   static ModConfigSpec.BooleanValue ROCKET_CREEPER_ALWAYS_JUMP;
+   static ModConfigSpec.IntValue LOST_MINER_LOOT_MIN;
+   static ModConfigSpec.IntValue LOST_MINER_LOOT_VARIABLE;
+   static ModConfigSpec.BooleanValue HAUNTED_TOOL_FULL_DURABILITY;
+   static ModConfigSpec.IntValue MIMIC_SPAWN_RATE;
+   static ModConfigSpec.BooleanValue GROVE_SPRITES_PLANT;
 
-   public static void buildConfig(ForgeConfigSpec.Builder builder) {
+   public static void buildConfig(ModConfigSpec.Builder builder) {
       builder.comment("Settings specific to certain mobs.").push("mob_specific_settings");
       MINER_IN_VILLAGE = builder.comment("Enable/Disable if the Miner Villager profession should also spawn naturally in villages").define("minerInVillage", false);
       FESTIVE_CREEPER_DESTRUCTION = builder.comment("Enable/Disable if the Festive Creeper throws tnt that harms the terrain (this way you do not have to disable ALL Creeper explosions with mobGriefing)").define("festiveCreeperDestruction", true);

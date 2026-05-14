@@ -1,19 +1,19 @@
 package net.daveyx0.primitivemobs.crafting;
 
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class PrimitiveMobsRecipeSerializers {
 
-   public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, "primitivemobs");
+   public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, "primitivemobs");
 
-   public static final RegistryObject<RecipeSerializer<CamouflageToggleRecipe>> CAMOUFLAGE_TOGGLE =
+   public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CamouflageToggleRecipe>> CAMOUFLAGE_TOGGLE =
       RECIPE_SERIALIZERS.register("camouflage_toggle", CamouflageToggleRecipe.Serializer::new);
 
-   public static final RegistryObject<RecipeSerializer<WonderSapRecipe>> WONDERSAP_CONVERT =
+   public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<WonderSapRecipe>> WONDERSAP_CONVERT =
       RECIPE_SERIALIZERS.register("wondersap_convert", WonderSapRecipe.Serializer::new);
 
    public static void init(IEventBus modEventBus) {
