@@ -6,8 +6,8 @@ import net.daveyx0.multimob.common.capabilities.CapabilityTameableEntity;
 import net.daveyx0.multimob.common.capabilities.ITameableEntity;
 import net.daveyx0.multimob.entity.IMultiMob;
 import net.daveyx0.multimob.entity.ai.EntityAITameableFollowOwner;
-import net.daveyx0.multimob.entity.ai.EntityAITameableOwnerHurtByTarget;
-import net.daveyx0.multimob.entity.ai.EntityAITameableOwnerHurtTarget;
+import net.daveyx0.primitivemobs.entity.ai.EntityAIPrimitiveOwnerHurtByTarget;
+import net.daveyx0.primitivemobs.entity.ai.EntityAIPrimitiveOwnerHurtTarget;
 import net.daveyx0.multimob.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -132,8 +132,8 @@ public class EntityBabySpider extends EntityPrimitiveSpider implements IMultiMob
       this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 8.0F));
       this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
       this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-      this.targetSelector.addGoal(2, new EntityAITameableOwnerHurtByTarget(this));
-      this.targetSelector.addGoal(3, new EntityAITameableOwnerHurtTarget(this));
+      this.targetSelector.addGoal(2, new EntityAIPrimitiveOwnerHurtByTarget(this));
+      this.targetSelector.addGoal(3, new EntityAIPrimitiveOwnerHurtTarget(this));
    }
 
    @Override
@@ -173,7 +173,7 @@ public class EntityBabySpider extends EntityPrimitiveSpider implements IMultiMob
          this.startRiding(owner);
       }
 
-      if (this.level().isClientSide && owner == null) {
+      if (this.level().isClientSide && !this.isTamed() && this.getOwnerId() == null) {
          this.level().addParticle(ParticleTypes.SPLASH, this.getX() + (double)(this.random.nextFloat() - this.random.nextFloat()), this.getY() + (double)(this.random.nextFloat() - this.random.nextFloat()) + 1.0D, this.getZ() + (double)(this.random.nextFloat() - this.random.nextFloat()), 0.0D, 0.0D, 0.0D);
       }
 

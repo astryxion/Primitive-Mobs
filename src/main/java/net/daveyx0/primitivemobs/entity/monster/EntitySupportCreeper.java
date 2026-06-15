@@ -56,13 +56,13 @@ public class EntitySupportCreeper extends EntityPrimitiveCreeper {
 
    @Override
    public void tick() {
-      if (this.getHealth() < this.getMaxHealth() / 2.0F) {
+      if (!this.isEggTamed() && this.getHealth() < this.getMaxHealth() / 2.0F) {
          while(this.goalSelector.getAvailableGoals().stream().filter((taskEntry) -> taskEntry.getGoal() instanceof AvoidEntityGoal).findFirst().isPresent()) {
             this.goalSelector.getAvailableGoals().stream().filter((taskEntry) -> taskEntry.getGoal() instanceof AvoidEntityGoal).findFirst().ifPresent((taskEntry) -> this.goalSelector.removeGoal(taskEntry.getGoal()));
          }
 
          this.goalSelector.addGoal(2, new SwellGoal(this));
-         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, true));
+         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, (target) -> !(target instanceof Player player) || this.canTargetPlayer(player)));
       }
 
       super.tick();

@@ -20,8 +20,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -42,7 +42,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMultiMobWater {
+public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMultiMobWater, Enemy {
    int aggroTimer;
    int timeOnLand;
    private static final EntityDataAccessor<Boolean> IS_CAMOUFLAGED = SynchedEntityData.defineId(EntityLilyLurker.class, EntityDataSerializers.BOOLEAN);
@@ -58,7 +58,7 @@ public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMulti
 
    @Override
    protected void registerGoals() {
-      this.goalSelector.addGoal(1, new MeleeAttackGoal(this, (double)1.0F, false));
+      this.goalSelector.addGoal(1, new MeleeAttackGoal(this, (double)1.0F, true));
       this.goalSelector.addGoal(2, new EntityAISwimmingUnderwater(this));
       this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F));
       this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
@@ -207,7 +207,7 @@ public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMulti
    @Override
    public boolean doHurtTarget(Entity entity) {
       this.setCamouflaged(false);
-      return false;
+      return super.doHurtTarget(entity);
    }
 
    public ItemEntity dropItemStack(ItemStack itemIn, float offsetY) {
@@ -264,10 +264,5 @@ public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMulti
    @Override
    public boolean checkSpawnRules(net.minecraft.world.level.LevelAccessor level, MobSpawnType spawnType) {
       return this.getY() > (double)45.0F && this.getY() < (double)this.level().getSeaLevel();
-   }
-
-   @Override
-   public MobCategory getClassification(boolean forSpawnCount) {
-      return forSpawnCount && MobCategory.MONSTER == MobCategory.MONSTER ? MobCategory.CREATURE : super.getClassification(forSpawnCount);
    }
 }

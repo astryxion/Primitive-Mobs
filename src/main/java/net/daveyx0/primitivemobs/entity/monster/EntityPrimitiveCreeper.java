@@ -1,9 +1,13 @@
 package net.daveyx0.primitivemobs.entity.monster;
 
+import java.util.UUID;
+import javax.annotation.Nullable;
 import net.daveyx0.multimob.common.capabilities.CapabilityTameableEntity;
 import net.daveyx0.multimob.common.capabilities.ITameableEntity;
 import net.daveyx0.multimob.common.capabilities.CapabilityTameableEntity.EventHandler;
+import net.daveyx0.multimob.entity.ai.EntityAITameableFollowOwner;
 import net.daveyx0.multimob.util.EntityUtil;
+import net.daveyx0.primitivemobs.entity.ai.EntityAIEggOwnerFollow;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -15,10 +19,13 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 public class EntityPrimitiveCreeper extends Creeper {
+   private static final String EGG_OWNER_TAG = "PrimitiveMobsEggOwner";
    private int timeSinceIgnited;
    private int lastActiveTime;
    private static final EntityDataAccessor<Boolean> BABY = SynchedEntityData.defineId(EntityPrimitiveCreeper.class, EntityDataSerializers.BOOLEAN);
@@ -41,6 +48,16 @@ public class EntityPrimitiveCreeper extends Creeper {
          this.timeSinceIgnited = 0;
       }
 
+      if (!this.level().isClientSide && this.isEggTamed()) {
+         if (this.getTarget() instanceof Player) {
+            this.setTarget(null);
+         }
+
+         this.setIgnitedTime(0);
+         this.setSwellDir(-1);
+         this.ensureEggFollowGoal();
+      }
+
       if (this.getTarget() != null) {
          ITameableEntity tameable = (ITameableEntity)EntityUtil.getCapability(this, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, (Direction)null);
          if (tameable != null && tameable.isTamed() && tameable.getFollowState() == 0) {
@@ -50,6 +67,85 @@ public class EntityPrimitiveCreeper extends Creeper {
       }
 
       super.tick();
+   }
+
+   public boolean isTamedToPlayer() {
+      ITameableEntity tameable = (ITameableEntity)EntityUtil.getCapability(this, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, (Direction)null);
+      return tameable != null && tameable.isTamed();
+   }
+
+   public boolean isEggTamed() {
+      return this.getPersistentData().hasUUID(EGG_OWNER_TAG) || this.isTamedToPlayer();
+   }
+
+   public void markEggOwner(LivingEntity owner) {
+      if (!this.level().isClientSide && owner != null) {
+         this.getPersistentData().putUUID(EGG_OWNER_TAG, owner.getUUID());
+      }
+   }
+
+   public boolean isEggOwnedBy(Player player) {
+      return this.getPersistentData().hasUUID(EGG_OWNER_TAG) && this.getPersistentData().getUUID(EGG_OWNER_TAG).equals(player.getUUID());
+   }
+
+   public boolean canTargetPlayer(Player player) {
+      if (this.isEggOwnedBy(player)) {
+         return false;
+      }
+
+      return !this.isTamedToPlayer();
+   }
+
+   @Override
+   public void setTarget(@Nullable LivingEntity target) {
+      if (target instanceof Player player && !this.canTargetPlayer(player)) {
+         return;
+      }
+
+      super.setTarget(target);
+   }
+
+   @Override
+   public boolean doHurtTarget(net.minecraft.world.entity.Entity target) {
+      if (target instanceof Player player && !this.canTargetPlayer(player)) {
+         return false;
+      }
+
+      return super.doHurtTarget(target);
+   }
+
+   @Nullable
+   public UUID getEggOwnerId() {
+      return this.getPersistentData().hasUUID(EGG_OWNER_TAG) ? this.getPersistentData().getUUID(EGG_OWNER_TAG) : null;
+   }
+
+   public void setupEggTaming(LivingEntity owner) {
+      if (this.level().isClientSide || owner == null) {
+         return;
+      }
+
+      this.markEggOwner(owner);
+      ITameableEntity tameable = (ITameableEntity)EntityUtil.getCapability(this, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, (Direction)null);
+      if (tameable != null && !tameable.isTamed()) {
+         EventHandler.setUpTameable(tameable, this, owner);
+      }
+
+      this.ensureEggFollowGoal();
+   }
+
+   public void ensureEggFollowGoal() {
+      if (!this.isEggTamed()) {
+         return;
+      }
+
+      boolean hasFollow = this.goalSelector.getAvailableGoals().stream().anyMatch((entry) -> entry.getGoal() instanceof EntityAIEggOwnerFollow || entry.getGoal() instanceof EntityAITameableFollowOwner);
+      if (!hasFollow) {
+         this.goalSelector.addGoal(2, new EntityAIEggOwnerFollow(this, 1.2D, 8.0F, 2.0F));
+      }
+   }
+
+   public void tameFromEgg(LivingEntity owner) {
+      this.setupEggTaming(owner);
    }
 
    @Override
@@ -121,6 +217,9 @@ public class EntityPrimitiveCreeper extends Creeper {
       super.addAdditionalSaveData(compound);
       compound.putInt("Age", this.getGrowingAge());
       compound.putInt("ForcedAge", this.forcedAge);
+      if (this.getPersistentData().hasUUID(EGG_OWNER_TAG)) {
+         compound.putUUID(EGG_OWNER_TAG, this.getPersistentData().getUUID(EGG_OWNER_TAG));
+      }
    }
 
    @Override
@@ -128,6 +227,13 @@ public class EntityPrimitiveCreeper extends Creeper {
       super.readAdditionalSaveData(compound);
       this.setGrowingAge(compound.getInt("Age"));
       this.forcedAge = compound.getInt("ForcedAge");
+      if (compound.hasUUID(EGG_OWNER_TAG)) {
+         this.getPersistentData().putUUID(EGG_OWNER_TAG, compound.getUUID(EGG_OWNER_TAG));
+      }
+
+      if (!this.level().isClientSide) {
+         this.ensureEggFollowGoal();
+      }
    }
 
    @Override
@@ -166,6 +272,8 @@ public class EntityPrimitiveCreeper extends Creeper {
 
       ITameableEntity tameable = (ITameableEntity)EntityUtil.getCapability(this, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, (Direction)null);
       if (tameable != null && tameable.isTamed() && this.isBaby()) {
+         EventHandler.resetEntityTargetAI(this);
+      } else if (this.isEggTamed() && this.isBaby()) {
          EventHandler.resetEntityTargetAI(this);
       }
 

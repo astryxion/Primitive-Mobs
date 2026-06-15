@@ -30,6 +30,7 @@ import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.VillagerData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -285,6 +286,14 @@ public class EntitySheepman extends Villager implements IForgeShearable, IMultiM
          return color1;
       }
       return this.level().random.nextBoolean() ? color1 : color2;
+   }
+
+   @Override
+   public VillagerData getVillagerData() {
+      if (this.isDeadOrDying()) {
+         return PrimitiveMobsVillagerProfessions.stripForZombification(super.getVillagerData());
+      }
+      return super.getVillagerData();
    }
 
    @Override

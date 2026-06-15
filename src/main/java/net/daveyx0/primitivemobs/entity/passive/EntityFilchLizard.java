@@ -63,15 +63,16 @@ public class EntityFilchLizard extends PathfinderMob implements IMultiMobPassive
       this.goalSelector.addGoal(prio++, new RandomLookAroundGoal(this));
    }
 
+   private ItemStack lastHeldItem = ItemStack.EMPTY;
+
    @Override
    public void aiStep() {
       super.aiStep();
-      if (!this.getMainHandItem().isEmpty()) {
-         this.refreshDimensions();
-      } else {
+      ItemStack current = this.getMainHandItem();
+      if (!ItemStack.matches(current, this.lastHeldItem)) {
+         this.lastHeldItem = current.copy();
          this.refreshDimensions();
       }
-
    }
 
    @Nullable

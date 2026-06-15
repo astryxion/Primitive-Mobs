@@ -9,6 +9,7 @@ import net.daveyx0.multimob.network.MMNetworkWrapper;
 import net.daveyx0.multimob.util.EntityUtil;
 import net.daveyx0.primitivemobs.config.PrimitiveMobsConfigSpecial;
 import net.daveyx0.primitivemobs.message.PrimitiveMobsMessageRegistry;
+import net.daveyx0.primitivemobs.entity.monster.EntityPrimitiveCreeper;
 import net.daveyx0.primitivemobs.entity.monster.EntityGoblin;
 import net.daveyx0.primitivemobs.entity.monster.EntityHarpy;
 import net.daveyx0.primitivemobs.entity.monster.EntityHauntedTool;
@@ -43,7 +44,7 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.VillagerData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -74,6 +75,16 @@ import net.minecraftforge.network.PacketDistributor;
 public class PrimitiveMobsEvents {
    @Mod.EventBusSubscriber(modid = "primitivemobs")
    public static class EntityEventHandler {
+      @SubscribeEvent(priority = EventPriority.HIGHEST)
+      public static void onZombieVillagerJoin(EntityJoinLevelEvent event) {
+         if (event.getEntity() instanceof ZombieVillager zombie) {
+            VillagerData data = zombie.getVillagerData();
+            if (PrimitiveMobsVillagerProfessions.isPrimitiveProfession(data.getProfession())) {
+               zombie.setVillagerData(PrimitiveMobsVillagerProfessions.stripForZombification(data));
+            }
+         }
+      }
+
       @SubscribeEvent
       public static void spawnEvent(EntityJoinLevelEvent event) {
          EntityUtil.removeWhenDisabled(event.getEntity());
@@ -98,19 +109,17 @@ public class PrimitiveMobsEvents {
             }
          }
 
-         if (event.getEntity() instanceof Villager) {
+         if (event.getEntity() instanceof Villager && !(event.getEntity() instanceof EntitySheepman)) {
             Villager villager = (Villager)event.getEntity();
-            if (!(event.getEntity() instanceof EntitySheepman)) {
+            if (!villager.getPersistentData().getBoolean("primitivemobs.avoidGoblinGoal")) {
                villager.goalSelector.addGoal(1, new AvoidEntityGoal<>(villager, EntityGoblin.class, 8.0F, 0.6, 0.6));
-            } else {
-               villager.goalSelector.getAvailableGoals().removeIf(wrappedGoal -> wrappedGoal.getGoal() instanceof AvoidEntityGoal);
-               villager.goalSelector.addGoal(1, new AvoidEntityGoal<>(villager, ZombifiedPiglin.class, 12.0F, 0.8, 0.8));
+               villager.getPersistentData().putBoolean("primitivemobs.avoidGoblinGoal", true);
             }
-         }
-
-         if (event.getEntity() instanceof ZombieVillager zombie) {
-            if (PrimitiveMobsVillagerProfessions.PROFESSIONS.contains(zombie.getVillagerData().getProfession())) {
-               zombie.setVillagerData(zombie.getVillagerData().setProfession(VillagerProfession.NONE));
+         } else if (event.getEntity() instanceof EntitySheepman sheepman) {
+            if (!sheepman.getPersistentData().getBoolean("primitivemobs.avoidPiglinGoal")) {
+               sheepman.goalSelector.getAvailableGoals().removeIf(wrappedGoal -> wrappedGoal.getGoal() instanceof AvoidEntityGoal);
+               sheepman.goalSelector.addGoal(1, new AvoidEntityGoal<>(sheepman, ZombifiedPiglin.class, 12.0F, 0.8, 0.8));
+               sheepman.getPersistentData().putBoolean("primitivemobs.avoidPiglinGoal", true);
             }
          }
 
@@ -248,20 +257,21 @@ public class PrimitiveMobsEvents {
 
       @SubscribeEvent
       public void onLivingUpdate(LivingEvent.LivingTickEvent event) {
-         LivingEntity entityLiving = event.getEntity();
-         if (entityLiving != null && entityLiving.tickCount % 5 == 0) {
-            ItemCamouflageArmor.setCamouflageArmorNBT(entityLiving, EquipmentSlot.CHEST);
-            ItemCamouflageArmor.setCamouflageArmorNBT(entityLiving, EquipmentSlot.FEET);
-            ItemCamouflageArmor.setCamouflageArmorNBT(entityLiving, EquipmentSlot.HEAD);
-            ItemCamouflageArmor.setCamouflageArmorNBT(entityLiving, EquipmentSlot.LEGS);
-            if (entityLiving.level().getRandom().nextInt(50) == 0 && entityLiving instanceof Player) {
-               Player player = (Player)entityLiving;
-               if (hasFullCamouflageArmor(player)) {
-                  entityLiving.level().addParticle(ParticleTypes.HAPPY_VILLAGER, entityLiving.getX() + (double)(event.getEntity().level().getRandom().nextFloat() - entityLiving.level().getRandom().nextFloat()), entityLiving.getY() + (double)entityLiving.level().getRandom().nextFloat() + (double)1.0F, entityLiving.getZ() + (double)(entityLiving.level().getRandom().nextFloat() - entityLiving.level().getRandom().nextFloat()), (double)1.0F, (double)1.0F, (double)1.0F);
-               }
-            }
+         if (!(event.getEntity() instanceof Player entityLiving)) {
+            return;
          }
 
+         if (entityLiving.tickCount % 5 != 0) {
+            return;
+         }
+
+         ItemCamouflageArmor.setCamouflageArmorNBT(entityLiving, EquipmentSlot.CHEST);
+         ItemCamouflageArmor.setCamouflageArmorNBT(entityLiving, EquipmentSlot.FEET);
+         ItemCamouflageArmor.setCamouflageArmorNBT(entityLiving, EquipmentSlot.HEAD);
+         ItemCamouflageArmor.setCamouflageArmorNBT(entityLiving, EquipmentSlot.LEGS);
+         if (entityLiving.level().getRandom().nextInt(50) == 0 && hasFullCamouflageArmor(entityLiving)) {
+            entityLiving.level().addParticle(ParticleTypes.HAPPY_VILLAGER, entityLiving.getX() + (double)(event.getEntity().level().getRandom().nextFloat() - entityLiving.level().getRandom().nextFloat()), entityLiving.getY() + (double)entityLiving.level().getRandom().nextFloat() + (double)1.0F, entityLiving.getZ() + (double)(entityLiving.level().getRandom().nextFloat() - entityLiving.level().getRandom().nextFloat()), (double)1.0F, (double)1.0F, (double)1.0F);
+         }
       }
 
       @SubscribeEvent
@@ -271,6 +281,10 @@ public class PrimitiveMobsEvents {
             if (event.getNewTarget() instanceof EntitySheepman) {
                event.setNewTarget(null);
             }
+         }
+
+         if (event.getNewTarget() instanceof Player player && event.getEntity() instanceof EntityPrimitiveCreeper creeper && !creeper.canTargetPlayer(player)) {
+            event.setNewTarget(null);
          }
 
          if (event.getNewTarget() != null && event.getNewTarget() instanceof Player && event.getEntity() instanceof Mob) {

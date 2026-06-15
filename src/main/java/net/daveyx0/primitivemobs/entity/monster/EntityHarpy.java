@@ -55,16 +55,27 @@ public class EntityHarpy extends EntityMMFlyingMob implements IMultiMob {
       return PrimitiveMobsSoundEvents.ENTITY_HARPY_IDLE.get();
    }
 
+   private int riderGroundCheckCooldown;
+
    @Override
    public void tick() {
       if (this.isVehicle()) {
          this.setDeltaMovement(this.getDeltaMovement().x, (double)0.25F, this.getDeltaMovement().z);
-         if (!this.level().isClientSide && (this.getDistanceToGround(new BlockPos((int)this.getX(), (int)this.getY(), (int)this.getZ())) >= (double)20.0F || !this.level().isEmptyBlock(new BlockPos((int)this.getX(), (int)(this.getY() + (double)1.0F), (int)this.getZ())))) {
-            this.ejectPassengers();
+         if (!this.level().isClientSide && --this.riderGroundCheckCooldown <= 0) {
+            this.riderGroundCheckCooldown = 10;
+            if (this.getDistanceToGround(new BlockPos((int)this.getX(), (int)this.getY(), (int)this.getZ())) >= (double)20.0F || !this.level().isEmptyBlock(new BlockPos((int)this.getX(), (int)(this.getY() + (double)1.0F), (int)this.getZ()))) {
+               this.ejectPassengers();
+            }
          }
+      } else {
+         this.riderGroundCheckCooldown = 0;
       }
 
       super.tick();
+   }
+
+   public boolean isFlying() {
+      return !this.onGround();
    }
 
    public double getDistanceToGround(BlockPos pos) {

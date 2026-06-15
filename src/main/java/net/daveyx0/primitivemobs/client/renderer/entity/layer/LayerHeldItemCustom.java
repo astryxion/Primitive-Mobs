@@ -87,11 +87,7 @@ public class LayerHeldItemCustom extends RenderLayer<LivingEntity, EntityModel<L
          } else if (entitylivingbaseIn instanceof EntityLostMiner) {
             EntityLostMiner miner = (EntityLostMiner)entitylivingbaseIn;
             ModelLostMiner minerModel = (ModelLostMiner)this.livingEntityRenderer.getModel();
-            if (miner.isSaved()) {
-               this.renderHeldItemLostMiner(poseStack, bufferSource, packedLight, entitylivingbaseIn, itemstack, minerModel.arms, true);
-            } else {
-               this.renderHeldItemLostMiner(poseStack, bufferSource, packedLight, entitylivingbaseIn, itemstack, minerModel.armRightHand, false);
-            }
+            this.renderHeldItemLostMiner(poseStack, bufferSource, packedLight, entitylivingbaseIn, itemstack, minerModel.armRightHand, false);
          }
 
          poseStack.popPose();

@@ -52,7 +52,7 @@
     },
     {
       "type": "primitivemobs:trollager",
-      "weight": 25,
+      "weight": 5,
       "minCount": 1,
       "maxCount": 1
     },
@@ -73,12 +73,6 @@
       "weight": 100,
       "minCount": 1,
       "maxCount": 3
-    },
-    {
-      "type": "primitivemobs:flame_spewer",
-      "weight": 100,
-      "minCount": 1,
-      "maxCount": 1
     }
   ]
 }

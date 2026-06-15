@@ -9,8 +9,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.npc.VillagerData;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.Item;
@@ -72,6 +74,19 @@ public class PrimitiveMobsVillagerProfessions {
       PROFESSIONS.add(SHEEPMAN_PROFESSION_SCAVENGER.get());
       PROFESSIONS.add(SHEEPMAN_PROFESSION_ALCHEMIST.get());
       PROFESSIONS.add(SHEEPMAN_PROFESSION_THIEF.get());
+   }
+
+   public static boolean isPrimitiveProfession(VillagerProfession profession) {
+      ResourceLocation id = ForgeRegistries.VILLAGER_PROFESSIONS.getKey(profession);
+      return id != null && PrimitiveMobsReference.MODID.equals(id.getNamespace());
+   }
+
+   /** Custom professions have no valid 1.20 zombie-villager overlays; use vanilla unemployed zombie villager instead. */
+   public static VillagerData stripForZombification(VillagerData data) {
+      if (isPrimitiveProfession(data.getProfession())) {
+         return data.setProfession(VillagerProfession.NONE);
+      }
+      return data;
    }
 
    public static void injectTradesIntoMap() {

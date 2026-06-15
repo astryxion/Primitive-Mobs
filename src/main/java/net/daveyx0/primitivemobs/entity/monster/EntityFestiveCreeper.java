@@ -9,7 +9,6 @@ import net.daveyx0.primitivemobs.entity.item.EntityPrimitiveTNTPrimed;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -42,7 +41,7 @@ public class EntityFestiveCreeper extends EntityPrimitiveCreeper implements IMul
       this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 0.8));
       this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 8.0F));
       this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
-      this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, true));
+      this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, (target) -> !(target instanceof Player player) || this.canTargetPlayer(player)));
       this.targetSelector.addGoal(2, new HurtByTargetGoal(this));
    }
 
@@ -55,11 +54,6 @@ public class EntityFestiveCreeper extends EntityPrimitiveCreeper implements IMul
    @Override
    protected ResourceLocation getDefaultLootTable() {
       return PrimitiveMobsLootTables.ENTITIES_FESTIVECREEPER;
-   }
-
-   @Override
-   public MobCategory getClassification(boolean forSpawnCount) {
-      return MobCategory.CREATURE;
    }
 
    public class EntityAIThrowTNT extends Goal {
@@ -78,6 +72,8 @@ public class EntityFestiveCreeper extends EntityPrimitiveCreeper implements IMul
       public boolean canUse() {
          this.target = this.creeper.getTarget();
          if (this.target == null) {
+            return false;
+         } else if (this.target instanceof Player player && !this.creeper.canTargetPlayer(player)) {
             return false;
          } else if (!this.target.isAlive()) {
             return false;

@@ -47,12 +47,16 @@ public class EntityLostMiner extends Villager implements IMultiMobPassive {
       return false;
    }
 
+   private void ensurePickaxeEquipped() {
+      if (!this.level().isClientSide && this.getMainHandItem().isEmpty()) {
+         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_PICKAXE));
+      }
+   }
+
    @Override
    public void tick() {
       super.tick();
-      if (!this.level().isClientSide && !this.isSaved() && this.getMainHandItem().isEmpty()) {
-         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_PICKAXE));
-      }
+      this.ensurePickaxeEquipped();
       if (!this.isSaved() && this.tickCount % 5 == 0) {
          Player entityplayer = this.level().getNearestPlayer(this.getX(), this.getY(), this.getZ(), (double)8.0F, false);
          Player entityplayer1 = this.level().getNearestPlayer(this.getX(), this.getY(), this.getZ(), (double)2.0F, false);
@@ -110,9 +114,13 @@ public class EntityLostMiner extends Villager implements IMultiMobPassive {
             }
          }
 
-         return flag ? InteractionResult.SUCCESS : InteractionResult.PASS;
+         InteractionResult result = flag ? InteractionResult.SUCCESS : InteractionResult.PASS;
+         this.ensurePickaxeEquipped();
+         return result;
       } else {
-         return super.mobInteract(player, hand);
+         InteractionResult result = super.mobInteract(player, hand);
+         this.ensurePickaxeEquipped();
+         return result;
       }
    }
 
@@ -141,6 +149,14 @@ public class EntityLostMiner extends Villager implements IMultiMobPassive {
    @Override
    protected SoundEvent getDeathSound() {
       return PrimitiveMobsConfigSpecial.getLostMinerSounds() ? SoundEvents.VILLAGER_DEATH : SoundEvents.NOTE_BLOCK_BASS.get();
+   }
+
+   @Override
+   public VillagerData getVillagerData() {
+      if (this.isDeadOrDying()) {
+         return PrimitiveMobsVillagerProfessions.stripForZombification(super.getVillagerData());
+      }
+      return super.getVillagerData();
    }
 
    @Override

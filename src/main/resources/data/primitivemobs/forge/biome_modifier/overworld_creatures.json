@@ -19,12 +19,6 @@
       "weight": 100,
       "minCount": 1,
       "maxCount": 2
-    },
-    {
-      "type": "primitivemobs:filch_lizard",
-      "weight": 25,
-      "minCount": 1,
-      "maxCount": 2
     }
   ]
 }

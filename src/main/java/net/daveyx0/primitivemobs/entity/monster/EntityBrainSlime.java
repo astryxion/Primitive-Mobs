@@ -94,8 +94,7 @@ public class EntityBrainSlime extends Slime implements IMultiMob {
    @Nullable
    @Override
    public SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor worldIn, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData livingdata, @Nullable CompoundTag dataTag) {
-      int i = this.random.nextInt(3);
-      this.setSize(i, true);
+      this.setSize(this.random.nextInt(3) + 1, true);
       return livingdata;
    }
 

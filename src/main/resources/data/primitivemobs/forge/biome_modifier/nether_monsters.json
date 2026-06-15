@@ -13,12 +13,6 @@
       "weight": 10,
       "minCount": 1,
       "maxCount": 1
-    },
-    {
-      "type": "primitivemobs:flame_spewer",
-      "weight": 100,
-      "minCount": 1,
-      "maxCount": 1
     }
   ]
 }

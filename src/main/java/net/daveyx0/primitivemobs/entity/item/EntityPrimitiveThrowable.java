@@ -1,11 +1,17 @@
 package net.daveyx0.primitivemobs.entity.item;
 
+import javax.annotation.Nullable;
 import net.daveyx0.multimob.common.capabilities.CapabilityTameableEntity;
 import net.daveyx0.multimob.common.capabilities.ITameableEntity;
 import net.daveyx0.multimob.common.capabilities.CapabilityTameableEntity.EventHandler;
 import net.daveyx0.multimob.util.EntityUtil;
+import net.daveyx0.primitivemobs.core.PrimitiveMobsEntityRegistry;
+import net.daveyx0.primitivemobs.entity.monster.EntityBabySpider;
+import net.daveyx0.primitivemobs.entity.monster.EntityFestiveCreeper;
 import net.daveyx0.primitivemobs.entity.monster.EntityPrimitiveCreeper;
-import net.minecraft.core.Direction;
+import net.daveyx0.primitivemobs.entity.monster.EntityRocketCreeper;
+import net.daveyx0.primitivemobs.entity.monster.EntitySupportCreeper;
+import net.daveyx0.primitivemobs.entity.passive.EntityDodo;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.damagesource.DamageSource;
@@ -64,6 +70,41 @@ public class EntityPrimitiveThrowable extends ThrowableProjectile {
       this.spawnChance = chance;
    }
 
+   @Nullable
+   private LivingEntity getThrower() {
+      if (this.throwerEntity != null) {
+         return this.throwerEntity;
+      }
+
+      Entity owner = this.getOwner();
+      return owner instanceof LivingEntity living ? living : null;
+   }
+
+   private void prepareTamedSpawn(Mob entity) {
+      LivingEntity thrower = this.getThrower();
+      if (thrower == null) {
+         return;
+      }
+
+      if (entity instanceof EntityPrimitiveCreeper creeper) {
+         creeper.setupEggTaming(thrower);
+         return;
+      }
+
+      ITameableEntity tameable = EntityUtil.getCapability(entity, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, null);
+      if (tameable != null && !tameable.isTamed()) {
+         EventHandler.setUpTameable(tameable, entity, thrower);
+      }
+   }
+
+   private void spawnMob(Mob entity) {
+      entity.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+      this.prepareTamedSpawn(entity);
+      if (this.level().addFreshEntity(entity)) {
+         this.prepareTamedSpawn(entity);
+      }
+   }
+
    @Override
    protected void onHit(HitResult result) {
       if (result instanceof EntityHitResult entityHitResult) {
@@ -79,7 +120,7 @@ public class EntityPrimitiveThrowable extends ThrowableProjectile {
             for(int j = 0; j < i; ++j) {
                Mob entity = null;
                try {
-                  EntityType<?> entityType = findEntityType(this.spawnEntityClass, this.level());
+                  EntityType<?> entityType = resolveSpawnType(this.spawnEntityClass, this.level());
                   if (entityType != null) {
                      entity = (Mob)entityType.create(this.level());
                   }
@@ -87,29 +128,14 @@ public class EntityPrimitiveThrowable extends ThrowableProjectile {
                   // Entity creation failed
                }
                if (entity != null) {
-                  if (entity instanceof Animal) {
-                     Animal animal = (Animal)entity;
+                  if (entity instanceof Animal animal) {
                      animal.setAge(-24000);
-                     animal.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                     this.level().addFreshEntity(animal);
-                  } else if (entity instanceof EntityPrimitiveCreeper) {
-                     EntityPrimitiveCreeper creeper = (EntityPrimitiveCreeper)entity;
+                     this.spawnMob(animal);
+                  } else if (entity instanceof EntityPrimitiveCreeper creeper) {
                      creeper.setGrowingAge(-24000);
-                     creeper.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                     ITameableEntity tameable = (ITameableEntity)EntityUtil.getCapability(entity, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, (Direction)null);
-                     if (tameable != null && !tameable.isTamed() && this.throwerEntity != null) {
-                        EventHandler.setUpTameable(tameable, entity, this.throwerEntity);
-                     }
-
-                     this.level().addFreshEntity(creeper);
+                     this.spawnMob(creeper);
                   } else {
-                     entity.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                     ITameableEntity tameable = (ITameableEntity)EntityUtil.getCapability(entity, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, (Direction)null);
-                     if (tameable != null && !tameable.isTamed() && this.throwerEntity != null) {
-                        EventHandler.setUpTameable(tameable, entity, this.throwerEntity);
-                     }
-
-                     this.level().addFreshEntity(entity);
+                     this.spawnMob(entity);
                   }
                }
             }
@@ -122,6 +148,26 @@ public class EntityPrimitiveThrowable extends ThrowableProjectile {
    }
 
    private static final java.util.Map<Class<? extends Mob>, EntityType<?>> ENTITY_TYPE_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+
+   private static EntityType<?> resolveSpawnType(Class<? extends Mob> clazz, Level level) {
+      if (EntityFestiveCreeper.class.equals(clazz)) {
+         return PrimitiveMobsEntityRegistry.FESTIVE_CREEPER.get();
+      }
+      if (EntitySupportCreeper.class.equals(clazz)) {
+         return PrimitiveMobsEntityRegistry.SUPPORT_CREEPER.get();
+      }
+      if (EntityRocketCreeper.class.equals(clazz)) {
+         return PrimitiveMobsEntityRegistry.ROCKET_CREEPER.get();
+      }
+      if (EntityBabySpider.class.equals(clazz)) {
+         return PrimitiveMobsEntityRegistry.BABY_SPIDER.get();
+      }
+      if (EntityDodo.class.equals(clazz)) {
+         return PrimitiveMobsEntityRegistry.DODO.get();
+      }
+
+      return findEntityType(clazz, level);
+   }
 
    @SuppressWarnings("unchecked")
    private static EntityType<?> findEntityType(Class<? extends Mob> clazz, Level level) {

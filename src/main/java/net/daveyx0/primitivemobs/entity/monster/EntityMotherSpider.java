@@ -46,8 +46,9 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
    private final int maxFollowers = PrimitiveMobsConfigSpecial.getMaxSpiderFamilySize();
    private LivingEntity[] followers;
    private int riderNavTick;
-   /** When > 0, baby spiders are spawned after this many ticks (staggers chunk-generation work). */
+   /** When > 0, baby spiders are spawned one at a time after this many ticks between each. */
    private int pendingBabySpawnTicks;
+   private int babiesLeftToSpawn;
    private static final EntityDataAccessor<Boolean> IS_ANGRY = SynchedEntityData.defineId(EntityMotherSpider.class, EntityDataSerializers.BOOLEAN);
 
    public EntityMotherSpider(EntityType<? extends EntityMotherSpider> type, Level worldIn) {
@@ -73,24 +74,39 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
    }
 
    @Override
+   public boolean hurt(DamageSource source, float amount) {
+      if (!this.level().isClientSide && amount > 0.0F) {
+         Entity attacker = source.getEntity();
+         if (attacker instanceof LivingEntity living && !(attacker instanceof EntityBabySpider)) {
+            this.setIsAngry(true);
+            this.setTarget(living);
+         }
+      }
+
+      return super.hurt(source, amount);
+   }
+
+   @Override
    protected void registerGoals() {
       this.goalSelector.addGoal(1, new FloatGoal(this));
       this.goalSelector.addGoal(3, new LeapAtTargetGoal(this, 0.4F));
-      this.goalSelector.addGoal(4, new EntityPrimitiveSpider.AISpiderAttack(this));
+      this.goalSelector.addGoal(4, new EntityPrimitiveSpider.AISpiderAttack(this, false));
       this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8));
       this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
       this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
       this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
       this.targetSelector.addGoal(2, new EntityAIFollowerHurtByTarget(this));
-      this.targetSelector.addGoal(3, new EntityPrimitiveSpider.AISpiderTarget<>(this, Player.class));
-      this.targetSelector.addGoal(4, new EntityPrimitiveSpider.AISpiderTarget<>(this, IronGolem.class));
+      this.targetSelector.addGoal(3, new EntityPrimitiveSpider.AISpiderTarget<>(this, Player.class, false));
+      this.targetSelector.addGoal(4, new EntityPrimitiveSpider.AISpiderTarget<>(this, IronGolem.class, false));
    }
 
    @Override
    public void tick() {
       super.tick();
-      if (!this.level().isClientSide && this.pendingBabySpawnTicks > 0 && --this.pendingBabySpawnTicks == 0) {
-         this.spawnBabyFollowers();
+      if (!this.level().isClientSide && this.babiesLeftToSpawn > 0 && --this.pendingBabySpawnTicks <= 0) {
+         this.spawnNextBabyFollower();
+         this.babiesLeftToSpawn--;
+         this.pendingBabySpawnTicks = 4;
       }
 
       if (!this.getPassengers().isEmpty()) {
@@ -112,7 +128,9 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
 
       if (this.isAngry()) {
          this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(6.0D);
-         this.level().addParticle(ParticleTypes.SMOKE, this.getX() + (double)(this.random.nextFloat() - this.random.nextFloat()), this.getY() + (double)this.random.nextFloat(), this.getZ() + (double)(this.random.nextFloat() - this.random.nextFloat()), 0.0D, 0.0D, 0.0D);
+         if (this.level().isClientSide) {
+            this.level().addParticle(ParticleTypes.SMOKE, this.getX() + (double)(this.random.nextFloat() - this.random.nextFloat()), this.getY() + (double)this.random.nextFloat(), this.getZ() + (double)(this.random.nextFloat() - this.random.nextFloat()), 0.0D, 0.0D, 0.0D);
+         }
       }
 
    }
@@ -155,22 +173,31 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
       }
    }
 
-   private void spawnBabyFollowers() {
+   private void queueBabyFollowers() {
       if (this.level().isClientSide || !this.isAlive()) {
          return;
       }
 
+      int queued = 0;
+
       for (int i = 0; i < this.maxFollowers; ++i) {
          if (this.random.nextInt(2) == 0 || i <= 3) {
-            EntityBabySpider entityBabySpider = new EntityBabySpider(PrimitiveMobsEntityRegistry.BABY_SPIDER.get(), this.level());
-            entityBabySpider.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-            entityBabySpider.setTamed(true);
-            entityBabySpider.setOwnerId(this.getUUID());
-            this.level().addFreshEntity(entityBabySpider);
-            if (!this.isVehicle()) {
-               entityBabySpider.startRiding(this);
-            }
+            ++queued;
          }
+      }
+
+      this.babiesLeftToSpawn = queued;
+      this.pendingBabySpawnTicks = 1;
+   }
+
+   private void spawnNextBabyFollower() {
+      EntityBabySpider entityBabySpider = new EntityBabySpider(PrimitiveMobsEntityRegistry.BABY_SPIDER.get(), this.level());
+      entityBabySpider.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+      entityBabySpider.setTamed(true);
+      entityBabySpider.setOwnerId(this.getUUID());
+      this.level().addFreshEntity(entityBabySpider);
+      if (!this.isVehicle()) {
+         entityBabySpider.startRiding(this);
       }
    }
 
@@ -193,11 +220,7 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
       }
 
       if (!this.level().isClientSide) {
-         if (spawnType == MobSpawnType.CHUNK_GENERATION) {
-            this.pendingBabySpawnTicks = 1 + this.random.nextInt(40);
-         } else {
-            this.spawnBabyFollowers();
-         }
+         this.queueBabyFollowers();
       }
 
       return spawnData;

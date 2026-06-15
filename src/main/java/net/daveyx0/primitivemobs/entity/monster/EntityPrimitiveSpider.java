@@ -165,21 +165,29 @@ public class EntityPrimitiveSpider extends EntityPrimitiveTameableMob {
 
    static class AISpiderAttack extends MeleeAttackGoal {
       EntityPrimitiveSpider spider;
+      private final boolean checkLight;
 
       public AISpiderAttack(EntityPrimitiveSpider spider) {
+         this(spider, true);
+      }
+
+      public AISpiderAttack(EntityPrimitiveSpider spider, boolean checkLight) {
          super(spider, 1.0, true);
          this.spider = spider;
+         this.checkLight = checkLight;
       }
 
       @Override
       public boolean canContinueToUse() {
-         float f = this.mob.getLightLevelDependentMagicValue();
-         if (f >= 0.5F && this.mob.getRandom().nextInt(100) == 0) {
-            this.mob.setTarget((LivingEntity)null);
-            return false;
-         } else {
-            return super.canContinueToUse();
+         if (this.checkLight) {
+            float f = this.mob.getLightLevelDependentMagicValue();
+            if (f >= 0.5F && this.mob.getRandom().nextInt(100) == 0) {
+               this.mob.setTarget((LivingEntity)null);
+               return false;
+            }
          }
+
+         return super.canContinueToUse();
       }
 
       @Override
@@ -189,14 +197,27 @@ public class EntityPrimitiveSpider extends EntityPrimitiveTameableMob {
    }
 
    static class AISpiderTarget<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
+      private final boolean checkLight;
+
       public AISpiderTarget(EntityPrimitiveSpider spider, Class<T> classTarget) {
+         this(spider, classTarget, true);
+      }
+
+      public AISpiderTarget(EntityPrimitiveSpider spider, Class<T> classTarget, boolean checkLight) {
          super(spider, classTarget, true);
+         this.checkLight = checkLight;
       }
 
       @Override
       public boolean canUse() {
-         float f = this.mob.getLightLevelDependentMagicValue();
-         return f >= 0.5F ? false : super.canUse();
+         if (this.checkLight) {
+            float f = this.mob.getLightLevelDependentMagicValue();
+            if (f >= 0.5F) {
+               return false;
+            }
+         }
+
+         return super.canUse();
       }
    }
 

@@ -111,13 +111,9 @@ public class ModelLostMiner extends EntityModel<EntityLostMiner> implements Head
     }
 
     public void renderArms(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, EntityLostMiner lostMiner) {
-        if (lostMiner.isSaved()) {
-            this.arms.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        } else {
-            this.armLeftShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.armLeftHand.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.armRightShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.armRightHand.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        }
+        this.armLeftShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        this.armLeftHand.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        this.armRightShoulder.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        this.armRightHand.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
     }
 }

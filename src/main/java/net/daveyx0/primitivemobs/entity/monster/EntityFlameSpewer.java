@@ -18,7 +18,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -247,11 +246,6 @@ public class EntityFlameSpewer extends Monster implements RangedAttackMob, IMult
    @Override
    public boolean checkSpawnRules(net.minecraft.world.level.LevelAccessor level, MobSpawnType spawnType) {
       return this.getY() < (double)64.0F;
-   }
-
-   @Override
-   public MobCategory getClassification(boolean forSpawnCount) {
-      return forSpawnCount && MobCategory.MONSTER == MobCategory.MONSTER ? MobCategory.CREATURE : super.getClassification(forSpawnCount);
    }
 
    static class AIFlameSpewAttack extends Goal {

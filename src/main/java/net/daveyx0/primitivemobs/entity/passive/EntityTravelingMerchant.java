@@ -21,6 +21,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.VillagerData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -109,6 +110,14 @@ public class EntityTravelingMerchant extends Villager implements IMultiMobPassiv
    public void readAdditionalSaveData(CompoundTag compound) {
       super.readAdditionalSaveData(compound);
       this.setCanDespawn(compound.getBoolean("canDespawn"));
+   }
+
+   @Override
+   public VillagerData getVillagerData() {
+      if (this.isDeadOrDying()) {
+         return PrimitiveMobsVillagerProfessions.stripForZombification(super.getVillagerData());
+      }
+      return super.getVillagerData();
    }
 
    @Override

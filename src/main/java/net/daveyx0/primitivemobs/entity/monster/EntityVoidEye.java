@@ -220,7 +220,9 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
    @Override
    public void tick() {
       super.tick();
-      this.level().addParticle(ParticleTypes.LARGE_SMOKE, this.getX(), this.getY() + (double)0.5F, this.getZ(), (double)0.0F, (double)0.0F, (double)0.0F);
+      if (this.level().isClientSide && this.tickCount % 4 == 0) {
+         this.level().addParticle(ParticleTypes.LARGE_SMOKE, this.getX(), this.getY() + (double)0.5F, this.getZ(), (double)0.0F, (double)0.0F, (double)0.0F);
+      }
    }
 
    @Override
@@ -284,12 +286,8 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
    }
 
    public boolean checkSpawnRules(Level level, net.minecraft.world.entity.MobSpawnType spawnType) {
-      if (this.level().dimension() == Level.END) {
-         for(Entity entity : this.level().getEntities(this, new AABB(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE), e -> true)) {
-            if (entity instanceof EnderDragon) {
-               return false;
-            }
-         }
+      if (this.level().dimension() == Level.END && !this.level().getEntitiesOfClass(EnderDragon.class, this.getBoundingBox().inflate(256.0D)).isEmpty()) {
+         return false;
       }
 
       return super.checkSpawnRules(level, spawnType);

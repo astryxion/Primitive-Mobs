@@ -22,7 +22,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -61,7 +60,7 @@ public class EntityRocketCreeper extends EntityPrimitiveCreeper implements IMult
       this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8));
       this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
       this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
-      this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, true));
+      this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, (target) -> !(target instanceof Player player) || this.canTargetPlayer(player)));
       this.targetSelector.addGoal(2, new HurtByTargetGoal(this));
    }
 
@@ -114,7 +113,7 @@ public class EntityRocketCreeper extends EntityPrimitiveCreeper implements IMult
          boolean flag = this.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
          float f = this.isPowered() ? 2.0F : 1.0F;
          ITameableEntity tameable = (ITameableEntity)EntityUtil.getCapability(this, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, (Direction)null);
-         if (tameable != null && tameable.isTamed()) {
+         if (this.isTamedToPlayer() || (tameable != null && tameable.isTamed())) {
             this.hurt(this.damageSources().explosion(this, this), 1.0F);
             this.setRocket(false);
          } else {
@@ -220,10 +219,5 @@ public class EntityRocketCreeper extends EntityPrimitiveCreeper implements IMult
          this.level().addFreshEntity(entityareaeffectcloud);
       }
 
-   }
-
-   @Override
-   public MobCategory getClassification(boolean forSpawnCount) {
-      return MobCategory.CREATURE;
    }
 }

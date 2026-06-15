@@ -1,6 +1,7 @@
 package net.daveyx0.primitivemobs.core;
 
 import net.daveyx0.multimob.core.MMEntityRegistry;
+import net.daveyx0.multimob.core.MultiMob;
 import net.daveyx0.primitivemobs.config.PrimitiveMobsConfigMobs;
 import net.daveyx0.primitivemobs.entity.item.EntityFlameSpit;
 import net.daveyx0.primitivemobs.entity.item.EntityPrimitiveTNTPrimed;
@@ -60,79 +61,79 @@ public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, "primitivemobs");
 
    public static final RegistryObject<EntityType<EntityChameleon>> CHAMELEON = ENTITY_TYPES.register("chameleon",
-      () -> EntityType.Builder.of(EntityChameleon::new, MobCategory.CREATURE).sized(0.6F, 0.5F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:chameleon"));
+      () -> EntityType.Builder.of(EntityChameleon::new, MultiMob.MULTIMOB_PASSIVE).sized(0.6F, 0.5F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:chameleon"));
 
    public static final RegistryObject<EntityType<EntityTreasureSlime>> TREASURE_SLIME = ENTITY_TYPES.register("treasure_slime",
-      () -> EntityType.Builder.of(EntityTreasureSlime::new, MobCategory.MONSTER).sized(2.04F, 2.04F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:treasure_slime"));
+      () -> EntityType.Builder.of(EntityTreasureSlime::new, MultiMob.MULTIMOB_MONSTER).sized(2.04F, 2.04F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:treasure_slime"));
 
    public static final RegistryObject<EntityType<EntityHauntedTool>> HAUNTED_TOOL = ENTITY_TYPES.register("haunted_tool",
-      () -> EntityType.Builder.of(EntityHauntedTool::new, MobCategory.MONSTER).sized(0.6F, 1.8F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:haunted_tool"));
+      () -> EntityType.Builder.of(EntityHauntedTool::new, MultiMob.MULTIMOB_MONSTER).sized(0.6F, 1.8F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:haunted_tool"));
 
    public static final RegistryObject<EntityType<EntityGroveSprite>> GROVESPRITE = ENTITY_TYPES.register("grovesprite",
-      () -> EntityType.Builder.of(EntityGroveSprite::new, MobCategory.CREATURE).sized(0.6F, 1.2F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:grovesprite"));
+      () -> EntityType.Builder.of(EntityGroveSprite::new, MultiMob.MULTIMOB_PASSIVE).sized(0.6F, 1.2F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:grovesprite"));
 
    public static final RegistryObject<EntityType<EntityEnchantedBook>> BEWITCHED_TOME = ENTITY_TYPES.register("bewitched_tome",
-      () -> EntityType.Builder.of(EntityEnchantedBook::new, MobCategory.MONSTER).sized(0.6F, 0.8F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:bewitched_tome"));
+      () -> EntityType.Builder.of(EntityEnchantedBook::new, MultiMob.MULTIMOB_MONSTER).sized(0.6F, 0.8F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:bewitched_tome"));
 
    public static final RegistryObject<EntityType<EntityFilchLizard>> FILCH_LIZARD = ENTITY_TYPES.register("filch_lizard",
-      () -> EntityType.Builder.of(EntityFilchLizard::new, MobCategory.CREATURE).sized(0.6F, 0.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:filch_lizard"));
+      () -> EntityType.Builder.of(EntityFilchLizard::new, MultiMob.MULTIMOB_PASSIVE).sized(0.6F, 0.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:filch_lizard"));
 
    public static final RegistryObject<EntityType<EntityBrainSlime>> BRAIN_SLIME = ENTITY_TYPES.register("brain_slime",
-      () -> EntityType.Builder.of(EntityBrainSlime::new, MobCategory.MONSTER).sized(2.04F, 2.04F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:brain_slime"));
+      () -> EntityType.Builder.of(EntityBrainSlime::new, MultiMob.MULTIMOB_MONSTER).sized(2.04F, 2.04F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:brain_slime"));
 
    public static final RegistryObject<EntityType<EntityRocketCreeper>> ROCKET_CREEPER = ENTITY_TYPES.register("rocket_creeper",
-      () -> EntityType.Builder.of(EntityRocketCreeper::new, MobCategory.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:rocket_creeper"));
+      () -> EntityType.Builder.of(EntityRocketCreeper::new, MultiMob.MULTIMOB_MONSTER).sized(0.6F, 1.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:rocket_creeper"));
 
    public static final RegistryObject<EntityType<EntityFestiveCreeper>> FESTIVE_CREEPER = ENTITY_TYPES.register("festive_creeper",
-      () -> EntityType.Builder.of(EntityFestiveCreeper::new, MobCategory.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:festive_creeper"));
+      () -> EntityType.Builder.of(EntityFestiveCreeper::new, MultiMob.MULTIMOB_MONSTER).sized(0.6F, 1.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:festive_creeper"));
 
    public static final RegistryObject<EntityType<EntitySupportCreeper>> SUPPORT_CREEPER = ENTITY_TYPES.register("support_creeper",
-      () -> EntityType.Builder.of(EntitySupportCreeper::new, MobCategory.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:support_creeper"));
+      () -> EntityType.Builder.of(EntitySupportCreeper::new, MultiMob.MULTIMOB_MONSTER).sized(0.6F, 1.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:support_creeper"));
 
    public static final RegistryObject<EntityType<EntitySkeletonWarrior>> SKELETON_WARRIOR = ENTITY_TYPES.register("skeleton_warrior",
-      () -> EntityType.Builder.of(EntitySkeletonWarrior::new, MobCategory.MONSTER).sized(0.6F, 1.99F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:skeleton_warrior"));
+      () -> EntityType.Builder.of(EntitySkeletonWarrior::new, MultiMob.MULTIMOB_MONSTER).sized(0.6F, 1.99F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:skeleton_warrior"));
 
    public static final RegistryObject<EntityType<EntityBlazingJuggernaut>> BLAZING_JUGGERNAUT = ENTITY_TYPES.register("blazing_juggernaut",
-      () -> EntityType.Builder.of(EntityBlazingJuggernaut::new, MobCategory.MONSTER).sized(0.9F, 2.4F).fireImmune().clientTrackingRange(80).updateInterval(3).build("primitivemobs:blazing_juggernaut"));
+      () -> EntityType.Builder.of(EntityBlazingJuggernaut::new, MultiMob.MULTIMOB_MONSTER).sized(0.9F, 2.4F).fireImmune().clientTrackingRange(80).updateInterval(3).build("primitivemobs:blazing_juggernaut"));
 
    public static final RegistryObject<EntityType<EntityLilyLurker>> LILY_LURKER = ENTITY_TYPES.register("lily_lurker",
-      () -> EntityType.Builder.of(EntityLilyLurker::new, MobCategory.MONSTER).sized(1.4F, 1.0F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:lily_lurker"));
+      () -> EntityType.Builder.of(EntityLilyLurker::new, MultiMob.MULTIMOB_WATER).sized(1.4F, 1.0F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:lily_lurker"));
 
    public static final RegistryObject<EntityType<EntityMotherSpider>> MOTHER_SPIDER = ENTITY_TYPES.register("mother_spider",
-      () -> EntityType.Builder.of(EntityMotherSpider::new, MobCategory.MONSTER).sized(1.4F, 0.9F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:mother_spider"));
+      () -> EntityType.Builder.of(EntityMotherSpider::new, MultiMob.MULTIMOB_MONSTER).sized(1.4F, 0.9F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:mother_spider"));
 
    public static final RegistryObject<EntityType<EntityBabySpider>> BABY_SPIDER = ENTITY_TYPES.register("baby_spider",
-      () -> EntityType.Builder.of(EntityBabySpider::new, MobCategory.MONSTER).sized(0.7F, 0.5F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:baby_spider"));
+      () -> EntityType.Builder.of(EntityBabySpider::new, MultiMob.MULTIMOB_MONSTER).sized(0.7F, 0.5F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:baby_spider"));
 
    public static final RegistryObject<EntityType<EntityTrollager>> TROLLAGER = ENTITY_TYPES.register("trollager",
-      () -> EntityType.Builder.of(EntityTrollager::new, MobCategory.MONSTER).sized(1.2F, 2.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:trollager"));
+      () -> EntityType.Builder.of(EntityTrollager::new, MultiMob.MULTIMOB_MONSTER).sized(1.2F, 2.7F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:trollager"));
 
    public static final RegistryObject<EntityType<EntityLostMiner>> LOST_MINER = ENTITY_TYPES.register("lost_miner",
-      () -> EntityType.Builder.of(EntityLostMiner::new, MobCategory.CREATURE).sized(0.6F, 1.95F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:lost_miner"));
+      () -> EntityType.Builder.of(EntityLostMiner::new, MultiMob.MULTIMOB_PASSIVE).sized(0.6F, 1.95F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:lost_miner"));
 
    public static final RegistryObject<EntityType<EntityTravelingMerchant>> TRAVELING_MERCHANT = ENTITY_TYPES.register("traveling_merchant",
-      () -> EntityType.Builder.of(EntityTravelingMerchant::new, MobCategory.CREATURE).sized(0.6F, 1.95F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:traveling_merchant"));
+      () -> EntityType.Builder.of(EntityTravelingMerchant::new, MultiMob.MULTIMOB_PASSIVE).sized(0.6F, 1.95F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:traveling_merchant"));
 
    public static final RegistryObject<EntityType<EntityDodo>> DODO = ENTITY_TYPES.register("dodo",
-      () -> EntityType.Builder.of(EntityDodo::new, MobCategory.CREATURE).sized(0.7F, 0.9F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:dodo"));
+      () -> EntityType.Builder.of(EntityDodo::new, MultiMob.MULTIMOB_PASSIVE).sized(0.7F, 0.9F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:dodo"));
 
    public static final RegistryObject<EntityType<EntityMimic>> MIMIC = ENTITY_TYPES.register("mimic",
-      () -> EntityType.Builder.of(EntityMimic::new, MobCategory.MONSTER).sized(0.9F, 0.9F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:mimic"));
+      () -> EntityType.Builder.of(EntityMimic::new, MultiMob.MULTIMOB_MONSTER).sized(0.9F, 0.9F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:mimic"));
 
    public static final RegistryObject<EntityType<EntitySheepman>> SHEEPMAN = ENTITY_TYPES.register("sheepman",
-      () -> EntityType.Builder.of(EntitySheepman::new, MobCategory.CREATURE).sized(0.6F, 1.95F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:sheepman"));
+      () -> EntityType.Builder.of(EntitySheepman::new, MultiMob.MULTIMOB_PASSIVE).sized(0.6F, 1.95F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:sheepman"));
 
    public static final RegistryObject<EntityType<EntityGoblin>> GOBLIN = ENTITY_TYPES.register("goblin",
-      () -> EntityType.Builder.of(EntityGoblin::new, MobCategory.MONSTER).sized(0.6F, 1.4F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:goblin"));
+      () -> EntityType.Builder.of(EntityGoblin::new, MultiMob.MULTIMOB_MONSTER).sized(0.6F, 1.4F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:goblin"));
 
    public static final RegistryObject<EntityType<EntityHarpy>> HARPY = ENTITY_TYPES.register("harpy",
-      () -> EntityType.Builder.of(EntityHarpy::new, MobCategory.MONSTER).sized(0.6F, 1.8F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:harpy"));
+      () -> EntityType.Builder.of(EntityHarpy::new, MultiMob.MULTIMOB_MONSTER).sized(0.6F, 1.8F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:harpy"));
 
    public static final RegistryObject<EntityType<EntityFlameSpewer>> FLAME_SPEWER = ENTITY_TYPES.register("flame_spewer",
-      () -> EntityType.Builder.of(EntityFlameSpewer::new, MobCategory.MONSTER).sized(1.0F, 1.8F).fireImmune().clientTrackingRange(80).updateInterval(3).build("primitivemobs:flame_spewer"));
+      () -> EntityType.Builder.of(EntityFlameSpewer::new, MultiMob.MULTIMOB_LAVA).sized(1.0F, 1.8F).fireImmune().clientTrackingRange(80).updateInterval(3).build("primitivemobs:flame_spewer"));
 
    public static final RegistryObject<EntityType<EntityVoidEye>> VOID_EYE = ENTITY_TYPES.register("void_eye",
-      () -> EntityType.Builder.of(EntityVoidEye::new, MobCategory.MONSTER).sized(0.8F, 0.8F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:void_eye"));
+      () -> EntityType.Builder.of(EntityVoidEye::new, MultiMob.MULTIMOB_MONSTER).sized(0.8F, 0.8F).clientTrackingRange(80).updateInterval(3).build("primitivemobs:void_eye"));
 
    public static final RegistryObject<EntityType<EntityPrimitiveTNTPrimed>> PRIMITIVE_TNT_PRIMED = ENTITY_TYPES.register("primitive_tnt_primed",
       () -> EntityType.Builder.<EntityPrimitiveTNTPrimed>of(EntityPrimitiveTNTPrimed::new, MobCategory.MISC).sized(0.98F, 0.98F).fireImmune().clientTrackingRange(64).updateInterval(20).build("primitivemobs:primitive_tnt_primed"));
