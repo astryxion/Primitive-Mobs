@@ -4,19 +4,13 @@
   "spawners": [
     {
       "type": "primitivemobs:lost_miner",
-      "weight": 4,
-      "minCount": 1,
-      "maxCount": 1
-    },
-    {
-      "type": "primitivemobs:traveling_merchant",
-      "weight": 25,
+      "weight": 2,
       "minCount": 1,
       "maxCount": 1
     },
     {
       "type": "primitivemobs:dodo",
-      "weight": 100,
+      "weight": 10,
       "minCount": 1,
       "maxCount": 2
     }

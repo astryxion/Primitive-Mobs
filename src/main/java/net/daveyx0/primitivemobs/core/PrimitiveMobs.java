@@ -47,6 +47,9 @@ public class PrimitiveMobs {
 
       MinecraftForge.EVENT_BUS.register(this);
       MinecraftForge.EVENT_BUS.register(new PrimitiveMobsEvents.EntityEventHandler());
+
+      // Register before any entity AttachCapabilitiesEvent can fire.
+      PrimitiveTameableEntries.registerTameables();
    }
 
    private void commonSetup(final FMLCommonSetupEvent event) {
@@ -57,7 +60,6 @@ public class PrimitiveMobs {
          PrimitiveMobsMapGen.registerWorldGenerators();
          PrimitiveMobsSpawnRegistry.registerSpawns();
          MMSpawnRegistry.loadSpawns();
-         PrimitiveTameableEntries.registerTameables();
          PrimitiveMobsRecipes.registerRecipes();
          PrimitiveMobsVillagerProfessions.registerProfessions();
          PrimitiveMobsVillagerProfessions.injectTradesIntoMap();

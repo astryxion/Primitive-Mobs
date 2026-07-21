@@ -4,7 +4,7 @@
   "spawners": [
     {
       "type": "primitivemobs:sheepman",
-      "weight": 40,
+      "weight": 10,
       "minCount": 1,
       "maxCount": 2
     }

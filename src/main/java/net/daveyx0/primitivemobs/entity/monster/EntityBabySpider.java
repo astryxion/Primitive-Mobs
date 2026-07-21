@@ -2,10 +2,10 @@ package net.daveyx0.primitivemobs.entity.monster;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
+import java.util.UUID;
 import net.daveyx0.multimob.common.capabilities.CapabilityTameableEntity;
 import net.daveyx0.multimob.common.capabilities.ITameableEntity;
 import net.daveyx0.multimob.entity.IMultiMob;
-import net.daveyx0.multimob.entity.ai.EntityAITameableFollowOwner;
 import net.daveyx0.primitivemobs.entity.ai.EntityAIPrimitiveOwnerHurtByTarget;
 import net.daveyx0.primitivemobs.entity.ai.EntityAIPrimitiveOwnerHurtTarget;
 import net.daveyx0.multimob.util.EntityUtil;
@@ -50,6 +50,7 @@ public class EntityBabySpider extends EntityPrimitiveSpider implements IMultiMob
    boolean initChild;
    private int jumpMountTicks;
    private LivingEntity cachedOwner;
+   private UUID cachedOwnerId;
    private int ownerCacheTick;
    private int lastGrowthLevel = -1;
    private static final EntityDataAccessor<Byte> DYE_COLOR = SynchedEntityData.defineId(EntityBabySpider.class, EntityDataSerializers.BYTE);
@@ -74,13 +75,24 @@ public class EntityBabySpider extends EntityPrimitiveSpider implements IMultiMob
    @Nullable
    @Override
    public LivingEntity getOwner() {
-      if (this.cachedOwner != null && !this.cachedOwner.isRemoved()) {
+      UUID ownerId = this.getOwnerId();
+      if (ownerId == null) {
+         this.cachedOwner = null;
+         this.cachedOwnerId = null;
+         return null;
+      }
+
+      if (this.cachedOwner != null && !this.cachedOwner.isRemoved() && ownerId.equals(this.cachedOwnerId)) {
          return this.cachedOwner;
       }
-      if (this.tickCount - this.ownerCacheTick < 100) {
+
+      // Refresh at most every 5 seconds; invalidate immediately if UUID changes or owner dies.
+      if (ownerId.equals(this.cachedOwnerId) && this.tickCount - this.ownerCacheTick < 100) {
          return this.cachedOwner;
       }
+
       this.ownerCacheTick = this.tickCount;
+      this.cachedOwnerId = ownerId;
       this.cachedOwner = super.getOwner();
       return this.cachedOwner;
    }
@@ -112,14 +124,7 @@ public class EntityBabySpider extends EntityPrimitiveSpider implements IMultiMob
 
    @Override
    public boolean onClimbable() {
-      int j = Mth.floor(this.getX());
-      int k = Mth.floor(this.getY());
-      int l = Mth.floor(this.getZ());
-      boolean side1 = this.level().isEmptyBlock(new BlockPos(j + 1, k, l));
-      boolean side2 = this.level().isEmptyBlock(new BlockPos(j - 1, k, l));
-      boolean side3 = this.level().isEmptyBlock(new BlockPos(j, k, l + 1));
-      boolean side4 = this.level().isEmptyBlock(new BlockPos(j, k, l - 1));
-      return this.isBesideClimbableBlock() || side1 || side2 || side3 || side4;
+      return this.isBesideClimbableBlock();
    }
 
    @Override
@@ -163,17 +168,24 @@ public class EntityBabySpider extends EntityPrimitiveSpider implements IMultiMob
       if (this.isPassenger()) {
          this.getNavigation().stop();
       }
-      LivingEntity owner = this.getOwner();
-      if (!this.initChild && owner != null && owner instanceof EntityMotherSpider) {
-         ((EntityMotherSpider)owner).addFollower(this);
-         this.initChild = true;
+
+      // Only resolve owner when we still need mother-follow / ride setup.
+      if (!this.initChild || this.rideAttemptDelay >= 0) {
+         LivingEntity owner = this.getOwner();
+         if (!this.initChild && owner instanceof EntityMotherSpider) {
+            ((EntityMotherSpider)owner).addFollower(this);
+            this.initChild = true;
+         }
+
+         if (this.rideAttemptDelay >= 0 && ++this.rideAttemptDelay > 100) {
+            if (owner instanceof EntityMotherSpider && !owner.isVehicle()) {
+               this.startRiding(owner);
+            }
+            this.rideAttemptDelay = -1;
+         }
       }
 
-      if (this.rideAttemptDelay++ > 100 && owner != null && !owner.isVehicle() && owner instanceof EntityMotherSpider) {
-         this.startRiding(owner);
-      }
-
-      if (this.level().isClientSide && !this.isTamed() && this.getOwnerId() == null) {
+      if (this.level().isClientSide && !this.isTamed() && this.getOwnerId() == null && this.tickCount % 4 == 0) {
          this.level().addParticle(ParticleTypes.SPLASH, this.getX() + (double)(this.random.nextFloat() - this.random.nextFloat()), this.getY() + (double)(this.random.nextFloat() - this.random.nextFloat()) + 1.0D, this.getZ() + (double)(this.random.nextFloat() - this.random.nextFloat()), 0.0D, 0.0D, 0.0D);
       }
 

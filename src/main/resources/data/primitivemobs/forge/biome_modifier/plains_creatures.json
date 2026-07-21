@@ -1,10 +1,10 @@
 {
   "type": "forge:add_spawns",
-  "biomes": "#forge:is_swamp",
+  "biomes": "#forge:is_plains",
   "spawners": [
     {
-      "type": "primitivemobs:lily_lurker",
-      "weight": 15,
+      "type": "primitivemobs:traveling_merchant",
+      "weight": 1,
       "minCount": 1,
       "maxCount": 1
     }

@@ -4,13 +4,13 @@
   "spawners": [
     {
       "type": "primitivemobs:festive_creeper",
-      "weight": 10,
+      "weight": 5,
       "minCount": 1,
       "maxCount": 1
     },
     {
       "type": "primitivemobs:blazing_juggernaut",
-      "weight": 10,
+      "weight": 5,
       "minCount": 1,
       "maxCount": 1
     }

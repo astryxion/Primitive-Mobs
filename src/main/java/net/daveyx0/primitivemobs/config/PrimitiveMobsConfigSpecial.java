@@ -47,7 +47,7 @@ public class PrimitiveMobsConfigSpecial {
       builder.comment("Settings specific to certain mobs.").push("mob_specific_settings");
       MINER_IN_VILLAGE = builder.comment("Enable/Disable if the Miner Villager profession should also spawn naturally in villages").define("minerInVillage", false);
       FESTIVE_CREEPER_DESTRUCTION = builder.comment("Enable/Disable if the Festive Creeper throws tnt that harms the terrain (this way you do not have to disable ALL Creeper explosions with mobGriefing)").define("festiveCreeperDestruction", true);
-      MAX_SPIDER_FAMILY_SIZE = builder.comment("Set the maximum amount of Baby Spiders that can potentially spawn with a Mother Spider").defineInRange("maxSpiderFamilySize", 6, 0, 20);
+      MAX_SPIDER_FAMILY_SIZE = builder.comment("Set the maximum amount of Baby Spiders that can potentially spawn with a Mother Spider").defineInRange("maxSpiderFamilySize", 3, 0, 20);
       LOST_MINER_SOUNDS = builder.comment("Enable/Disable if the Lost Miner should make villager sounds").define("lostMinerSounds", true);
       TROLL_DESTRUCTION = builder.comment("Enable/Disable if the Trollager can destroy terrain with its attack").define("trollDestruction", true);
       TAMEABLE_SLIME_CHANCE = builder.comment("Set the chance that a tameable Treasure Slime can spawn in percentage").defineInRange("tameableSlimeChance", 5, 0, 100);

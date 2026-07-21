@@ -49,6 +49,8 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
    /** When > 0, baby spiders are spawned one at a time after this many ticks between each. */
    private int pendingBabySpawnTicks;
    private int babiesLeftToSpawn;
+   private boolean wasCarryingBaby;
+   private boolean wasAngry;
    private static final EntityDataAccessor<Boolean> IS_ANGRY = SynchedEntityData.defineId(EntityMotherSpider.class, EntityDataSerializers.BOOLEAN);
 
    public EntityMotherSpider(EntityType<? extends EntityMotherSpider> type, Level worldIn) {
@@ -109,28 +111,31 @@ public class EntityMotherSpider extends EntityPrimitiveSpider implements IMultiM
          this.pendingBabySpawnTicks = 4;
       }
 
-      if (!this.getPassengers().isEmpty()) {
-         if (this.getPassengers().get(0) instanceof EntityBabySpider) {
-            EntityBabySpider baby = (EntityBabySpider)this.getPassengers().get(0);
-            if (baby != null && ++this.riderNavTick >= 10) {
-               this.riderNavTick = 0;
-               baby.getNavigation().moveTo(this.getNavigation().getPath(), 1.5D);
-               if (this.getMoveControl().hasWanted()) {
-                  baby.getMoveControl().setWantedPosition(this.getMoveControl().getWantedX(), this.getMoveControl().getWantedY(), this.getMoveControl().getWantedZ(), this.getMoveControl().getSpeedModifier());
-               }
+      boolean carryingBaby = !this.getPassengers().isEmpty() && this.getPassengers().get(0) instanceof EntityBabySpider;
+      if (carryingBaby) {
+         EntityBabySpider baby = (EntityBabySpider)this.getPassengers().get(0);
+         if (baby != null && ++this.riderNavTick >= 10) {
+            this.riderNavTick = 0;
+            baby.getNavigation().moveTo(this.getNavigation().getPath(), 1.5D);
+            if (this.getMoveControl().hasWanted()) {
+               baby.getMoveControl().setWantedPosition(this.getMoveControl().getWantedX(), this.getMoveControl().getWantedY(), this.getMoveControl().getWantedZ(), this.getMoveControl().getSpeedModifier());
             }
          }
-
-         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.18D);
-      } else {
-         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.3D);
       }
 
-      if (this.isAngry()) {
+      if (carryingBaby != this.wasCarryingBaby) {
+         this.wasCarryingBaby = carryingBaby;
+         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(carryingBaby ? 0.18D : 0.3D);
+      }
+
+      boolean angry = this.isAngry();
+      if (angry && !this.wasAngry) {
          this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(6.0D);
-         if (this.level().isClientSide) {
-            this.level().addParticle(ParticleTypes.SMOKE, this.getX() + (double)(this.random.nextFloat() - this.random.nextFloat()), this.getY() + (double)this.random.nextFloat(), this.getZ() + (double)(this.random.nextFloat() - this.random.nextFloat()), 0.0D, 0.0D, 0.0D);
-         }
+      }
+      this.wasAngry = angry;
+
+      if (angry && this.level().isClientSide) {
+         this.level().addParticle(ParticleTypes.SMOKE, this.getX() + (double)(this.random.nextFloat() - this.random.nextFloat()), this.getY() + (double)this.random.nextFloat(), this.getZ() + (double)(this.random.nextFloat() - this.random.nextFloat()), 0.0D, 0.0D, 0.0D);
       }
 
    }

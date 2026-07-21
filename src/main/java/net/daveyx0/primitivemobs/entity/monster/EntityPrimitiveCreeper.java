@@ -35,6 +35,9 @@ public class EntityPrimitiveCreeper extends Creeper {
    private float ageWidth = -1.0F;
    private float ageHeight;
    private float currentScale = 1.0F;
+   private boolean eggFollowGoalAdded;
+   private boolean clearedBabyTargets;
+   private Boolean eggTamedCache;
 
    public EntityPrimitiveCreeper(EntityType<? extends EntityPrimitiveCreeper> type, Level worldIn) {
       super(type, worldIn);
@@ -75,12 +78,17 @@ public class EntityPrimitiveCreeper extends Creeper {
    }
 
    public boolean isEggTamed() {
-      return this.getPersistentData().hasUUID(EGG_OWNER_TAG) || this.isTamedToPlayer();
+      if (this.eggTamedCache != null) {
+         return this.eggTamedCache;
+      }
+      this.eggTamedCache = this.getPersistentData().hasUUID(EGG_OWNER_TAG) || this.isTamedToPlayer();
+      return this.eggTamedCache;
    }
 
    public void markEggOwner(LivingEntity owner) {
       if (!this.level().isClientSide && owner != null) {
          this.getPersistentData().putUUID(EGG_OWNER_TAG, owner.getUUID());
+         this.eggTamedCache = true;
       }
    }
 
@@ -134,7 +142,7 @@ public class EntityPrimitiveCreeper extends Creeper {
    }
 
    public void ensureEggFollowGoal() {
-      if (!this.isEggTamed()) {
+      if (this.eggFollowGoalAdded || !this.isEggTamed()) {
          return;
       }
 
@@ -142,6 +150,7 @@ public class EntityPrimitiveCreeper extends Creeper {
       if (!hasFollow) {
          this.goalSelector.addGoal(2, new EntityAIEggOwnerFollow(this, 1.2D, 8.0F, 2.0F));
       }
+      this.eggFollowGoalAdded = true;
    }
 
    public void tameFromEgg(LivingEntity owner) {
@@ -270,13 +279,14 @@ public class EntityPrimitiveCreeper extends Creeper {
          }
       }
 
-      ITameableEntity tameable = (ITameableEntity)EntityUtil.getCapability(this, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, (Direction)null);
-      if (tameable != null && tameable.isTamed() && this.isBaby()) {
-         EventHandler.resetEntityTargetAI(this);
-      } else if (this.isEggTamed() && this.isBaby()) {
-         EventHandler.resetEntityTargetAI(this);
+      // Only clear target AI once for baby tameables — previously ran every tick and wiped goals repeatedly.
+      if (!this.clearedBabyTargets && this.isBaby()) {
+         ITameableEntity tameable = (ITameableEntity)EntityUtil.getCapability(this, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, (Direction)null);
+         if ((tameable != null && tameable.isTamed()) || this.isEggTamed()) {
+            this.clearedBabyTargets = true;
+            EventHandler.resetEntityTargetAI(this);
+         }
       }
-
    }
 
    protected void onGrowingAdult() {

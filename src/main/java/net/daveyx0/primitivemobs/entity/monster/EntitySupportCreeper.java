@@ -33,6 +33,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LightningBolt;
 
 public class EntitySupportCreeper extends EntityPrimitiveCreeper {
+   private boolean switchedToSwellGoals;
+
    public EntitySupportCreeper(EntityType<? extends EntitySupportCreeper> type, Level worldIn) {
       super(type, worldIn);
    }
@@ -56,11 +58,9 @@ public class EntitySupportCreeper extends EntityPrimitiveCreeper {
 
    @Override
    public void tick() {
-      if (!this.isEggTamed() && this.getHealth() < this.getMaxHealth() / 2.0F) {
-         while(this.goalSelector.getAvailableGoals().stream().filter((taskEntry) -> taskEntry.getGoal() instanceof AvoidEntityGoal).findFirst().isPresent()) {
-            this.goalSelector.getAvailableGoals().stream().filter((taskEntry) -> taskEntry.getGoal() instanceof AvoidEntityGoal).findFirst().ifPresent((taskEntry) -> this.goalSelector.removeGoal(taskEntry.getGoal()));
-         }
-
+      if (!this.switchedToSwellGoals && !this.isEggTamed() && this.getHealth() < this.getMaxHealth() / 2.0F) {
+         this.switchedToSwellGoals = true;
+         this.goalSelector.getAvailableGoals().removeIf((taskEntry) -> taskEntry.getGoal() instanceof AvoidEntityGoal);
          this.goalSelector.addGoal(2, new SwellGoal(this));
          this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, (target) -> !(target instanceof Player player) || this.canTargetPlayer(player)));
       }
@@ -78,6 +78,9 @@ public class EntitySupportCreeper extends EntityPrimitiveCreeper {
       EntitySupportCreeper creeper;
       LivingEntity mobIdol;
       int strength;
+      private int repathCooldown;
+      private int searchCooldown;
+      private boolean chargedAlly;
 
       public EntityAIBuffMob(EntitySupportCreeper entitySupportCreeper) {
          this.creeper = entitySupportCreeper;
@@ -96,108 +99,110 @@ public class EntitySupportCreeper extends EntityPrimitiveCreeper {
          ITameableEntity tameable = (ITameableEntity)EntityUtil.getCapability(this.creeper, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, (Direction)null);
          if (tameable != null && tameable.isTamed() && tameable.getFollowState() == 0) {
             return false;
-         } else {
-            return this.mobIdol != null && this.mobIdol.isAlive() && this.creeper.distanceToSqr(this.mobIdol) <= (double)625.0F;
          }
+         return this.mobIdol != null && this.mobIdol.isAlive() && this.creeper.distanceToSqr(this.mobIdol) <= 625.0D;
       }
 
       @Override
       public void start() {
+         this.searchCooldown = 0;
+         this.repathCooldown = 0;
+         this.chargedAlly = false;
          this.mobIdol = this.findMobToSupport();
       }
 
       @Override
       public void stop() {
          this.mobIdol = null;
+         this.chargedAlly = false;
+         this.creeper.getNavigation().stop();
       }
 
       public LivingEntity findMobToSupport() {
          ITameableEntity tameable = (ITameableEntity)EntityUtil.getCapability(this.creeper, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, (Direction)null);
          if (tameable != null && tameable.isTamed() && tameable.getFollowState() != 0) {
-            if (tameable.getOwner(this.creeper) != null && tameable.getOwner(this.creeper).distanceToSqr(this.creeper) < (double)30.0F) {
-               return tameable.getOwner(this.creeper);
+            LivingEntity owner = tameable.getOwner(this.creeper);
+            if (owner != null && owner.distanceToSqr(this.creeper) < 30.0D) {
+               return owner;
             }
-         } else if (tameable == null || !tameable.isTamed()) {
-            List<Entity> list = this.creeper.level().getEntities(this.creeper, this.creeper.getBoundingBox().inflate((double)10.0F, (double)4.0F, (double)10.0F));
-            Monster mob = null;
-            double d0 = Double.MAX_VALUE;
+            return null;
+         }
 
-            for(Entity entity : list) {
-               if (entity != null && entity instanceof Monster && !(entity instanceof EntitySupportCreeper)) {
-                  Monster mob1 = (Monster)entity;
-                  if (mob1.getActiveEffects().isEmpty()) {
-                     double d1 = this.creeper.distanceToSqr(mob1);
-                     if (d1 <= d0) {
-                        d0 = d1;
-                        mob = mob1;
-                     }
-                  }
+         if (tameable != null && tameable.isTamed()) {
+            return null;
+         }
+
+         List<Entity> list = this.creeper.level().getEntities(this.creeper, this.creeper.getBoundingBox().inflate(10.0D, 4.0D, 10.0D));
+         Monster closest = null;
+         double closestDist = Double.MAX_VALUE;
+
+         for (Entity entity : list) {
+            if (entity instanceof Monster mob && !(entity instanceof EntitySupportCreeper) && mob.getActiveEffects().isEmpty()) {
+               double dist = this.creeper.distanceToSqr(mob);
+               if (dist < closestDist) {
+                  closestDist = dist;
+                  closest = mob;
                }
-            }
-
-            if (mob != null) {
-               return mob;
             }
          }
 
-         return null;
+         return closest;
       }
 
       @Override
       public void tick() {
-         if (this.mobIdol == null) {
+         if (this.mobIdol == null || !this.mobIdol.isAlive()) {
+            if (--this.searchCooldown > 0) {
+               return;
+            }
+            this.searchCooldown = 20;
+            this.chargedAlly = false;
             this.mobIdol = this.findMobToSupport();
-         } else {
-            if (this.creeper.isPowered()) {
-               this.strength = 2;
-            } else {
-               this.strength = 1;
-            }
-
-            if ((double)this.creeper.distanceTo(this.mobIdol) > (double)2.0F) {
-               this.creeper.getNavigation().moveTo(this.mobIdol, (double)1.0F);
-            }
-
-            if (this.mobIdol instanceof Creeper) {
-               Creeper entitycreeper = (Creeper)this.mobIdol;
-               if (!entitycreeper.isPowered() && !EntitySupportCreeper.this.level().isClientSide) {
-                  LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(EntitySupportCreeper.this.level());
-                  bolt.setDamage(0.0F);
-                  entitycreeper.thunderHit((ServerLevel)EntitySupportCreeper.this.level(), bolt);
-                  bolt.discard();
-               }
-
-               if (entitycreeper.getEffect(MobEffects.DAMAGE_RESISTANCE) == null) {
-                  entitycreeper.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 60, this.strength));
-               }
-
-               if (this.creeper.getEffect(MobEffects.DAMAGE_RESISTANCE) == null) {
-                  this.creeper.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 60, this.strength));
-               }
-            } else {
-               if (this.mobIdol instanceof EntityTrollager) {
-                  EntityTrollager entitytrollager = (EntityTrollager)this.mobIdol;
-                  entitytrollager.isBeingSupported = true;
-               }
-
-               if (this.mobIdol.getEffect(MobEffects.DAMAGE_BOOST) == null) {
-                  this.mobIdol.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 60, this.strength));
-               }
-
-               if (this.mobIdol.getEffect(MobEffects.MOVEMENT_SPEED) == null) {
-                  this.mobIdol.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 60, this.strength));
-               }
-
-               if (this.mobIdol.getEffect(MobEffects.DAMAGE_RESISTANCE) == null) {
-                  this.mobIdol.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 60, this.strength));
-               }
-            }
-
-            if (this.creeper.getEffect(MobEffects.MOVEMENT_SPEED) == null) {
-               this.creeper.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 60, this.strength));
-            }
+            return;
          }
 
+         this.strength = this.creeper.isPowered() ? 2 : 1;
+
+         double distSq = this.creeper.distanceToSqr(this.mobIdol);
+         if (distSq > 4.0D) {
+            if (--this.repathCooldown <= 0) {
+               this.repathCooldown = 10;
+               this.creeper.getNavigation().moveTo(this.mobIdol, 1.0D);
+            }
+         } else {
+            this.creeper.getNavigation().stop();
+         }
+
+         if (this.mobIdol instanceof Creeper ally) {
+            if (!this.chargedAlly && !ally.isPowered() && !this.creeper.level().isClientSide) {
+               this.chargedAlly = true;
+               LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(this.creeper.level());
+               if (bolt != null) {
+                  bolt.setDamage(0.0F);
+                  ally.thunderHit((ServerLevel)this.creeper.level(), bolt);
+                  bolt.discard();
+               }
+            }
+
+            this.applyEffectIfMissing(ally, MobEffects.DAMAGE_RESISTANCE);
+            this.applyEffectIfMissing(this.creeper, MobEffects.DAMAGE_RESISTANCE);
+         } else {
+            if (this.mobIdol instanceof EntityTrollager trollager) {
+               trollager.isBeingSupported = true;
+            }
+
+            this.applyEffectIfMissing(this.mobIdol, MobEffects.DAMAGE_BOOST);
+            this.applyEffectIfMissing(this.mobIdol, MobEffects.MOVEMENT_SPEED);
+            this.applyEffectIfMissing(this.mobIdol, MobEffects.DAMAGE_RESISTANCE);
+         }
+
+         this.applyEffectIfMissing(this.creeper, MobEffects.MOVEMENT_SPEED);
+      }
+
+      private void applyEffectIfMissing(LivingEntity entity, net.minecraft.world.effect.MobEffect effect) {
+         if (entity.getEffect(effect) == null) {
+            entity.addEffect(new MobEffectInstance(effect, 100, this.strength));
+         }
       }
    }
 }

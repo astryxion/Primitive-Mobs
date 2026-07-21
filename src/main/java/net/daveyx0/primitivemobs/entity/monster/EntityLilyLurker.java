@@ -45,6 +45,8 @@ import net.minecraft.world.phys.Vec3;
 public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMultiMobWater, Enemy {
    int aggroTimer;
    int timeOnLand;
+   private boolean lastCamouflaged;
+   private int surfaceCheckCooldown;
    private static final EntityDataAccessor<Boolean> IS_CAMOUFLAGED = SynchedEntityData.defineId(EntityLilyLurker.class, EntityDataSerializers.BOOLEAN);
    private static final EntityDataAccessor<Integer> TIME_REGROW = SynchedEntityData.defineId(EntityLilyLurker.class, EntityDataSerializers.INT);
 
@@ -52,6 +54,7 @@ public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMulti
       super(type, worldIn);
       this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Blocks.LILY_PAD));
       this.setCamouflaged(true);
+      this.lastCamouflaged = true;
       this.aggroTimer = 0;
       this.timeOnLand = 0;
    }
@@ -122,37 +125,40 @@ public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMulti
 
    @Override
    public void tick() {
-      if (this.isCamouflaged()) {
+      boolean camouflaged = this.isCamouflaged();
+      if (camouflaged != this.lastCamouflaged) {
+         this.lastCamouflaged = camouflaged;
+         this.refreshDimensions();
+      }
+
+      if (camouflaged) {
          if (!this.isInWater()) {
             this.setCamouflaged(false);
          }
 
          this.resetFallDistance();
-         this.refreshDimensions();
          this.setYRot(0.25F);
          this.yBodyRot = 0.25F;
          this.setNoGravity(true);
          this.getNavigation().moveTo((net.minecraft.world.level.pathfinder.Path)null, (double)0.0F);
-         if (!this.level().isClientSide && EntityUtil.distanceToSurface(this, this.level()) > 1.5F) {
-            this.move(MoverType.SELF, new Vec3((double)0.0F, 0.05, (double)0.0F));
+         if (!this.level().isClientSide && --this.surfaceCheckCooldown <= 0) {
+            this.surfaceCheckCooldown = 10;
+            if (EntityUtil.distanceToSurface(this, this.level()) > 1.5F) {
+               this.move(MoverType.SELF, new Vec3((double)0.0F, 0.05, (double)0.0F));
+            }
          }
 
-         List<Entity> list = this.level().getEntities(this, this.getBoundingBox().inflate((double)1.0F, (double)1.0F, (double)1.0F));
-         LivingEntity base = null;
          if (this.getTarget() != null && this.getTarget().isAlive()) {
             this.setCamouflaged(false);
          } else {
+            List<Entity> list = this.level().getEntities(this, this.getBoundingBox().inflate((double)1.0F, (double)1.0F, (double)1.0F));
             for(Entity entity : list) {
-               if (entity != null && entity instanceof LivingEntity) {
-                  if (entity instanceof Player) {
-                     Player player = (Player)entity;
-                     if (player.isCreative()) {
-                        continue;
-                     }
+               if (entity instanceof LivingEntity) {
+                  if (entity instanceof Player player && player.isCreative()) {
+                     continue;
                   }
-
-                  base = (LivingEntity)entity;
-                  this.setTarget(base);
+                  this.setTarget((LivingEntity)entity);
+                  break;
                }
             }
          }
@@ -160,7 +166,6 @@ public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMulti
          this.aggroTimer = 0;
       } else {
          this.setNoGravity(false);
-         this.refreshDimensions();
          if (this.isInWater() && (this.getTarget() == null || !this.getTarget().isAlive()) && ++this.aggroTimer > 250) {
             this.aggroTimer = 0;
             this.setCamouflaged(true);
