@@ -11,10 +11,15 @@ import net.daveyx0.primitivemobs.entity.monster.EntityFestiveCreeper;
 import net.daveyx0.primitivemobs.entity.monster.EntityPrimitiveCreeper;
 import net.daveyx0.primitivemobs.entity.monster.EntityRocketCreeper;
 import net.daveyx0.primitivemobs.entity.monster.EntitySupportCreeper;
+import net.daveyx0.primitivemobs.entity.monster.EntityPrimitiveTameableMob;
 import net.daveyx0.primitivemobs.entity.passive.EntityDodo;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,6 +36,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EntityPrimitiveThrowable extends ThrowableProjectile {
+   private static final EntityDataAccessor<ItemStack> DISPLAY_ITEM = SynchedEntityData.defineId(EntityPrimitiveThrowable.class, EntityDataSerializers.ITEM_STACK);
    public Class<? extends Mob> spawnEntityClass;
    int spawnChance;
    LivingEntity throwerEntity = null;
@@ -43,31 +49,41 @@ public class EntityPrimitiveThrowable extends ThrowableProjectile {
 
    @Override
    protected void defineSynchedData() {
+      this.entityData.define(DISPLAY_ITEM, ItemStack.EMPTY);
    }
 
-   public EntityPrimitiveThrowable(Level worldIn, int chance) {
-      super(EntityType.EGG, worldIn);
-      this.spawnEntityClass = Chicken.class;
-      this.spawnChance = chance;
-   }
-
-   public EntityPrimitiveThrowable(Level worldIn, Class<? extends Mob> entity, int chance) {
-      super(EntityType.EGG, worldIn);
-      this.spawnEntityClass = entity;
-      this.spawnChance = chance;
-   }
-
-   public EntityPrimitiveThrowable(Level worldIn, LivingEntity throwerIn, Class<? extends Mob> entity, int chance) {
-      super(EntityType.EGG, throwerIn, worldIn);
+   public EntityPrimitiveThrowable(EntityType<? extends EntityPrimitiveThrowable> type, Level worldIn, LivingEntity throwerIn, Class<? extends Mob> entity, int chance) {
+      super(type, throwerIn, worldIn);
       this.spawnEntityClass = entity;
       this.spawnChance = chance;
       this.throwerEntity = throwerIn;
+      this.syncDisplayItem();
+   }
+
+   public EntityPrimitiveThrowable(Level worldIn, int chance) {
+      super(PrimitiveMobsEntityRegistry.PRIMITIVE_EGG.get(), worldIn);
+      this.spawnEntityClass = Chicken.class;
+      this.spawnChance = chance;
+      this.syncDisplayItem();
+   }
+
+   public EntityPrimitiveThrowable(Level worldIn, Class<? extends Mob> entity, int chance) {
+      super(PrimitiveMobsEntityRegistry.PRIMITIVE_EGG.get(), worldIn);
+      this.spawnEntityClass = entity;
+      this.spawnChance = chance;
+      this.syncDisplayItem();
+   }
+
+   public EntityPrimitiveThrowable(Level worldIn, LivingEntity throwerIn, Class<? extends Mob> entity, int chance) {
+      this(PrimitiveMobsEntityRegistry.PRIMITIVE_EGG.get(), worldIn, throwerIn, entity, chance);
    }
 
    public EntityPrimitiveThrowable(Level worldIn, double x, double y, double z, Class<? extends Mob> entity, int chance) {
-      super(EntityType.EGG, x, y, z, worldIn);
+      super(PrimitiveMobsEntityRegistry.PRIMITIVE_EGG.get(), worldIn);
+      this.setPos(x, y, z);
       this.spawnEntityClass = entity;
       this.spawnChance = chance;
+      this.syncDisplayItem();
    }
 
    @Nullable
@@ -94,6 +110,10 @@ public class EntityPrimitiveThrowable extends ThrowableProjectile {
       ITameableEntity tameable = EntityUtil.getCapability(entity, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, null);
       if (tameable != null && !tameable.isTamed()) {
          EventHandler.setUpTameable(tameable, entity, thrower);
+      }
+      if (entity instanceof EntityPrimitiveTameableMob tame && thrower instanceof Player player) {
+         tame.setTamed(true);
+         tame.setOwnerId(player.getUUID());
       }
    }
 
@@ -208,7 +228,31 @@ public class EntityPrimitiveThrowable extends ThrowableProjectile {
 
    }
 
+   private void syncDisplayItem() {
+      this.entityData.set(DISPLAY_ITEM, this.computeDisplayItem());
+   }
+
+   private ItemStack computeDisplayItem() {
+      if (EntityDodo.class.equals(this.spawnEntityClass)) {
+         return new ItemStack(net.daveyx0.primitivemobs.core.PrimitiveMobsItems.DODO_EGG.get());
+      }
+      if (EntityBabySpider.class.equals(this.spawnEntityClass)) {
+         return new ItemStack(net.daveyx0.primitivemobs.core.PrimitiveMobsItems.SPIDER_EGG_ITEM.get());
+      }
+      if (EntityFestiveCreeper.class.equals(this.spawnEntityClass)) {
+         return new ItemStack(net.daveyx0.primitivemobs.core.PrimitiveMobsItems.MYSTERYEGG1.get());
+      }
+      if (EntitySupportCreeper.class.equals(this.spawnEntityClass)) {
+         return new ItemStack(net.daveyx0.primitivemobs.core.PrimitiveMobsItems.MYSTERYEGG2.get());
+      }
+      if (EntityRocketCreeper.class.equals(this.spawnEntityClass)) {
+         return new ItemStack(net.daveyx0.primitivemobs.core.PrimitiveMobsItems.MYSTERYEGG3.get());
+      }
+      return new ItemStack(net.daveyx0.primitivemobs.core.PrimitiveMobsItems.DODO_EGG.get());
+   }
+
    public ItemStack getItemFromEntity() {
-      return new ItemStack(Items.EGG);
+      ItemStack stacked = this.entityData.get(DISPLAY_ITEM);
+      return stacked.isEmpty() ? this.computeDisplayItem() : stacked;
    }
 }

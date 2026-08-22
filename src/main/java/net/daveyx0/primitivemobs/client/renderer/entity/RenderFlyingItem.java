@@ -37,6 +37,12 @@ public class RenderFlyingItem<T extends Entity> extends EntityRenderer<T> {
          this.itemRenderer.renderStatic(this.getStackToRender(entity), ItemDisplayContext.GROUND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, entity.level(), entity.getId());
          poseStack.popPose();
          super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
+      } else {
+         poseStack.pushPose();
+         poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+         this.itemRenderer.renderStatic(new ItemStack(Items.FIRE_CHARGE), ItemDisplayContext.GROUND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, entity.level(), entity.getId());
+         poseStack.popPose();
+         super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
       }
    }
 

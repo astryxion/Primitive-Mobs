@@ -329,7 +329,7 @@ public class EntityBrainSlime extends Slime implements IMultiMob {
    }
 
    public void setAttackDelay(int delay) {
-      this.entityData.set(ATTACK_DELAY, delay);
+      this.entityData.set(ATTACK_DELAY, Math.max(-1, delay));
    }
 
    public int getAttackDelay() {
@@ -560,18 +560,13 @@ public class EntityBrainSlime extends Slime implements IMultiMob {
             if (this.mob.onGround()) {
                this.mob.setSpeed((float)(this.speedModifier * this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED)));
                if (this.jumpDelay-- <= 0) {
-                  this.jumpDelay = this.slime.getJumpDelay();
+                  this.jumpDelay = Math.max(1, this.slime.getJumpDelay());
                   if (this.isAggressive && this.slime.getSaturation() < 10) {
-                     if (!this.slime.isTiny()) {
-                        this.slime.playSound(PrimitiveMobsSoundEvents.ENTITY_BRAINSLIME_CHARGE.get(), this.slime.getSoundVolume(), ((this.slime.getRandom().nextFloat() - this.slime.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);
-                     }
-
+                     this.slime.playSound(PrimitiveMobsSoundEvents.ENTITY_BRAINSLIME_CHARGE.get(), this.slime.getSoundVolume(), ((this.slime.getRandom().nextFloat() - this.slime.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);
                      this.performChargeAttack();
                   } else {
                      this.slime.getJumpControl().jump();
-                     if (!this.slime.isTiny()) {
-                        this.slime.playSound(this.slime.getJumpSound(), this.slime.getSoundVolume(), ((this.slime.getRandom().nextFloat() - this.slime.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);
-                     }
+                     this.slime.playSound(this.slime.getJumpSound(), this.slime.getSoundVolume(), ((this.slime.getRandom().nextFloat() - this.slime.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F);
                   }
                } else {
                   this.slime.xxa = 0.0F;
@@ -588,6 +583,7 @@ public class EntityBrainSlime extends Slime implements IMultiMob {
       public void performChargeAttack() {
          LivingEntity entity = this.mob.getTarget();
          if (entity != null) {
+            this.mob.getJumpControl().jump();
             this.mob.setDeltaMovement(
                this.mob.getDeltaMovement().add(
                   (entity.getX() - this.mob.getX()) / (double)8.0F,

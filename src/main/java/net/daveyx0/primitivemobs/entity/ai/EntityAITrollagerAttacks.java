@@ -74,8 +74,8 @@ public class EntityAITrollagerAttacks<T extends Monster & IAnimatedMob> extends 
          double distanceToEnemy = this.entity.distanceToSqr(entitylivingbase.getX(), entitylivingbase.getBoundingBox().minY, entitylivingbase.getZ());
          boolean canSeeEnemy = this.entity.getSensing().hasLineOfSight(entitylivingbase);
          this.entity.getNavigation().moveTo(entitylivingbase, this.moveSpeedAmp);
-         boolean isWithinMeleeRange = distanceToEnemy <= (double)this.meleeAttackDistance * (double)this.meleeAttackDistance;
-         boolean isWithinAttackRange = distanceToEnemy <= (double)this.maxAttackDistance * (double)this.maxAttackDistance;
+         boolean isWithinMeleeRange = distanceToEnemy <= (double)this.meleeAttackDistance;
+         boolean isWithinAttackRange = distanceToEnemy <= (double)this.maxAttackDistance;
          boolean canThrowBlock = this.checkCanThrow();
          boolean canPerformMeleeAttack = isWithinMeleeRange && canSeeEnemy;
          boolean canPerformSmashAttack = PrimitiveMobsConfigSpecial.getTrollDestruction() && (isWithinAttackRange && (!canSeeEnemy || !canThrowBlock) || this.entity.level().random.nextInt(4) == 0) && !this.entity.isPassenger();

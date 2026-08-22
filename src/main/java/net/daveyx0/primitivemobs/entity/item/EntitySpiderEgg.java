@@ -15,7 +15,7 @@ public class EntitySpiderEgg extends EntityPrimitiveThrowable {
    }
 
    public EntitySpiderEgg(Level worldIn, Player playerIn, Class<? extends Mob> entry, int spawnChance) {
-      super(worldIn, playerIn, entry, spawnChance);
+      super(net.daveyx0.primitivemobs.core.PrimitiveMobsEntityRegistry.SPIDER_EGG.get(), worldIn, playerIn, entry, spawnChance);
    }
 
    @Override

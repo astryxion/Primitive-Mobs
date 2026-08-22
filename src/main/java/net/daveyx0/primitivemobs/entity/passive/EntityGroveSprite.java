@@ -25,6 +25,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -127,7 +128,7 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
       if (!this.level().isClientSide) {
          this.determineLogAndLeaves();
          BlockState leavesState = this.getLeaves();
-         ItemStack sapling = new ItemStack(leavesState.getBlock(), 1);
+         ItemStack sapling = saplingFromLeaves(leavesState);
          ItemStack sap = new ItemStack(PrimitiveMobsItems.WONDER_SAP.get(), 1);
          if (this.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() && !sapling.isEmpty()) {
             this.setItemSlot(EquipmentSlot.MAINHAND, sapling);
@@ -139,6 +140,21 @@ public class EntityGroveSprite extends PathfinderMob implements IMultiMobPassive
       }
 
       return super.finalizeSpawn(levelAccessor, difficulty, spawnType, livingdata, tag);
+   }
+
+   private static ItemStack saplingFromLeaves(BlockState leavesState) {
+      ResourceLocation blockId = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(leavesState.getBlock());
+      if (blockId != null) {
+         String path = blockId.getPath();
+         if (path.endsWith("_leaves")) {
+            ResourceLocation saplingId = new ResourceLocation(blockId.getNamespace(), path.substring(0, path.length() - 7) + "_sapling");
+            net.minecraft.world.item.Item item = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(saplingId);
+            if (item != null && item != net.minecraft.world.item.Items.AIR) {
+               return new ItemStack(item);
+            }
+         }
+      }
+      return ItemStack.EMPTY;
    }
 
    private void determineLogAndLeaves() {

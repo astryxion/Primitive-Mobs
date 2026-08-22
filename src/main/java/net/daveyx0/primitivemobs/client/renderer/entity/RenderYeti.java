@@ -15,7 +15,7 @@ public class RenderYeti extends MobRenderer<EntityYeti, ModelYeti> {
    private static final ResourceLocation YETI_TEXTURES = new ResourceLocation("primitivemobs", "textures/entity/yeti/yeti.png");
 
    public RenderYeti(EntityRendererProvider.Context context) {
-      super(context, new ModelYeti(context.bakeLayer(MODEL_LAYER)), 0.5F);
+      super(context, new ModelYeti(context.bakeLayer(MODEL_LAYER)), 0.9F);
    }
 
    @Override

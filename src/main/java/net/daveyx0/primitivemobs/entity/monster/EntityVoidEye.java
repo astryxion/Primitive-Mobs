@@ -6,10 +6,8 @@ import net.daveyx0.multimob.entity.EntityMMFlyingCreature;
 import net.daveyx0.multimob.entity.IMultiMob;
 import net.daveyx0.multimob.entity.ai.EntityAIFlyingAround;
 import net.daveyx0.multimob.entity.ai.EntityAISenseEntityNearestPlayer;
-import net.daveyx0.primitivemobs.message.PrimitiveMobsMessageRegistry;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsLootTables;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsSoundEvents;
-import net.daveyx0.primitivemobs.message.MessageTeleportEye;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -70,7 +68,7 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
       return EntityMMFlyingCreature.createAttributes()
          .add(Attributes.ATTACK_DAMAGE, (double)5.0F)
          .add(Attributes.MOVEMENT_SPEED, (double)1.0F)
-         .add(Attributes.FOLLOW_RANGE, (double)30.0F)
+         .add(Attributes.FOLLOW_RANGE, (double)48.0F)
          .add(Attributes.MAX_HEALTH, (double)15.0F);
    }
 
@@ -80,7 +78,7 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
       this.goalSelector.addGoal(2, new EntityAIFlyingAround(this));
       this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F));
       this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
-      this.targetSelector.addGoal(0, new EntityAISenseEntityNearestPlayer(this, 18));
+      this.targetSelector.addGoal(0, new EntityAISenseEntityNearestPlayer(this, 40));
    }
 
    @Override
@@ -198,7 +196,11 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
    }
 
    public int getAttackDuration() {
-      return 75;
+      LivingEntity target = this.getTarget();
+      if (target != null && this.distanceToSqr(target) < 64.0D) {
+         return 20;
+      }
+      return 55;
    }
 
    private void setTargetedEntity(int entityId) {
@@ -231,9 +233,8 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
          return false;
       } else {
          boolean flag = super.hurt(source, amount);
-         if (source.getEntity() != null && this.getRandom().nextInt(5) != 0 && this.level().isClientSide) {
-            this.setTeleports(true);
-            PrimitiveMobsMessageRegistry.getPrimitiveNetwork().sendToServer(new MessageTeleportEye(true, this.getUUID().toString()));
+         if (!this.level().isClientSide && source.getEntity() != null && this.getRandom().nextInt(5) != 0) {
+            this.teleportRandomly();
          }
 
          return flag;
@@ -241,10 +242,15 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
    }
 
    protected boolean teleportRandomly() {
-      double d0 = this.getX() + (this.getRandom().nextDouble() - (double)0.5F) * (double)16.0F;
-      double d1 = this.getY() + (double)(this.getRandom().nextInt(32) - 16);
-      double d2 = this.getZ() + (this.getRandom().nextDouble() - (double)0.5F) * (double)16.0F;
-      return this.teleportToPosition(d0, d1, d2);
+      for (int i = 0; i < 16; ++i) {
+         double d0 = this.getX() + (this.getRandom().nextDouble() - 0.5D) * 10.0D;
+         double d1 = this.getY() + (double)(this.getRandom().nextInt(9) - 4);
+         double d2 = this.getZ() + (this.getRandom().nextDouble() - 0.5D) * 10.0D;
+         if (this.teleportToPosition(d0, d1, d2)) {
+            return true;
+         }
+      }
+      return false;
    }
 
    @Nullable
@@ -259,13 +265,13 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
          return false;
       } else {
          boolean flag = this.randomTeleport(event.getTargetX(), event.getTargetY(), event.getTargetZ(), true);
-         if (flag) {
+         if (flag && this.level().noCollision(this)) {
             this.level().playSound((Player)null, this.xo, this.yo, this.zo, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0F, 1.0F);
             this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
             this.setTeleports(false);
+            return true;
          }
-
-         return flag;
+         return false;
       }
    }
 
@@ -322,14 +328,11 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
          this.tickCounter = -10;
          this.eye.getNavigation().stop();
          this.eye.getLookControl().setLookAt(this.eye.getTarget(), 90.0F, 90.0F);
-         this.eye.noPhysics = true;
       }
 
       @Override
       public void stop() {
          this.eye.setTargetedEntity(0);
-         this.eye.setTarget((LivingEntity)null);
-         this.eye.noPhysics = false;
       }
 
       @Override
@@ -350,7 +353,7 @@ public class EntityVoidEye extends EntityMMFlyingCreature implements IMultiMob {
             entitylivingbase.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 240, 0));
             entitylivingbase.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 240, 0));
             entitylivingbase.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 240, 0));
-            this.eye.setTarget((LivingEntity)null);
+            this.tickCounter = -8;
          }
 
          super.tick();

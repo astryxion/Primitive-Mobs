@@ -196,6 +196,9 @@ public class PrimitiveMobsItems extends MMItemRegistry {
    public static final RegistryObject<Item> TROLLAGER_SPAWN_EGG = ITEMS_REGISTRY.register("trollager_spawn_egg",
       () -> new ForgeSpawnEggItem(PrimitiveMobsEntityRegistry.TROLLAGER, 5669981, 3482911, new Item.Properties()));
 
+   public static final RegistryObject<Item> YETI_SPAWN_EGG = ITEMS_REGISTRY.register("yeti_spawn_egg",
+      () -> new ForgeSpawnEggItem(PrimitiveMobsEntityRegistry.YETI, 15331573, 10138820, new Item.Properties()));
+
    public static final RegistryObject<Item> LOST_MINER_SPAWN_EGG = ITEMS_REGISTRY.register("lost_miner_spawn_egg",
       () -> new ForgeSpawnEggItem(PrimitiveMobsEntityRegistry.LOST_MINER, 7091750, 12422002, new Item.Properties()));
 

@@ -24,6 +24,7 @@ public class PrimitiveMobsSpawnRegistry extends MMSpawnRegistry {
       registerSpawnEntry((new MMConfigSpawnEntry("_BlazingJuggernaut", "primitivemobs:blazing_juggernaut", 5, true)).setDimensions(new int[]{-1}).setAdditionalRarity(3));
       registerSpawnEntry((new MMConfigSpawnEntry("_Trollager", "primitivemobs:trollager", 2, true)).setupBaseMobSpawnEntry(false).setNeedsMoreSpace(true).setAdditionalRarity(5));
       registerSpawnEntry((new MMConfigSpawnEntry("_Trollager_Underground", "primitivemobs:trollager", 8, true)).setupBaseMobSpawnEntry(false).setHeightLevel(-1, 45).setNeedsMoreSpace(true).setAdditionalRarity(3));
+      registerSpawnEntry((new MMConfigSpawnEntry("_Yeti", "primitivemobs:yeti", 8, true)).setBiomeTypes(new String[]{"forge:is_snowy"}).setNeedsMoreSpace(true).setGroupSize(1, 1).setAdditionalRarity(3));
       registerSpawnEntry((new MMConfigSpawnEntry("_VoidEye_Overworld", "primitivemobs:void_eye", 3, true)).setupBaseMobSpawnEntry(false).setDimensions(new int[]{0}).setHeightLevel(-1, 20).setAdditionalRarity(4));
       // Community: harpies too common — half-ish of old feel, singles only, light rarity gate.
       registerSpawnEntry((new MMConfigSpawnEntry("_Harpy", "primitivemobs:harpy", 8, true)).setHeightLevel(100, -1).setGroupSize(1, 1).setOverrideCanSpawnHere(true).setSpawnBlocks(new String[]{"minecraft:grass_block", "minecraft:stone", "minecraft:dirt", "minecraft:snow_block"}).setAdditionalRarity(3));

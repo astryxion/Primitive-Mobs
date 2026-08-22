@@ -26,7 +26,6 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
@@ -64,7 +63,6 @@ public class EntityFlameSpewer extends Monster implements RangedAttackMob, IMult
       this.goalSelector.addGoal(4, new AIFlameSpewAttack(this));
       this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 8.0F));
       this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
-      this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
       this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
    }
 
@@ -101,7 +99,26 @@ public class EntityFlameSpewer extends Monster implements RangedAttackMob, IMult
 
    @Override
    public boolean isInvulnerableTo(DamageSource source) {
-      return this.getAttackTime() < 10 || this.getAttackSignal() > 0.0F;
+      if (source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+         return false;
+      }
+      return this.isOnFire() || this.getAttackSignal() > 0.0F;
+   }
+
+   @Override
+   public boolean hurt(DamageSource source, float amount) {
+      if (this.isInvulnerableTo(source)) {
+         return false;
+      }
+      return super.hurt(source, amount);
+   }
+
+   @Override
+   public void knockback(double strength, double x, double z) {
+      if (this.isInLava() || this.isOnFire() || this.getAttackSignal() > 0.0F) {
+         return;
+      }
+      super.knockback(strength, x, z);
    }
 
    public void setAttackTime(int time) {
@@ -309,9 +326,9 @@ public class EntityFlameSpewer extends Monster implements RangedAttackMob, IMult
                   this.hasSeenPlayerThisAttack = true;
                }
 
-               this.attackStep = this.attackTime * 2 / 10;
-               if (this.attackTime <= 3) {
-                  this.attackSignal += 0.05F;
+               this.attackStep = Math.max(1, this.attackTime * 2 / 10);
+               if (this.attackTime <= 50) {
+                  this.attackSignal = Mth.clamp((50.0F - (float)this.attackTime) / 50.0F * 0.4F, 0.0F, 0.4F);
                }
             }
          }
@@ -337,7 +354,7 @@ public class EntityFlameSpewer extends Monster implements RangedAttackMob, IMult
                   this.spewer.setOnFire(true);
                   this.performingAttack = true;
                } else if (this.attackStep <= 10) {
-                  this.attackTime = 3;
+                  this.attackTime = 2;
                   this.spewer.setOnFire(true);
                   this.performingAttack = true;
                } else {
@@ -350,7 +367,7 @@ public class EntityFlameSpewer extends Monster implements RangedAttackMob, IMult
                   float f = Mth.sqrt(Mth.sqrt((float)d0) * 0.1F);
                   this.spewer.level().levelEvent((Player)null, 1018, new BlockPos((int)this.spewer.getX(), (int)this.spewer.getY(), (int)this.spewer.getZ()), 0);
 
-                  for(int i = 0; i < 1; ++i) {
+                  for(int i = 0; i < 3; ++i) {
                      EntityFlameSpit entitysmallfireball = new EntityFlameSpit(this.spewer.level(), this.spewer, d1 + this.spewer.getRandom().nextGaussian() * (double)0.02F * (double)f, d2 - this.spewer.getRandom().nextGaussian() * (double)0.02F * (double)f, d3 + this.spewer.getRandom().nextGaussian() * (double)0.02F * (double)f);
                      entitysmallfireball.setPos(entitysmallfireball.getX(), this.spewer.getY() + (double)(this.spewer.getBbHeight() / 2.0F) - (double)0.5F, entitysmallfireball.getZ());
                      this.spewer.level().addFreshEntity(entitysmallfireball);

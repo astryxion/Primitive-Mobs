@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 public class LayerLavaSkin extends RenderLayer<EntityFlameSpewer, ModelFlameSpewer> {
    private final ModelFlameSpewer lavaModel;
@@ -34,13 +35,13 @@ public class LayerLavaSkin extends RenderLayer<EntityFlameSpewer, ModelFlameSpew
       float f = (float)entitylivingbaseIn.tickCount + partialTicks;
       float vScroll = (float)Math.round(f) * 0.03125F;
 
-      float alpha = 1.0F;
-      if (entitylivingbaseIn instanceof EntityFlameSpewer) {
-         alpha = (10.0F - (float)((EntityFlameSpewer)entitylivingbaseIn).getAttackTime()) / 10.0F;
-      }
-
       this.lavaModel.prepareMobModel(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks);
       this.lavaModel.setupAnim(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+      float alpha = Mth.clamp((10.0F - (float)entitylivingbaseIn.getAttackTime()) / 10.0F, 0.0F, 1.0F);
+      if (alpha <= 0.01F) {
+         poseStack.popPose();
+         return;
+      }
       VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.energySwirl(this.lavaTexture, 0.0F, vScroll));
       this.lavaModel.renderToBuffer(poseStack, vertexConsumer, packedLight, LivingEntityRenderer.getOverlayCoords(entitylivingbaseIn, 0.0F), 1.0F, 1.0F, 1.0F, alpha);
       poseStack.popPose();

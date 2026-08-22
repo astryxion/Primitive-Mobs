@@ -50,6 +50,7 @@ public class TabPrimitiveMobs {
             output.accept(PrimitiveMobsItems.MOTHER_SPIDER_SPAWN_EGG.get());
             output.accept(PrimitiveMobsItems.BABY_SPIDER_SPAWN_EGG.get());
             output.accept(PrimitiveMobsItems.TROLLAGER_SPAWN_EGG.get());
+            output.accept(PrimitiveMobsItems.YETI_SPAWN_EGG.get());
             output.accept(PrimitiveMobsItems.LOST_MINER_SPAWN_EGG.get());
             output.accept(PrimitiveMobsItems.TRAVELING_MERCHANT_SPAWN_EGG.get());
             output.accept(PrimitiveMobsItems.DODO_SPAWN_EGG.get());

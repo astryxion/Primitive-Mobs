@@ -18,6 +18,7 @@ public class PrimitiveMobsConfigMobs {
    public static boolean enableLilyLurker;
    public static boolean enableSpiderFamily;
    public static boolean enableTrollager;
+   public static boolean enableYeti;
    public static boolean enableLostMiner;
    public static boolean enableMerchant;
    public static boolean enableDodo;
@@ -43,6 +44,7 @@ public class PrimitiveMobsConfigMobs {
    static ForgeConfigSpec.BooleanValue ENABLE_LILY_LURKER;
    static ForgeConfigSpec.BooleanValue ENABLE_SPIDER_FAMILY;
    static ForgeConfigSpec.BooleanValue ENABLE_TROLLAGER;
+   static ForgeConfigSpec.BooleanValue ENABLE_YETI;
    static ForgeConfigSpec.BooleanValue ENABLE_LOST_MINER;
    static ForgeConfigSpec.BooleanValue ENABLE_MERCHANT;
    static ForgeConfigSpec.BooleanValue ENABLE_DODO;
@@ -70,6 +72,7 @@ public class PrimitiveMobsConfigMobs {
       ENABLE_LILY_LURKER = builder.comment("Enable/Disable the Lily lurker").define("enableLilyLurker", true);
       ENABLE_SPIDER_FAMILY = builder.comment("Enable/Disable the Spider Family").define("enableSpiderFamily", true);
       ENABLE_TROLLAGER = builder.comment("Enable/Disable the Troll").define("enableTrollager", true);
+      ENABLE_YETI = builder.comment("Enable/Disable the Yeti").define("enableYeti", true);
       ENABLE_LOST_MINER = builder.comment("Enable/Disable the Lost Miner").define("enableLostMiner", true);
       ENABLE_MERCHANT = builder.comment("Enable/Disable the Traveling Merchant").define("enableMerchant", true);
       ENABLE_DODO = builder.comment("Enable/Disable the Dodo").define("enableDodo", true);
@@ -98,6 +101,7 @@ public class PrimitiveMobsConfigMobs {
       enableLilyLurker = ENABLE_LILY_LURKER.get();
       enableSpiderFamily = ENABLE_SPIDER_FAMILY.get();
       enableTrollager = ENABLE_TROLLAGER.get();
+      enableYeti = ENABLE_YETI.get();
       enableLostMiner = ENABLE_LOST_MINER.get();
       enableMerchant = ENABLE_MERCHANT.get();
       enableDodo = ENABLE_DODO.get();

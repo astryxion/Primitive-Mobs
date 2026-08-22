@@ -25,6 +25,7 @@ import net.daveyx0.primitivemobs.entity.monster.EntitySupportCreeper;
 import net.daveyx0.primitivemobs.entity.monster.EntityTreasureSlime;
 import net.daveyx0.primitivemobs.entity.monster.EntityTrollager;
 import net.daveyx0.primitivemobs.entity.monster.EntityVoidEye;
+import net.daveyx0.primitivemobs.entity.monster.EntityYeti;
 import net.daveyx0.primitivemobs.entity.passive.EntityChameleon;
 import net.daveyx0.primitivemobs.entity.passive.EntityDodo;
 import net.daveyx0.primitivemobs.entity.passive.EntityFilchLizard;
@@ -96,7 +97,7 @@ public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
       () -> EntityType.Builder.of(EntityBlazingJuggernaut::new, MobCategory.MONSTER).sized(0.9F, 2.4F).fireImmune().clientTrackingRange(8).updateInterval(3).build("primitivemobs:blazing_juggernaut"));
 
    public static final RegistryObject<EntityType<EntityLilyLurker>> LILY_LURKER = ENTITY_TYPES.register("lily_lurker",
-      () -> EntityType.Builder.of(EntityLilyLurker::new, MobCategory.WATER_CREATURE).sized(1.4F, 1.0F).clientTrackingRange(8).updateInterval(3).build("primitivemobs:lily_lurker"));
+      () -> EntityType.Builder.of(EntityLilyLurker::new, MobCategory.WATER_CREATURE).sized(0.5F, 0.98F).clientTrackingRange(8).updateInterval(3).build("primitivemobs:lily_lurker"));
 
    public static final RegistryObject<EntityType<EntityMotherSpider>> MOTHER_SPIDER = ENTITY_TYPES.register("mother_spider",
       () -> EntityType.Builder.of(EntityMotherSpider::new, MobCategory.MONSTER).sized(1.4F, 0.9F).clientTrackingRange(8).updateInterval(3).build("primitivemobs:mother_spider"));
@@ -106,6 +107,9 @@ public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
 
    public static final RegistryObject<EntityType<EntityTrollager>> TROLLAGER = ENTITY_TYPES.register("trollager",
       () -> EntityType.Builder.of(EntityTrollager::new, MobCategory.MONSTER).sized(1.2F, 2.7F).clientTrackingRange(8).updateInterval(3).build("primitivemobs:trollager"));
+
+   public static final RegistryObject<EntityType<EntityYeti>> YETI = ENTITY_TYPES.register("yeti",
+      () -> EntityType.Builder.of(EntityYeti::new, MobCategory.MONSTER).sized(1.7F, 3.0F).clientTrackingRange(8).updateInterval(3).build("primitivemobs:yeti"));
 
    public static final RegistryObject<EntityType<EntityLostMiner>> LOST_MINER = ENTITY_TYPES.register("lost_miner",
       () -> EntityType.Builder.of(EntityLostMiner::new, MobCategory.CREATURE).sized(0.6F, 1.95F).clientTrackingRange(8).updateInterval(3).build("primitivemobs:lost_miner"));
@@ -167,6 +171,7 @@ public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
       addEntities("primitivemobs", EntityMotherSpider.class, "mother_spider", ++id, 2426146, 11013646, PrimitiveMobsConfigMobs.enableSpiderFamily);
       addEntities("primitivemobs", EntityBabySpider.class, "baby_spider", ++id, 11900008, 11013646, PrimitiveMobsConfigMobs.enableSpiderFamily);
       addEntities("primitivemobs", EntityTrollager.class, "trollager", ++id, 5669981, 3482911, PrimitiveMobsConfigMobs.enableTrollager);
+      addEntities("primitivemobs", EntityYeti.class, "yeti", ++id, 15331573, 10138820, PrimitiveMobsConfigMobs.enableYeti);
       addEntities("primitivemobs", EntityLostMiner.class, "lost_miner", ++id, 7091750, 12422002, PrimitiveMobsConfigMobs.enableLostMiner);
       addEntities("primitivemobs", EntityTravelingMerchant.class, "traveling_merchant", ++id, 6316113, 12422002, PrimitiveMobsConfigMobs.enableMerchant);
       addEntities("primitivemobs", EntityDodo.class, "dodo", ++id, 7493187, 12362124, PrimitiveMobsConfigMobs.enableDodo);
@@ -201,6 +206,7 @@ public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
       net.minecraft.client.renderer.entity.EntityRenderers.register(MOTHER_SPIDER.get(), RenderMotherSpider::new);
       net.minecraft.client.renderer.entity.EntityRenderers.register(BABY_SPIDER.get(), RenderBabySpider::new);
       net.minecraft.client.renderer.entity.EntityRenderers.register(TROLLAGER.get(), RenderTrollager::new);
+      net.minecraft.client.renderer.entity.EntityRenderers.register(YETI.get(), RenderYeti::new);
       net.minecraft.client.renderer.entity.EntityRenderers.register(LOST_MINER.get(), RenderLostMiner::new);
       net.minecraft.client.renderer.entity.EntityRenderers.register(TRAVELING_MERCHANT.get(), RenderTravelingMerchant::new);
       net.minecraft.client.renderer.entity.EntityRenderers.register(DODO.get(), RenderDodo::new);
@@ -269,6 +275,7 @@ public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
       event.put(MOTHER_SPIDER.get(), net.daveyx0.primitivemobs.entity.monster.EntityMotherSpider.createAttributes().build());
       event.put(BABY_SPIDER.get(), net.daveyx0.primitivemobs.entity.monster.EntityBabySpider.createAttributes().build());
       event.put(TROLLAGER.get(), net.daveyx0.primitivemobs.entity.monster.EntityTrollager.createAttributes().build());
+      event.put(YETI.get(), net.daveyx0.primitivemobs.entity.monster.EntityYeti.createAttributes().build());
       event.put(LOST_MINER.get(), net.minecraft.world.entity.npc.Villager.createAttributes().build());
       event.put(TRAVELING_MERCHANT.get(), net.minecraft.world.entity.npc.Villager.createAttributes().build());
       event.put(DODO.get(), net.minecraft.world.entity.animal.Chicken.createAttributes().build());
@@ -304,6 +311,7 @@ public class PrimitiveMobsEntityRegistry extends MMEntityRegistry {
       event.register(MOTHER_SPIDER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
       event.register(BABY_SPIDER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
       event.register(TROLLAGER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
+      event.register(YETI.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, replace);
       event.register(LOST_MINER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
       event.register(TRAVELING_MERCHANT.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, replace);
       event.register(DODO.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules, replace);

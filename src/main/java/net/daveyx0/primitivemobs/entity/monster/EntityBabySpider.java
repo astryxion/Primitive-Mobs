@@ -37,6 +37,7 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
@@ -136,7 +137,15 @@ public class EntityBabySpider extends EntityPrimitiveSpider implements IMultiMob
       this.goalSelector.addGoal(6, new AIBabyFollowOwner(this, 1.0D, 8.0F, 2.0F));
       this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 8.0F));
       this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
-      this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+      this.targetSelector.addGoal(1, new HurtByTargetGoal(this) {
+         @Override
+         public boolean canUse() {
+            if (EntityBabySpider.this.isOwner(this.mob.getLastHurtByMob())) {
+               return false;
+            }
+            return super.canUse();
+         }
+      });
       this.targetSelector.addGoal(2, new EntityAIPrimitiveOwnerHurtByTarget(this));
       this.targetSelector.addGoal(3, new EntityAIPrimitiveOwnerHurtTarget(this));
    }
@@ -185,7 +194,15 @@ public class EntityBabySpider extends EntityPrimitiveSpider implements IMultiMob
          }
       }
 
-      if (this.level().isClientSide && !this.isTamed() && this.getOwnerId() == null && this.tickCount % 4 == 0) {
+      if (!this.level().isClientSide) {
+         ITameableEntity tameable = EntityUtil.getCapability(this, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, null);
+         if (tameable != null && tameable.isTamed() && tameable.getOwnerId() != null && !this.isTamed()) {
+            this.setTamed(true);
+            this.setOwnerId(tameable.getOwnerId());
+         }
+      }
+
+      if (this.level().isClientSide && this.shouldShowDripParticles() && this.tickCount % 4 == 0) {
          this.level().addParticle(ParticleTypes.SPLASH, this.getX() + (double)(this.random.nextFloat() - this.random.nextFloat()), this.getY() + (double)(this.random.nextFloat() - this.random.nextFloat()) + 1.0D, this.getZ() + (double)(this.random.nextFloat() - this.random.nextFloat()), 0.0D, 0.0D, 0.0D);
       }
 
@@ -224,10 +241,41 @@ public class EntityBabySpider extends EntityPrimitiveSpider implements IMultiMob
       return this.entityData.get(GROWTH_LEVEL);
    }
 
+   private boolean shouldShowDripParticles() {
+      if (this.isTamed() || this.getOwnerId() != null) {
+         return false;
+      }
+      ITameableEntity tameable = EntityUtil.getCapability(this, CapabilityTameableEntity.TAMEABLE_ENTITY_CAPABILITY, null);
+      return tameable == null || !tameable.isTamed();
+   }
+
+   @Override
+   public boolean shouldAttackEntity(LivingEntity target, LivingEntity owner) {
+      return target != owner && !this.isOwner(target);
+   }
+
    @Override
    public InteractionResult mobInteract(Player player, InteractionHand hand) {
       ItemStack itemstack = player.getItemInHand(hand);
-      boolean flag = itemstack.getItem() == Items.SPIDER_EYE;
+      if (itemstack.is(net.daveyx0.primitivemobs.core.PrimitiveMobsItems.SPIDER_EGGSHELL.get()) && this.getGrowthLevel() == 0) {
+         if (!this.level().isClientSide) {
+            ItemEntity entityitem = new ItemEntity(this.level(), this.getX(), this.getY() + 0.5D, this.getZ(), new ItemStack(net.daveyx0.primitivemobs.core.PrimitiveMobsItems.SPIDER_EGG_ITEM.get()));
+            entityitem.setDefaultPickUpDelay();
+            this.level().addFreshEntity(entityitem);
+            if (!player.getAbilities().instabuild) {
+               itemstack.shrink(1);
+            }
+            this.discard();
+         }
+         return InteractionResult.sidedSuccess(this.level().isClientSide);
+      }
+      if (itemstack.isEmpty() && this.getGrowthLevel() >= 5 && this.isOwner(player)) {
+         if (!this.level().isClientSide) {
+            player.startRiding(this);
+         }
+         return InteractionResult.sidedSuccess(this.level().isClientSide);
+      }
+      boolean flag = itemstack.getItem() == Items.FERMENTED_SPIDER_EYE;
       if (!flag) {
          if (!itemstack.isEmpty() && itemstack.getItem() instanceof DyeItem) {
             DyeColor enumdyecolor = ((DyeItem)itemstack.getItem()).getDyeColor();

@@ -47,11 +47,14 @@ public class ModelFlameSpewer extends EntityModel<EntityFlameSpewer> {
                 CubeListBuilder.create().texOffs(0, tentTexV).mirror().addBox(-2.0F, 0.0F, -26.0F, 4.0F, 4.0F, 24.0F),
                 PartPose.offsetAndRotation(0.0F, 18.0F, 0.0F, 0.4537856F, (float)Math.toRadians((double)22.5F + (double)(45 * i)), 0.0F));
         }
-        return LayerDefinition.create(meshdefinition, 64, 64);
+        return LayerDefinition.create(meshdefinition, isLava ? 32 : 64, isLava ? 512 : 64);
     }
+
+    private EntityFlameSpewer current;
 
     @Override
     public void setupAnim(EntityFlameSpewer entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        this.current = entity;
         this.body.yRot = netHeadYaw / (180F / (float)Math.PI);
         this.mouth.yRot = this.body.yRot;
         if (!this.isLava) {
@@ -70,7 +73,10 @@ public class ModelFlameSpewer extends EntityModel<EntityFlameSpewer> {
 
     @Override
     public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        EntityFlameSpewer spewer = null;
+        if (this.current != null) {
+            this.renderWithScale(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, this.current);
+            return;
+        }
         poseStack.pushPose();
         this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
         poseStack.popPose();
@@ -82,7 +88,6 @@ public class ModelFlameSpewer extends EntityModel<EntityFlameSpewer> {
                 this.tentacles[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
             }
         }
-        Item mob = Items.SHIELD;
     }
 
     public void renderWithScale(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, EntityFlameSpewer spewer) {

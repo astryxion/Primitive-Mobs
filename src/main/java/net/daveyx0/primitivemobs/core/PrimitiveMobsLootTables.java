@@ -15,6 +15,7 @@ public class PrimitiveMobsLootTables {
    public static final ResourceLocation ENTITIES_VOIDEYE = new ResourceLocation("primitivemobs:entities/void_eye");
    public static final ResourceLocation ENTITIES_HARPY = new ResourceLocation("primitivemobs:entities/harpy");
    public static final ResourceLocation ENTITIES_GOBLIN = new ResourceLocation("primitivemobs:entities/goblin");
+   public static final ResourceLocation ENTITIES_YETI = new ResourceLocation("primitivemobs:entities/yeti");
    public static final ResourceLocation ENTITIES_MOTHERSPIDER = new ResourceLocation("primitivemobs:entities/mother_spider");
    public static final ResourceLocation MIMIC_TREASURE = new ResourceLocation("primitivemobs:chests/mimic_treasure");
    public static final ResourceLocation MIMIC_TRAP = new ResourceLocation("primitivemobs:chests/mimic_trap");

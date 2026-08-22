@@ -4,8 +4,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.daveyx0.multimob.entity.EntityMMSwimmingCreature;
 import net.daveyx0.multimob.entity.IMultiMobWater;
-import net.daveyx0.multimob.entity.ai.EntityAISwimmingUnderwater;
-import net.daveyx0.multimob.util.EntityUtil;
 import net.daveyx0.primitivemobs.core.PrimitiveMobsLootTables;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -13,95 +11,115 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.DifficultyInstance;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.RandomSwimmingGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Squid;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMultiMobWater, Enemy {
-   int aggroTimer;
-   int timeOnLand;
-   private boolean lastCamouflaged;
-   private int surfaceCheckCooldown;
    private static final EntityDataAccessor<Boolean> IS_CAMOUFLAGED = SynchedEntityData.defineId(EntityLilyLurker.class, EntityDataSerializers.BOOLEAN);
-   private static final EntityDataAccessor<Integer> TIME_REGROW = SynchedEntityData.defineId(EntityLilyLurker.class, EntityDataSerializers.INT);
+   private static final EntityDimensions DISGUISED_SIZE = EntityDimensions.scalable(0.5F, 0.98F);
+   private static final EntityDimensions EXPOSED_SIZE = EntityDimensions.scalable(0.5F, 0.5F);
+   private static final Vec3 RISE = new Vec3(0.0D, 0.05D, 0.0D);
+   private int calmTicks;
+   private int landTicks;
+   private int ambushCooldown;
 
    public EntityLilyLurker(EntityType<? extends EntityLilyLurker> type, Level worldIn) {
       super(type, worldIn);
-      this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Blocks.LILY_PAD));
-      this.setCamouflaged(true);
-      this.lastCamouflaged = true;
-      this.aggroTimer = 0;
-      this.timeOnLand = 0;
+      this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.LILY_PAD));
+      this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
    }
 
    @Override
    protected void registerGoals() {
-      this.goalSelector.addGoal(1, new MeleeAttackGoal(this, (double)1.0F, true));
-      this.goalSelector.addGoal(2, new EntityAISwimmingUnderwater(this));
+      this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0D, false) {
+         @Override
+         public boolean canUse() {
+            return !EntityLilyLurker.this.isCamouflaged() && super.canUse();
+         }
+      });
+      this.goalSelector.addGoal(2, new RandomSwimmingGoal(this, 1.0D, 10) {
+         @Override
+         public boolean canUse() {
+            return !EntityLilyLurker.this.isCamouflaged() && super.canUse();
+         }
+      });
       this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F));
       this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
-      int attackPrio = 1;
-      ++attackPrio;
-      this.targetSelector.addGoal(attackPrio, new HurtByTargetGoal(this));
-      ++attackPrio;
-      this.targetSelector.addGoal(attackPrio, new NearestAttackableTargetGoal<>(this, Player.class, false, false));
-      ++attackPrio;
-      this.targetSelector.addGoal(attackPrio, new NearestAttackableTargetGoal<>(this, Squid.class, false, false));
-   }
-
-   @Override
-   protected float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
-      return this.getBbHeight() * 0.25F;
-   }
-
-   @Nullable
-   @Override
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag dataTag) {
-      return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
+      this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false, false) {
+         @Override
+         public boolean canUse() {
+            return !EntityLilyLurker.this.isCamouflaged() && super.canUse();
+         }
+      });
+      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Squid.class, false, false) {
+         @Override
+         public boolean canUse() {
+            return !EntityLilyLurker.this.isCamouflaged() && super.canUse();
+         }
+      });
    }
 
    public static AttributeSupplier.Builder createAttributes() {
       return EntityMMSwimmingCreature.createAttributes()
-         .add(Attributes.ATTACK_DAMAGE, (double)4.0F)
-         .add(Attributes.MOVEMENT_SPEED, (double)1.0F)
-         .add(Attributes.FOLLOW_RANGE, (double)30.0F);
+         .add(Attributes.MAX_HEALTH, 20.0D)
+         .add(Attributes.ATTACK_DAMAGE, 4.0D)
+         .add(Attributes.MOVEMENT_SPEED, 1.0D)
+         .add(Attributes.FOLLOW_RANGE, 30.0D);
    }
 
    @Override
    protected void defineSynchedData() {
-      this.entityData.define(IS_CAMOUFLAGED, false);
-      this.entityData.define(TIME_REGROW, 0);
       super.defineSynchedData();
+      this.entityData.define(IS_CAMOUFLAGED, true);
    }
 
    @Override
-   public boolean isPushable() {
+   protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
+      return dimensions.height * 0.25F;
+   }
+
+   @Override
+   public EntityDimensions getDimensions(Pose pose) {
+      return this.isCamouflaged() ? DISGUISED_SIZE : EXPOSED_SIZE;
+   }
+
+   @Override
+   public boolean canBreatheUnderwater() {
       return true;
+   }
+
+   @Override
+   public boolean isPushedByFluid() {
+      return !this.isCamouflaged() && super.isPushedByFluid();
    }
 
    @Override
@@ -113,90 +131,87 @@ public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMulti
       return true;
    }
 
-   @Nullable
-   public AABB getCollideAgainstBox(Entity entityIn) {
-      return this.isCamouflaged() ? entityIn.getBoundingBox() : null;
+   @Override
+   public void tick() {
+      if (this.isCamouflaged()) {
+         this.tickDisguised();
+      } else {
+         this.tickExposed();
+      }
+      super.tick();
    }
 
-   @Nullable
-   public AABB getCollisionBoundingBox() {
-      return this.isCamouflaged() ? this.getBoundingBox() : null;
+   private void tickDisguised() {
+      if (!this.isInWater()) {
+         this.setCamouflaged(false);
+         return;
+      }
+      this.setNoGravity(true);
+      this.setYRot(0.25F);
+      this.yHeadRot = 0.25F;
+      this.yBodyRot = 0.25F;
+      this.getNavigation().stop();
+      this.calmTicks = 0;
+      if (!this.level().isClientSide) {
+         if (!this.level().getFluidState(this.blockPosition().above()).isEmpty()) {
+            this.move(MoverType.SELF, RISE);
+         }
+         if (--this.ambushCooldown <= 0) {
+            this.ambushCooldown = 5;
+            AABB range = this.getBoundingBox().inflate(1.0D);
+            List<LivingEntity> nearby = this.level().getEntitiesOfClass(LivingEntity.class, range, (entity) -> {
+               if (entity == this) {
+                  return false;
+               }
+               if (entity instanceof Player player && (player.isCreative() || player.isSpectator())) {
+                  return false;
+               }
+               return true;
+            });
+            if (!nearby.isEmpty()) {
+               this.setTarget(nearby.get(0));
+               this.setCamouflaged(false);
+            }
+         }
+      }
+   }
+
+   private void tickExposed() {
+      this.setNoGravity(false);
+      if (!this.level().isClientSide) {
+         LivingEntity target = this.getTarget();
+         if (this.isInWater()) {
+            this.landTicks = 0;
+            if ((target == null || !target.isAlive()) && ++this.calmTicks > 250) {
+               this.calmTicks = 0;
+               this.setCamouflaged(true);
+            }
+         } else if (++this.landTicks > 100) {
+            this.hurt(this.damageSources().drown(), 3.0F);
+            this.jumpFromGround();
+            this.setDeltaMovement((this.random.nextFloat() - this.random.nextFloat()) / 2.0F, this.getDeltaMovement().y, (this.random.nextFloat() - this.random.nextFloat()) / 2.0F);
+            this.landTicks = 80;
+         }
+      }
    }
 
    @Override
-   public void tick() {
-      boolean camouflaged = this.isCamouflaged();
-      if (camouflaged != this.lastCamouflaged) {
-         this.lastCamouflaged = camouflaged;
-         this.refreshDimensions();
+   protected void jumpInLiquid(net.minecraft.tags.TagKey<net.minecraft.world.level.material.Fluid> fluidTag) {
+      if (!this.isCamouflaged()) {
+         super.jumpInLiquid(fluidTag);
       }
-
-      if (camouflaged) {
-         if (!this.isInWater()) {
-            this.setCamouflaged(false);
-         }
-
-         this.resetFallDistance();
-         this.setYRot(0.25F);
-         this.yBodyRot = 0.25F;
-         this.setNoGravity(true);
-         this.getNavigation().moveTo((net.minecraft.world.level.pathfinder.Path)null, (double)0.0F);
-         if (!this.level().isClientSide && --this.surfaceCheckCooldown <= 0) {
-            this.surfaceCheckCooldown = 10;
-            if (EntityUtil.distanceToSurface(this, this.level()) > 1.5F) {
-               this.move(MoverType.SELF, new Vec3((double)0.0F, 0.05, (double)0.0F));
-            }
-         }
-
-         if (this.getTarget() != null && this.getTarget().isAlive()) {
-            this.setCamouflaged(false);
-         } else {
-            List<Entity> list = this.level().getEntities(this, this.getBoundingBox().inflate((double)1.0F, (double)1.0F, (double)1.0F));
-            for(Entity entity : list) {
-               if (entity instanceof LivingEntity) {
-                  if (entity instanceof Player player && player.isCreative()) {
-                     continue;
-                  }
-                  this.setTarget((LivingEntity)entity);
-                  break;
-               }
-            }
-         }
-
-         this.aggroTimer = 0;
-      } else {
-         this.setNoGravity(false);
-         if (this.isInWater() && (this.getTarget() == null || !this.getTarget().isAlive()) && ++this.aggroTimer > 250) {
-            this.aggroTimer = 0;
-            this.setCamouflaged(true);
-         }
-
-         if (!this.isInWater()) {
-            if (++this.timeOnLand > 100) {
-               this.hurt(this.damageSources().dryOut(), 3.0F);
-               this.jumpFromGround();
-               Vec3 delta = this.getDeltaMovement();
-               this.setDeltaMovement((double)((this.getRandom().nextFloat() - this.getRandom().nextFloat()) / 2.0F), delta.y, (double)((this.getRandom().nextFloat() - this.getRandom().nextFloat()) / 2.0F));
-               this.timeOnLand = 80;
-            }
-         } else {
-            this.timeOnLand = 0;
-         }
-      }
-
-      super.tick();
    }
 
    @Override
    public void push(Entity entityIn) {
-      if (entityIn instanceof Boat) {
-         if (entityIn.getBoundingBox().minY < this.getBoundingBox().maxY) {
-            super.push(entityIn);
-         }
-      } else if (entityIn.getBoundingBox().minY <= this.getBoundingBox().minY) {
+      if (entityIn.getBoundingBox().minY <= this.getBoundingBox().minY) {
          super.push(entityIn);
       }
+   }
 
+   @Override
+   public boolean isPushable() {
+      return !this.isCamouflaged();
    }
 
    @Override
@@ -206,7 +221,7 @@ public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMulti
 
    @Override
    public boolean isInWall() {
-      return !this.isCamouflaged() ? super.isInWall() : false;
+      return this.isCamouflaged() ? false : super.isInWall();
    }
 
    @Override
@@ -231,43 +246,44 @@ public class EntityLilyLurker extends EntityMMSwimmingCreature implements IMulti
       return source.is(DamageTypes.DROWN) && this.isInWater() ? false : super.hurt(source, amount);
    }
 
-   public void setCamouflaged(boolean camouflaged) {
-      this.entityData.set(IS_CAMOUFLAGED, camouflaged);
-   }
-
    public boolean isCamouflaged() {
-      return (Boolean)this.entityData.get(IS_CAMOUFLAGED);
+      return this.entityData.get(IS_CAMOUFLAGED);
    }
 
-   public void setTimeToRegrow(int time) {
-      this.entityData.set(TIME_REGROW, time);
+   public void setCamouflaged(boolean camouflaged) {
+      if (this.isCamouflaged() != camouflaged) {
+         this.entityData.set(IS_CAMOUFLAGED, camouflaged);
+         this.refreshDimensions();
+      }
    }
 
-   public int getTimeToRegrow() {
-      return (Integer)this.entityData.get(TIME_REGROW);
+   @Override
+   public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+      if (IS_CAMOUFLAGED.equals(key)) {
+         this.refreshDimensions();
+      }
+      super.onSyncedDataUpdated(key);
    }
 
    @Override
    public void addAdditionalSaveData(CompoundTag compound) {
       super.addAdditionalSaveData(compound);
       compound.putBoolean("Camouflaged", this.isCamouflaged());
-      compound.putInt("RegrowTime", this.getTimeToRegrow());
    }
 
    @Override
    public void readAdditionalSaveData(CompoundTag compound) {
       super.readAdditionalSaveData(compound);
       this.setCamouflaged(compound.getBoolean("Camouflaged"));
-      this.setTimeToRegrow(compound.getInt("RegrowTime"));
    }
 
    @Override
-   public boolean checkSpawnObstruction(net.minecraft.world.level.LevelReader level) {
+   public boolean checkSpawnObstruction(LevelReader level) {
       return level.isUnobstructed(this);
    }
 
    @Override
-   public boolean checkSpawnRules(net.minecraft.world.level.LevelAccessor level, MobSpawnType spawnType) {
-      return this.getY() > (double)45.0F && this.getY() < (double)this.level().getSeaLevel();
+   public boolean checkSpawnRules(LevelAccessor level, MobSpawnType spawnType) {
+      return this.getY() > 45.0D && this.getY() < (double)this.level().getSeaLevel() && this.level().getFluidState(this.blockPosition()).is(FluidTags.WATER);
    }
 }

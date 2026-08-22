@@ -27,6 +27,9 @@ public class LayerFlameSpewerEyes extends RenderLayer<EntityFlameSpewer, ModelFl
    @Override
    public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, EntityFlameSpewer spewer, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
       float alpha = (10.0F - (float)spewer.getAttackTime()) / 10.0F;
+      if (alpha <= 0.01F) {
+         return;
+      }
       this.getParentModel().copyPropertiesTo(this.model);
       this.model.prepareMobModel(spewer, limbSwing, limbSwingAmount, partialTicks);
       this.model.setupAnim(spewer, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);

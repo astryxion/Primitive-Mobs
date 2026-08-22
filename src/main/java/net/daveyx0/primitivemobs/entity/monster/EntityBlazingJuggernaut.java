@@ -195,15 +195,15 @@ public class EntityBlazingJuggernaut extends Monster implements IMultiMob {
                Vec3 motion = this.blaze.getDeltaMovement();
                this.blaze.setDeltaMovement(motion.x, motion.y - 0.1, motion.z);
             }
-         } else if (d0 < (double)30.0F) {
+         } else if (d0 < (double)80.0F) {
             double d1 = entitylivingbase.getX() - this.blaze.getX();
             double d2 = entitylivingbase.getBoundingBox().minY + (double)(entitylivingbase.getBbHeight() / 2.0F) - (this.blaze.getY() + (double)(this.blaze.getBbHeight() / 2.0F));
             double d3 = entitylivingbase.getZ() - this.blaze.getZ();
-            if (this.attackCooldown > 5) {
+            if (this.attackCooldown > 4) {
                Vec3 motion = this.blaze.getDeltaMovement();
-               double newMotionX = motion.x + (Math.signum(d1) * (double)0.5F - motion.x) * 0.8;
-               double newMotionY = motion.y + (Math.signum(d2) * (double)0.7F - motion.y) * 0.8;
-               double newMotionZ = motion.z + (Math.signum(d3) * (double)0.5F - motion.z) * 0.8;
+               double newMotionX = motion.x + (Math.signum(d1) * (double)0.85F - motion.x) * 0.95;
+               double newMotionY = motion.y + (Math.signum(d2) * (double)0.85F - motion.y) * 0.95;
+               double newMotionZ = motion.z + (Math.signum(d3) * (double)0.85F - motion.z) * 0.95;
                this.blaze.setDeltaMovement(newMotionX, newMotionY, newMotionZ);
                float f = (float)(Math.atan2(newMotionZ, newMotionX) * (double)180.0F / Math.PI) - 90.0F;
                this.blaze.zza = 1.5F;

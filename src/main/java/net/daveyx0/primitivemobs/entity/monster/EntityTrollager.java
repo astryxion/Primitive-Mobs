@@ -87,7 +87,7 @@ public class EntityTrollager extends Monster implements IAnimatedMob, IMultiMob 
       ++prio;
       this.goalSelector.addGoal(prio, new MoveTowardsRestrictionGoal(this, (double)1.0F));
       ++prio;
-      this.goalSelector.addGoal(prio, new EntityAITrollagerAttacks(this, (double)1.25F, 2.5F, 20.0F));
+      this.goalSelector.addGoal(prio, new EntityAITrollagerAttacks(this, (double)1.25F, 4.0F, 20.0F));
       ++prio;
       this.goalSelector.addGoal(prio, new RandomStrollGoal(this, (double)1.0F));
       ++prio;

@@ -27,7 +27,7 @@ public class LayerVoidEyeSeen extends RenderLayer<EntityVoidEye, ModelVoidEye<En
 
    @Override
    public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, EntityVoidEye entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-      if (entitylivingbaseIn.canSeeTarget()) {
+      if (entitylivingbaseIn != null) {
          this.getParentModel().copyPropertiesTo(this.voideyeModel);
          this.voideyeModel.prepareMobModel(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks);
          this.voideyeModel.setupAnim(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);

@@ -300,7 +300,7 @@ public class EntityTreasureSlime extends EntityTameableSlime implements IMultiMo
             this.setSitting(!this.isSitting());
             this.playSitEffect();
          }
-      } else if (!stack.isEmpty() && this.isTamingItem(stack) && hand == InteractionHand.MAIN_HAND && this.getMainHandItem().isEmpty()) {
+      } else if (!this.isTamed() && !stack.isEmpty() && this.isTamingItem(stack) && hand == InteractionHand.MAIN_HAND && this.getMainHandItem().isEmpty()) {
          if (!player.getAbilities().instabuild) {
             stack.shrink(1);
          }
