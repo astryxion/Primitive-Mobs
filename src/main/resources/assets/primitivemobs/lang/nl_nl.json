@@ -1,0 +1,34 @@
+{
+  "entity.primitivemobs.chameleon": "Kameleon",
+  "entity.primitivemobs.treasure_slime": "Schat Slijm",
+  "entity.primitivemobs.haunted_tool": "Bezeten Gereedschap",
+  "entity.primitivemobs.bewitched_tome": "Behekst Boek",
+  "entity.primitivemobs.brain_slime": "Brein Slijm",
+  "entity.primitivemobs.rocket_creeper": "Raket Creeper",
+  "entity.primitivemobs.festive_creeper": "Feestelijke Creeper",
+  "entity.primitivemobs.support_creeper": "Hulp Creeper",
+  "entity.primitivemobs.skeleton_warrior": "Skelet Strijder",
+  "entity.primitivemobs.blazing_juggernaut": "Felle Jaggernaut",
+  "entity.primitivemobs.mother_spider": "Moeder Spin",
+  "entity.primitivemobs.baby_spider": "Baby Spin",
+  "entity.primitivemobs.lost_miner": "Verdwaalde Mijner",
+  "entity.primitivemobs.traveling_merchant": "Reizende Handelaar",
+  "entity.primitivemobs.mimic": "Mimic Kist",
+  "entity.primitivemobs.sheepman": "Schaapman",
+
+  "item.primitivemobs.camouflage_dye": "Camouflage Verf",
+  "item.primitivemobs.spider_egg": "Spin Ei",
+  "item.primitivemobs.mysteryegg1": "Mysterieus Ei",
+  "item.primitivemobs.mysteryegg2": "Mysterieus Ei",
+  "item.primitivemobs.mysteryegg3": "Mysterieus Ei",
+  "item.primitivemobs.spider_eggshell": "Spin Ei Omhulsel",
+
+  "entity.minecraft.villager.primitivemobs.merchant": "Reizende Handelaar",
+  "entity.minecraft.villager.primitivemobs.fakemerchant": "Reizende Handelaar",
+  "entity.primitivemobs.lost_miner.none": "Verdwaalde Mijner",
+  "entity.primitivemobs.traveling_merchant.none": "Reizende Handelaar",
+  "entity.primitivemobs.sheepman.none": "Schaapman",
+
+  "itemGroup.primitivemobs.tabprimitivemobs": "Primitive Mobs",
+  "primitivemobs.config.title": "Primitive Mobs Configuratie"
+}

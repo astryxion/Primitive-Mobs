@@ -25,6 +25,11 @@
   "entity.primitivemobs.harpy": "Harpy",
   "entity.primitivemobs.sheepman": "Sheepman",
   "entity.primitivemobs.void_eye": "Void Eye",
+  "entity.primitivemobs.primitive_tnt_primed": "Primed TNT",
+  "entity.primitivemobs.flame_spit": "Flame Spit",
+  "entity.primitivemobs.thrown_block": "Thrown Block",
+  "entity.primitivemobs.primitive_egg": "Thrown Egg",
+  "entity.primitivemobs.spider_egg": "Spider Egg",
 
   "item.primitivemobs.camouflage_dye": "Camouflage Dye",
   "item.primitivemobs.dodo": "Raw Dodo",
@@ -38,6 +43,10 @@
   "item.primitivemobs.mysteryegg3": "Mystery Egg",
   "item.primitivemobs.spider_eggshell": "Spider Egg Shell",
   "item.primitivemobs.goblin_mace": "Goblin Mace",
+  "item.primitivemobs.camouflage_helmet": "Camouflage Helmet",
+  "item.primitivemobs.camouflage_chestplate": "Camouflage Chestplate",
+  "item.primitivemobs.camouflage_leggings": "Camouflage Leggings",
+  "item.primitivemobs.camouflage_boots": "Camouflage Boots",
 
   "item.primitivemobs.chameleon_spawn_egg": "Chameleon Spawn Egg",
   "item.primitivemobs.treasure_slime_spawn_egg": "Treasure Slime Spawn Egg",
@@ -66,11 +75,6 @@
   "item.primitivemobs.flame_spewer_spawn_egg": "Flame Spewer Spawn Egg",
   "item.primitivemobs.void_eye_spawn_egg": "Void Eye Spawn Egg",
 
-  "item.primitivemobs.camouflage_helmet": "Camouflage Helmet",
-  "item.primitivemobs.camouflage_chestplate": "Camouflage Chestplate",
-  "item.primitivemobs.camouflage_leggings": "Camouflage Leggings",
-  "item.primitivemobs.camouflage_boots": "Camouflage Boots",
-
   "entity.minecraft.villager.primitivemobs.miner": "Miner",
   "entity.minecraft.villager.primitivemobs.merchant": "Traveling Merchant",
   "entity.minecraft.villager.primitivemobs.fakemerchant": "Traveling Merchant",
@@ -88,9 +92,6 @@
   "entity.primitivemobs.sheepman.primitivemobs.sheepman_thief": "Sheepman Thief",
   "entity.primitivemobs.sheepman.none": "Sheepman",
 
-  "death.tamed.sitting": "%1$s is now sitting.",
-  "death.tamed.wandering": "%1$s is now wandering.",
-  "death.tamed.following": "%1$s is now following.",
-
-  "itemGroup.primitivemobs.tabprimitivemobs": "PrimitiveMobs"
+  "itemGroup.primitivemobs.tabprimitivemobs": "Primitive Mobs",
+  "primitivemobs.config.title": "Primitive Mobs Config"
 }

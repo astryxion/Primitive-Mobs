@@ -32,15 +32,6 @@
             "primitivemobs:entity/grovesprite/death2"
         ]
     },
-    "entity.grovesprite.friend":
-    {
-        "category": "neutral",
-        "sounds":
-        [
-            "primitivemobs:entity/grovesprite/friend1",
-            "primitivemobs:entity/grovesprite/friend2"
-        ]
-    },
     "entity.grovesprite.hurt": {
         "category": "neutral",
         "sounds": [
@@ -131,22 +122,6 @@
         "sounds":
         [
             "primitivemobs:entity/voideye/idle"
-        ]
-    },
-    "dig.squish":
-    {
-        "category": "neutral",
-        "sounds":
-        [
-            "primitivemobs:block/squish"
-        ]
-    },
-    "step.squish":
-    {
-        "category": "neutral",
-        "sounds":
-        [
-            "primitivemobs:block/squish"
         ]
     }
 }
